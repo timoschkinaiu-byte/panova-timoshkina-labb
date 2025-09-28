@@ -123,4 +123,47 @@ public class CompositeFunctionTest {
         double result = composite.apply(0.0);
         assertEquals(Math.cos(1.0), result, 0.0001);
     }
+
+    @Test
+    public void testWithBSpline() {
+        double[] nodes = {0.0, 0.0, 1.0, 2.0, 2.0};
+        double[] weights = {1.0, 2.0, 3.0};
+        MathFunction spline = new BSplineFunction(nodes, 1, weights);
+        MathFunction square = new SqrFunction();
+
+        CompositeFunction composite = new CompositeFunction(square, spline);
+
+        double result = composite.apply(1.0);
+        assertTrue(result >= 0.0);
+    }
+
+    @Test
+    public void testComplexNestedComposition() {
+
+        MathFunction addOne = x -> x + 1;
+        MathFunction multiplyTwo = x -> x * 2;
+
+        MathFunction square = new SqrFunction();
+
+        CompositeFunction inner = new CompositeFunction(addOne, multiplyTwo);
+        CompositeFunction outer = new CompositeFunction(inner, square);
+
+        assertEquals(4.0, outer.apply(0.0), 1e-9);
+        assertEquals(16.0, outer.apply(1.0), 1e-9);
+        assertEquals(36.0, outer.apply(2.0), 1e-9);
+    }
+
+    @Test
+    public void testMultipleComposition() {
+        MathFunction addOne = x -> x + 1;
+        MathFunction multiplyTwo = x -> x * 2;
+        MathFunction subtractThree = x -> x - 3;
+
+        CompositeFunction firstComposite = new CompositeFunction(addOne, multiplyTwo);
+        CompositeFunction finalComposite = new CompositeFunction(firstComposite, subtractThree);
+
+        assertEquals(-1.0, finalComposite.apply(0.0), 1e-9);  // ((0+1)*2)-3 = -1
+        assertEquals(1.0, finalComposite.apply(1.0), 1e-9);   // ((1+1)*2)-3 = 1
+        assertEquals(5.0, finalComposite.apply(2.0), 1e-9);   // ((2+1)*2)-3 = 3
+    }
 }
