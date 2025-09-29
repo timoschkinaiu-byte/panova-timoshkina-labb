@@ -189,4 +189,50 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction{
         return interpolate(x, prevLast.x, last.x, prevLast.y, last.y);
     }
 
+    @Override
+    public double apply(double x) {
+        if (x < leftBound()) {
+            return extrapolateLeft(x);
+        }
+
+        if (x > rightBound()) {
+            return extrapolateRight(x);
+        }
+
+
+        int exactIndex = indexOfX(x);
+        if (exactIndex != -1) {
+            return getY(exactIndex);
+        }
+
+        Node floorNode = floorNodeOfX(x);
+        return interpolateFromNode(x, floorNode);
+    }
+
+
+    protected Node floorNodeOfX(double x) {
+        if (head == null) return null;
+        if (x < head.x) return head;
+        if (x > head.prev.x) return head.prev;
+
+        Node current = head;
+        for (int i = 0; i < count; i++) {
+            if (x >= current.x && (current.next == head || x < current.next.x)) {
+                return current;
+            }
+            current = current.next;
+        }
+        return head.prev;
+    }
+
+
+    protected double interpolateFromNode(double x, Node leftNode) {
+        if (count == 1) {
+            return head.y;
+        }
+
+        Node rightNode = (leftNode.next == head) ? head.next : leftNode.next;
+        return interpolate(x, leftNode.x, rightNode.x, leftNode.y, rightNode.y);
+    }
+
 }

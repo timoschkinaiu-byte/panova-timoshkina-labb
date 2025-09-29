@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
-
+import functions.LinkedListTabulatedFunction.Node;
+import static org.junit.jupiter.api.Assertions.*;
 public class LinkedListTabulatedFunctionTest {
 
     private LinkedListTabulatedFunction function;
@@ -244,5 +244,35 @@ public class LinkedListTabulatedFunctionTest {
         double interpolated = twoNodeFunc.apply(3.9);
         double expected = 4.3 + (11.9 - 4.3) * (3.9 - 2.1) / (5.7 - 2.1);
         assertEquals(expected, interpolated, 1e-9);
+    }
+
+    @Test
+    public void testFloorNodeOfX_VariousCases_ReturnsCorrectNode() {
+        Node node = function.floorNodeOfX(1.8);
+        assertNotNull(node);
+        assertEquals(1.3, node.x, 1e-9);
+
+        node = function.floorNodeOfX(3.2);
+        assertEquals(2.7, node.x, 1e-9);
+
+        node = function.floorNodeOfX(6.1);
+        assertEquals(5.5, node.x, 1e-9);
+    }
+
+    @Test
+    public void testApply_WithOptimizedSearch_ReturnsCorrectValues() {
+        assertEquals(3.8, function.apply(1.3), 1e-9);
+        assertEquals(8.4, function.apply(3.4), 1e-9);
+
+        double leftExtrapolation = function.apply(0.5);
+        double rightExtrapolation = function.apply(7.8);
+        assertTrue(leftExtrapolation < 3.8);
+        assertTrue(rightExtrapolation > 15.1);
+    }
+
+    @Test
+    public void testApply_ExactMatch_ReturnsNodeValueWithoutInterpolation() {
+        assertEquals(7.2, function.apply(2.7), 1e-9);
+        assertEquals(12.4, function.apply(5.5), 1e-9);
     }
 }
