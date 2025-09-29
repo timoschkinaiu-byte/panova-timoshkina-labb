@@ -188,4 +188,5 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction{
         Node prevLast = last.prev;
         return interpolate(x, prevLast.x, last.x, prevLast.y, last.y);
     }
+
 }

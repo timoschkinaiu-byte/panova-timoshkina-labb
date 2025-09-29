@@ -166,4 +166,27 @@ public class CompositeFunctionTest {
         assertEquals(1.0, finalComposite.apply(1.0), 1e-9);   // ((1+1)*2)-3 = 1
         assertEquals(5.0, finalComposite.apply(2.0), 1e-9);   // ((2+1)*2)-3 = 3
     }
+    @Test
+    public  void testTwoArrayTabledFunctions(){
+        double[] xValues1 = {1,2,3};
+        double[] yValues1 = {10,20,30};
+        double[] xValues2 = {10,20,30};
+        double[] yValues2 = {100,200,300};
+        ArrayTabulatedFunction func1 =  new ArrayTabulatedFunction(xValues1,yValues1);
+        ArrayTabulatedFunction func2 =  new ArrayTabulatedFunction(xValues2,yValues2);
+        CompositeFunction func = new CompositeFunction(func1,func2);
+        assertEquals(100, func.apply(1), 0.001);
+    }
+    @Test
+    public  void testArrayAndLinkedFunctions(){
+        double [] xValues1 = {1,2,3,4};
+        double [] yValues1 = {10,20,30,40};
+        double [] xValues2 = {1,2,3,4};
+        double [] yValues2 = {100,200,300,400};
+        ArrayTabulatedFunction func1 = new ArrayTabulatedFunction(xValues1,yValues1);
+        LinkedListTabulatedFunction func2 = new LinkedListTabulatedFunction(xValues2,yValues2);
+        CompositeFunction func = new CompositeFunction(func1,func2);
+        assertEquals(1000, func.apply(1), 0.001);
+    }
+
 }
