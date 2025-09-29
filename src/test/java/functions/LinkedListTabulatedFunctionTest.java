@@ -168,7 +168,6 @@ public class LinkedListTabulatedFunctionTest {
     // Тесты интерполяции
     @Test
     public void testInterpolate_BetweenNodes_ReturnsLinearValue() {
-        // Между 2.7 и 4.1: x=3.4, линейная интерполяция
         double result = function.interpolate(3.4, 1);
         double expected = 7.2 + (9.6 - 7.2) * (3.4 - 2.7) / (4.1 - 2.7);
         assertEquals(expected, result, 1e-9);
@@ -333,5 +332,61 @@ public class LinkedListTabulatedFunctionTest {
         assertEquals(3, function.getCount());  // Количество не изменилось
         assertEquals(3.0, function.getX(1));   // X остался тот же
         assertEquals(100.0, function.getY(1)); // Y обновился
+    }
+
+    @Test
+    public void removeTestMiddle() {
+        double[] xValue = {2.1, 5.7, 8};
+        double[] yValue = {4.3, 11.9, 78};
+        LinkedListTabulatedFunction func = new LinkedListTabulatedFunction(xValue, yValue);
+
+        func.remove(1);
+        assertEquals(2, func.getCount());
+        assertEquals(8, func.getX(1), 1e-9);
+        assertEquals(78, func.getY(1), 1e-9);
+    }
+
+    @Test
+    public void testRemoveFromBeginning() {
+        // Удаление первого элемента
+        double[] xValues = {1.5, 2.5, 3.5};
+        double[] yValues = {15.0, 25.0, 35.0};
+        LinkedListTabulatedFunction function = new LinkedListTabulatedFunction(xValues, yValues);
+
+        function.remove(0);
+
+        assertEquals(2, function.getCount());
+        assertEquals(2.5, function.getX(0), 1e-9);
+        assertEquals(3.5, function.getX(1), 1e-9);
+        assertEquals(25.0, function.getY(0), 1e-9);
+        assertEquals(35.0, function.getY(1), 1e-9);
+    }
+
+
+    @Test
+    public void testRemoveFromEnd() {
+        //Удаление последнего элемента
+        double[] xValues = {1.2, 2.4, 3.6};
+        double[] yValues = {12.0, 24.0, 36.0};
+        LinkedListTabulatedFunction function = new LinkedListTabulatedFunction(xValues, yValues);
+
+        function.remove(2);
+
+        assertEquals(2, function.getCount());
+        assertEquals(1.2, function.getX(0), 1e-9);
+        assertEquals(2.4, function.getX(1), 1e-9);
+        assertEquals(12.0, function.getY(0), 1e-9);
+        assertEquals(24.0, function.getY(1), 1e-9);
+    }
+
+    @Test
+    public void testRemoveSingleElement() {
+        // Удаление единственного элемента
+        double[] xValues = {5.0};
+        double[] yValues = {50.0};
+        LinkedListTabulatedFunction function = new LinkedListTabulatedFunction(xValues, yValues);
+
+        function.remove(0);
+        assertEquals(0, function.getCount());
     }
 }

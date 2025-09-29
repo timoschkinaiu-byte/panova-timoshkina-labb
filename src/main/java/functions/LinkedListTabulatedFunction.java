@@ -1,6 +1,6 @@
 package functions;
 
-public class LinkedListTabulatedFunction extends AbstractTabulatedFunction implements Insertable{
+public class LinkedListTabulatedFunction extends AbstractTabulatedFunction implements Insertable, Removable{
 
     static class Node {
         public double x;
@@ -139,21 +139,6 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
     }
 
 
-    /*protected double interpolate(double x, int floorIndex){
-        if (count == 1){
-            return head.y;
-        }
-
-        Node leftNode = getNode(floorIndex);
-        Node rightNode = leftNode.next;
-
-        if (rightNode == head) {
-            rightNode = head.next;
-        }
-
-        return interpolate(x, leftNode.x, rightNode.x, leftNode.y, rightNode.y);
-    }*/
-
 
     protected double interpolate(double x, int floorIndex) {
         if (count == 1) {
@@ -279,4 +264,27 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
             temp = temp.next;
         }while (temp!= head);
     }
+
+    public void remove(int index){
+        if (head == null || index < 0 || index >= count) return;
+
+        else{
+            if (count == 1) {
+                head = null;
+                count --;
+                return;
+            }
+
+            Node temp = getNode(index);
+            temp.prev.next = temp.next;
+            temp.next.prev = temp.prev;
+            if (index == 0){
+                head = temp.next;
+            }
+            count --;
+            temp.prev = null;
+            temp.next = null;
+        }
+    }
+
 }

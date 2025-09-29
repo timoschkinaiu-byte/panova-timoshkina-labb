@@ -1,6 +1,6 @@
 package functions;
 import java.util.Arrays;
-public class ArrayTabulatedFunction extends AbstractTabulatedFunction {
+public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements Insertable, Removable{
     private double[] xValues;
     private double[] yValues;
     private int count;
@@ -145,7 +145,7 @@ public class ArrayTabulatedFunction extends AbstractTabulatedFunction {
         }
     }
 
-    
+
     public void remove(int index) {
         if (index < 0 || index >= count) {
             return;
