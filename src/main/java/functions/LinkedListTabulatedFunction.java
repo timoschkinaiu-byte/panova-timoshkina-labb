@@ -93,66 +93,85 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction{
         getNode(index).y = value;
     }
 
-    public int indexOfX(double x){
-        int i = 0;
-        Node temp = head;
-        do{
-            temp = temp.next;
-            i++;
-        } while(x != temp.x && i <= count);
-        if (i == count){
-            return -1;
+
+    public int indexOfX(double x) {
+        if (head == null) return -1;
+
+        Node current = head;
+        for (int i = 0; i < count; i++) {
+            if (current.x == x) {
+                return i;
+            }
+            current = current.next;
         }
-        else {
-            return i;
-        }
+        return -1;
     }
 
-    public int indexOfY(double y){
-        int i = 0;
-        Node temp = head;
-        do{
-            temp = temp.next;
-            i++;
-        } while(y != temp.y && i <= count);
-        if (i == count){
-            return -1;
+
+    public int indexOfY(double y) {
+        if (head == null) return -1;
+
+        Node current = head;
+        for (int i = 0; i < count; i++) {
+            if (current.y == y) {
+                return i;
+            }
+            current = current.next;
         }
-        else {
-            return i;
-        }
+        return -1;
     }
 
-    protected int floorIndexOfX(double x){
+
+
+    protected int floorIndexOfX(double x) {
         if (head == null) return 0;
         if (x < head.x) return 0;
         if (x > head.prev.x) return count;
 
-        if (indexOfX(x) == -1){
-            int i = 0;
-            Node temp = head;
-            do{
-                temp = temp.next;
-                i++;
-            } while(temp.x < x);
-            return i;
+        Node current = head;
+        for (int i = 0; i < count - 1; i++) {
+            if (x >= current.x && x < current.next.x) {
+                return i;
+            }
+            current = current.next;
         }
-        else{
-            return indexOfX(x);
-        }
+        return count - 1;
     }
 
 
-    protected double interpolate(double x, int floorIndex){
-        if (count == 1) {
+    /*protected double interpolate(double x, int floorIndex){
+        if (count == 1){
             return head.y;
         }
 
         Node leftNode = getNode(floorIndex);
         Node rightNode = leftNode.next;
 
+        if (rightNode == head) {
+            rightNode = head.next;
+        }
+
+        return interpolate(x, leftNode.x, rightNode.x, leftNode.y, rightNode.y);
+    }*/
+
+
+    protected double interpolate(double x, int floorIndex) {
+        if (count == 1) {
+            return head.y;
+        }
+
+        Node leftNode = getNode(floorIndex);
+        Node rightNode;
+
+        if (floorIndex == count - 1) {
+            rightNode = head;
+        } else {
+            rightNode = getNode(floorIndex + 1);
+        }
+
         return interpolate(x, leftNode.x, rightNode.x, leftNode.y, rightNode.y);
     }
+
 
     protected double  extrapolateLeft(double x){
         if (count < 2) {
