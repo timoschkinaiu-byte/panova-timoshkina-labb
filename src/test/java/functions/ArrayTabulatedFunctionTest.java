@@ -123,4 +123,27 @@ public class ArrayTabulatedFunctionTest {
         assertEquals(20.0, function.apply(2.0), 0.0001);
         assertEquals(30.0, function.apply(3.0), 0.0001);
     }
+    @Test
+    void testRemove_ValidIndex_RemovesElement() {
+        ArrayTabulatedFunction function = new ArrayTabulatedFunction(
+                new double[]{1.0, 2.0, 3.0, 4.0},
+                new double[]{10.0, 20.0, 30.0, 40.0}
+        );
+        function.remove(1);
+        assertEquals(3, function.getCount());
+        assertEquals(1.0, function.getX(0));
+        assertEquals(3.0, function.getX(1));
+        assertEquals(4.0, function.getX(2));
+    }
+    @Test
+    void testRemove_FirstElement_WorksCorrectly() {
+        ArrayTabulatedFunction function = new ArrayTabulatedFunction(
+                new double[]{1.0, 2.0, 3.0},
+                new double[]{10.0, 20.0, 30.0}
+        );
+        function.remove(0);
+        assertEquals(2, function.getCount());
+        assertEquals(2.0, function.getX(0));
+        assertEquals(3.0, function.getX(1));
+    }
 }

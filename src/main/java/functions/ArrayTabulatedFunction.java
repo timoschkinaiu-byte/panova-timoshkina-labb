@@ -1,9 +1,9 @@
 package functions;
 import java.util.Arrays;
-public class ArrayTabulatedFunction extends AbstractTabulatedFunction {
+public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements Removable {
     private final double[] xValues;
     private final double[] yValues;
-    private final int count;
+    private int count;
     public ArrayTabulatedFunction(double[] xValues, double[] yValues) {
         this.xValues = Arrays.copyOf(xValues, xValues.length);
         this.yValues = Arrays.copyOf(yValues, yValues.length);
@@ -107,6 +107,17 @@ public class ArrayTabulatedFunction extends AbstractTabulatedFunction {
             return yValues[0];
         }
         return interpolate(x, xValues[floorIndex], xValues[floorIndex + 1], yValues[floorIndex], yValues[floorIndex + 1]);
+    }
+    @Override
+    public void remove(int index) {
+        if (index < 0 || index >= count) {
+            return;
+        }
+        for (int i = index; i < count - 1; i++) {
+            xValues[i] = xValues[i + 1];
+            yValues[i] = yValues[i + 1];
+        }
+        count--;
     }
 }
 
