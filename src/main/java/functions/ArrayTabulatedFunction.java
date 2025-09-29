@@ -1,6 +1,6 @@
 package functions;
 import java.util.Arrays;
-public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements Insertable{
+public class ArrayTabulatedFunction extends AbstractTabulatedFunction {
     private double[] xValues;
     private double[] yValues;
     private int count;
@@ -143,6 +143,18 @@ public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements
         else{
             yValues[index] = y;
         }
+    }
+
+    
+    public void remove(int index) {
+        if (index < 0 || index >= count) {
+            return;
+        }
+        for (int i = index; i < count - 1; i++) {
+            xValues[i] = xValues[i + 1];
+            yValues[i] = yValues[i + 1];
+        }
+        count--;
     }
 }
 

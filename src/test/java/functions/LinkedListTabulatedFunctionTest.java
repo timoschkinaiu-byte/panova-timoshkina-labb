@@ -275,4 +275,63 @@ public class LinkedListTabulatedFunctionTest {
         assertEquals(7.2, function.apply(2.7), 1e-9);
         assertEquals(12.4, function.apply(5.5), 1e-9);
     }
+    @Test
+    void testInsertIntoEmptyList() {
+        LinkedListTabulatedFunction function = new LinkedListTabulatedFunction(new double[0], new double[0]);
+        function.insert(2.0, 4.0);
+        assertEquals(1, function.getCount());
+        assertEquals(2.0, function.getX(0));
+        assertEquals(4.0, function.getY(0));
+    }
+    @Test
+    void testInsertAtBeginning() {
+        // Создаем: (1,1) → (3,9) → (5,25)
+        LinkedListTabulatedFunction function = new LinkedListTabulatedFunction(
+                new double[]{1.0, 3.0, 5.0},
+                new double[]{1.0, 9.0, 25.0}
+        );
+        function.insert(-1.0, 1.0);  // Вставляем -1,1 в начало
+        assertEquals(4, function.getCount());
+        assertEquals(-1.0, function.getX(0));
+        assertEquals(1.0, function.getX(1));
+        assertEquals(1.0, function.getY(0));
+    }
+    @Test
+    void testInsertAtEnd() {
+        LinkedListTabulatedFunction function = new LinkedListTabulatedFunction(
+                new double[]{1.0, 3.0, 5.0},
+                new double[]{1.0, 9.0, 25.0}
+        );
+        function.insert(7.0, 49.0);  // Вставляем 7,49 в конец
+        assertEquals(4, function.getCount());
+        assertEquals(5.0, function.getX(2));
+        assertEquals(7.0, function.getX(3));
+        assertEquals(49.0, function.getY(3));
+
+    }
+    @Test
+    void testInsertInMiddle() {
+        LinkedListTabulatedFunction function = new LinkedListTabulatedFunction(
+                new double[]{1.0, 3.0, 5.0},
+                new double[]{1.0, 9.0, 25.0}
+        );
+        function.insert(2.0, 4.0);  // Вставляем 2,4 между 1 и 3
+        assertEquals(4, function.getCount());
+        assertEquals(1.0, function.getX(0));
+        assertEquals(2.0, function.getX(1));
+        assertEquals(3.0, function.getX(2));
+        assertEquals(5.0, function.getX(3));
+        assertEquals(4.0, function.getY(1));
+    }
+    @Test
+    void testUpdateExistingX() {
+        LinkedListTabulatedFunction function = new LinkedListTabulatedFunction(
+                new double[]{1.0, 3.0, 5.0},
+                new double[]{1.0, 9.0, 25.0}
+        );
+        function.insert(3.0, 100.0);  // Обновляем существующий X=3.0
+        assertEquals(3, function.getCount());  // Количество не изменилось
+        assertEquals(3.0, function.getX(1));   // X остался тот же
+        assertEquals(100.0, function.getY(1)); // Y обновился
+    }
 }
