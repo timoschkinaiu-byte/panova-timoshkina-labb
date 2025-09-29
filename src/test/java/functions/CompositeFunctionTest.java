@@ -189,4 +189,65 @@ public class CompositeFunctionTest {
         assertEquals(1000, func.apply(1), 0.001);
     }
 
+    @Test
+    public void testInterpolationConsistencyBetweenImplementations() {
+
+        double[] xValues = {0.5, 1.7, 2.9, 4.1, 5.3};
+        double[] yValues = {2.3, 4.1, 1.8, 5.6, 3.2};
+
+        ArrayTabulatedFunction arrayFunc = new ArrayTabulatedFunction(xValues, yValues);
+        LinkedListTabulatedFunction linkedListFunc = new LinkedListTabulatedFunction(xValues, yValues);
+
+        double testX1 = 1.2;
+        double testX2 = 3.5;
+        double testX3 = 4.8;
+
+        assertEquals(arrayFunc.apply(testX1), linkedListFunc.apply(testX1), 1e-9);
+        assertEquals(arrayFunc.apply(testX2), linkedListFunc.apply(testX2), 1e-9);
+        assertEquals(arrayFunc.apply(testX3), linkedListFunc.apply(testX3), 1e-9);
+    }
+
+
+    @Test
+    public void testIndexSearchConsistency() {
+        // Проверка согласованности поиска индексов
+        double[] xValues = {1.3, 2.7, 4.2, 5.8, 7.1};
+        double[] yValues = {2.1, 4.8, 1.3, 5.9, 3.4};
+
+        ArrayTabulatedFunction arrayFunc = new ArrayTabulatedFunction(xValues, yValues);
+        LinkedListTabulatedFunction linkedListFunc = new LinkedListTabulatedFunction(xValues, yValues);
+
+        assertEquals(arrayFunc.indexOfX(2.7), linkedListFunc.indexOfX(2.7));
+        assertEquals(arrayFunc.indexOfX(5.8), linkedListFunc.indexOfX(5.8));
+        assertEquals(arrayFunc.indexOfX(3.0), linkedListFunc.indexOfX(3.0)); // не существует
+
+        assertEquals(arrayFunc.indexOfY(4.8), linkedListFunc.indexOfY(4.8));
+        assertEquals(arrayFunc.indexOfY(3.4), linkedListFunc.indexOfY(3.4));
+        assertEquals(arrayFunc.indexOfY(6.0), linkedListFunc.indexOfY(6.0)); // не существует
+
+        double testX1 = 3.5;
+        double testX2 = 6.5;
+
+        assertEquals(arrayFunc.apply(testX1), linkedListFunc.apply(testX1), 1e-9);
+        assertEquals(arrayFunc.apply(testX2), linkedListFunc.apply(testX2), 1e-9);
+    }
+
+    @Test
+    public void testSinglePointFunctionHandling() {
+        //Проверка обработки функции с одной точкой
+        double[] singleX = {2.5};
+        double[] singleY = {7.3};
+
+        ArrayTabulatedFunction arraySingle = new ArrayTabulatedFunction(singleX, singleY);
+        LinkedListTabulatedFunction linkedListSingle = new LinkedListTabulatedFunction(singleX, singleY);
+
+
+        assertEquals(7.3, arraySingle.apply(0.0), 1e-9);
+        assertEquals(7.3, arraySingle.apply(2.5), 1e-9);
+        assertEquals(7.3, arraySingle.apply(5.0), 1e-9);
+
+        assertEquals(linkedListSingle.apply(0.0), arraySingle.apply(0.0), 1e-9);
+        assertEquals(linkedListSingle.apply(2.5), arraySingle.apply(2.5), 1e-9);
+        assertEquals(linkedListSingle.apply(5.0), arraySingle.apply(5.0), 1e-9);
+    }
 }
