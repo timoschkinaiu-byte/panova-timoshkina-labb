@@ -1,9 +1,9 @@
 package functions;
 import java.util.Arrays;
-public class ArrayTabulatedFunction extends AbstractTabulatedFunction {
-    private final double[] xValues;
-    private final double[] yValues;
-    private final int count;
+public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements Insertable{
+    private double[] xValues;
+    private double[] yValues;
+    private int count;
     public ArrayTabulatedFunction(double[] xValues, double[] yValues) {
         this.xValues = Arrays.copyOf(xValues, xValues.length);
         this.yValues = Arrays.copyOf(yValues, yValues.length);
@@ -107,6 +107,42 @@ public class ArrayTabulatedFunction extends AbstractTabulatedFunction {
             return yValues[0];
         }
         return interpolate(x, xValues[floorIndex], xValues[floorIndex + 1], yValues[floorIndex], yValues[floorIndex + 1]);
+    }
+
+    public void insert(double x, double y){
+
+        int index = indexOfX(x);
+
+        if (index == -1){
+
+            int floorInd; //позиция для вставки
+            if (x < xValues[0]) {
+                floorInd = 0;
+            } else if (x > xValues[count - 1]) {
+                floorInd = count;
+            } else {
+                floorInd = floorIndexOfX(x) + 1;
+            }
+
+
+            double[] newXValues = new double[count+1];
+            double[] newYValues = new double[count+1];
+            System.arraycopy(xValues, 0, newXValues, 0, floorInd);
+            newXValues[floorInd] = x;
+            System.arraycopy(xValues, floorInd , newXValues, floorInd + 1, count - floorInd);
+
+            System.arraycopy(yValues, 0, newYValues, 0, floorInd);
+            newYValues[floorInd] = y;
+            System.arraycopy(yValues, floorInd , newYValues, floorInd + 1, count - floorInd);
+
+            this.xValues = newXValues;
+            this.yValues = newYValues;
+            this.count ++;
+        }
+
+        else{
+            yValues[index] = y;
+        }
     }
 }
 

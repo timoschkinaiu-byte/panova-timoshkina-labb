@@ -123,4 +123,62 @@ public class ArrayTabulatedFunctionTest {
         assertEquals(20.0, function.apply(2.0), 0.0001);
         assertEquals(30.0, function.apply(3.0), 0.0001);
     }
+
+    @Test
+    public void insertTestMiddle(){
+        double[] xValues = {1.0, 2.0, 3.0};
+        double[] yValues = {10.0, 20.0, 30.0};
+        ArrayTabulatedFunction func = new ArrayTabulatedFunction(xValues, yValues);
+
+        func.insert(2.5, 56);
+        assertEquals(2.5,func.getX(2));
+        assertEquals(3.0,func.getX(3));
+        assertEquals(56,func.getY(2));
+        assertEquals(20,func.getY(1));
+    }
+
+
+    @Test
+    public void insertTestEnd(){
+        double[] xValues = {1.0, 2.0, 3.0};
+        double[] yValues = {10.0, 20.0, 30.0};
+        ArrayTabulatedFunction func = new ArrayTabulatedFunction(xValues, yValues);
+
+        func.insert(6.8, 45);
+        assertEquals(6.8,func.getX(3));
+        assertEquals(3.0,func.getX(2));
+        assertEquals(45,func.getY(3));
+        assertEquals(20,func.getY(1));
+    }
+
+    @Test
+    public void insertTestBagging(){
+        double[] xValues = {1.0, 2.0, 3.0};
+        double[] yValues = {10.0, 20.0, 30.0};
+        ArrayTabulatedFunction func = new ArrayTabulatedFunction(xValues, yValues);
+
+        func.insert(0.8, 45);
+        assertEquals(0.8,func.getX(0));
+        assertEquals(2.0,func.getX(2));
+        assertEquals(45,func.getY(0));
+        assertEquals(10,func.getY(1));
+    }
+
+
+    @Test
+    public void testInsertMultipleValues() {
+
+        double[] xValues = {2.0, 4.0};
+        double[] yValues = {4.0, 8.0};
+        ArrayTabulatedFunction func = new ArrayTabulatedFunction(xValues, yValues);
+
+        func.insert(1.0, 2.0);
+        func.insert(3.0, 6.0);
+        func.insert(5.0, 10.0);
+
+        assertEquals(1.0,func.getX(0));
+        assertEquals(3.0,func.getX(2));
+        assertEquals(8,func.getY(3));
+        assertEquals(10,func.getY(4));
+    }
 }
