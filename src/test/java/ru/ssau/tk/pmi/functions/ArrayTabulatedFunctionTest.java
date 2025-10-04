@@ -4,7 +4,8 @@ import ru.ssau.tk.pmi.exceptions.InterpolationException;
 import ru.ssau.tk.pmi.functions.ArrayTabulatedFunction;
 import ru.ssau.tk.pmi.functions.MathFunction;
 import ru.ssau.tk.pmi.functions.SqrFunction;
-
+import ru.ssau.tk.pmi.functions.Point;
+import java.util.Iterator;
 import static org.junit.jupiter.api.Assertions.*;
 public class ArrayTabulatedFunctionTest {
     @Test
@@ -226,5 +227,36 @@ public class ArrayTabulatedFunctionTest {
         assertThrows(InterpolationException.class, () -> {
             function.interpolate(2.5, 0);
         });
+    }
+    @Test
+    public void testIteratorWithWhileLoop() {
+        double[] xValues = {1.0, 2.0, 3.0, 4.0};
+        double[] yValues = {1.0, 4.0, 9.0, 16.0};
+        ArrayTabulatedFunction function = new ArrayTabulatedFunction(xValues, yValues);
+        Iterator<Point> iterator = function.iterator();
+        double[] expectedX = {1.0, 2.0, 3.0, 4.0};
+        double[] expectedY = {1.0, 4.0, 9.0, 16.0};
+        int index = 0;
+        while (iterator.hasNext()) {
+            Point point = iterator.next();
+            assertEquals(expectedX[index], point.x, 1e-10);
+            assertEquals(expectedY[index], point.y, 1e-10);
+            index++;
+        }
+        assertEquals(4, index); // Проверяем, что прошли все 4 точки
+        assertFalse(iterator.hasNext()); // Проверяем, что итератор завершен
+    }
+    @Test
+    public void testIteratorWithForLoop() {
+        double[] xValues = {1.0, 2.0, 3.0, 4.0};
+        double[] yValues = {1.0, 4.0, 9.0, 16.0};
+        ArrayTabulatedFunction function = new ArrayTabulatedFunction(xValues, yValues);
+        int index = 0;
+        for (Point point : function) {
+            assertEquals(xValues[index], point.x, 1e-10);
+            assertEquals(yValues[index], point.y, 1e-10);
+            index++;
+        }
+        assertEquals(4, index); // Проверяем, что прошли все 4 точки
     }
 }

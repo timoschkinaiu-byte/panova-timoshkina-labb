@@ -4,7 +4,9 @@ import ru.ssau.tk.pmi.exceptions.DifferentLengthOfArraysException;
 import ru.ssau.tk.pmi.exceptions.InterpolationException;
 import java.util.Iterator;
 import java.util.Arrays;
-public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements Insertable, Removable{
+import java.util.NoSuchElementException;
+
+public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements Insertable, Removable, Iterable<Point>{
     private double[] xValues;
     private double[] yValues;
     private int count;
@@ -16,7 +18,23 @@ public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements
         this.count = xValues.length;
     }
     public Iterator<Point> iterator() {
-        throw new UnsupportedOperationException();
+        return new Iterator<Point>() {
+            private int i=0;
+            @Override
+            public boolean hasNext() {
+                return i<count;
+            }
+
+            @Override
+            public Point next() {
+                if(!hasNext()){
+                    throw  new NoSuchElementException();
+                }
+                Point point = new Point(xValues[i],yValues[i]);
+                i++;
+                return point;
+            }
+        };
     }
     public ArrayTabulatedFunction(MathFunction source, double xFrom, double xTo, int count) {
         this.count = count;
