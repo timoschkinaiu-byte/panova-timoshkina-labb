@@ -1,5 +1,4 @@
-package functions;
-import java.util.Arrays;
+package ru.ssau.tk.pmi.functions;
 
 public class BSplineFunction implements MathFunction {
     private final double[] nodePoints;     // Точки узлов

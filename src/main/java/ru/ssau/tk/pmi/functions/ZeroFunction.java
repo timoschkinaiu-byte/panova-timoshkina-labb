@@ -1,4 +1,4 @@
-package functions;
+package ru.ssau.tk.pmi.functions;
 
 public class ZeroFunction extends ConstantFunction {
     public ZeroFunction(){

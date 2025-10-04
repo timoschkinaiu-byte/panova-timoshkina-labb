@@ -1,4 +1,4 @@
-package functions;
+package ru.ssau.tk.pmi.functions;
 import java.util.Arrays;
 public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements Insertable, Removable{
     private double[] xValues;

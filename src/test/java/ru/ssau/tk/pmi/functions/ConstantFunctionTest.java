@@ -1,6 +1,10 @@
-package functions;
+package ru.ssau.tk.pmi.functions;
 
 import org.junit.jupiter.api.Test;
+import ru.ssau.tk.pmi.functions.ConstantFunction;
+import ru.ssau.tk.pmi.functions.UnitFunction;
+import ru.ssau.tk.pmi.functions.ZeroFunction;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ConstantFunctionTest {

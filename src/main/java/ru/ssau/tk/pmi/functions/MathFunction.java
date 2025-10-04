@@ -1,4 +1,4 @@
-package functions;
+package ru.ssau.tk.pmi.functions;
 
 public interface MathFunction {
     double apply(double x);

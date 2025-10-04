@@ -1,5 +1,9 @@
-package functions;
+package ru.ssau.tk.pmi.functions;
 import org.junit.jupiter.api.Test;
+import ru.ssau.tk.pmi.functions.ArrayTabulatedFunction;
+import ru.ssau.tk.pmi.functions.MathFunction;
+import ru.ssau.tk.pmi.functions.SqrFunction;
+
 import static org.junit.jupiter.api.Assertions.*;
 public class ArrayTabulatedFunctionTest {
     @Test

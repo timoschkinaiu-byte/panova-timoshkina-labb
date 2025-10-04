@@ -1,4 +1,4 @@
-package functions;
+package ru.ssau.tk.pmi.functions;
 
 public abstract class AbstractTabulatedFunction implements TabulatedFunction{
     protected abstract int floorIndexOfX(double x);

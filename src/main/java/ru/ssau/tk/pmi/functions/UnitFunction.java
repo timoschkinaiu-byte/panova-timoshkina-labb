@@ -1,4 +1,4 @@
-package functions;
+package ru.ssau.tk.pmi.functions;
 
 public class UnitFunction extends ConstantFunction{
     public UnitFunction(){

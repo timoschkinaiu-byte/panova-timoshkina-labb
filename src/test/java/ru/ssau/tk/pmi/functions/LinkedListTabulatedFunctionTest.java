@@ -1,11 +1,14 @@
-package functions;
+package ru.ssau.tk.pmi.functions;
 
 import org.junit.jupiter.api.Test;
 
 import org.junit.jupiter.api.BeforeEach;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import functions.LinkedListTabulatedFunction.Node;
+
+import ru.ssau.tk.pmi.functions.*;
+import ru.ssau.tk.pmi.functions.LinkedListTabulatedFunction.Node;
+
 import static org.junit.jupiter.api.Assertions.*;
 public class LinkedListTabulatedFunctionTest {
 

@@ -1,4 +1,4 @@
-package functions;
+package ru.ssau.tk.pmi.functions;
 
 public class ConstantFunction implements MathFunction {
     private final double constant;

@@ -5,7 +5,30 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6eafdb01-f201-4252-9709-8fc58ee160e7" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/src/test/java/functions/ArrayTabulatedFunctionTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/functions/ArrayTabulatedFunctionTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/functions/AbstractTabulatedFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/AbstractTabulatedFunction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/functions/ArrayTabulatedFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/ArrayTabulatedFunction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/functions/BSplineFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/BSplineFunction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/functions/CompositeFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/CompositeFunction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/functions/ConstantFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/ConstantFunction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/functions/IdentityFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/IdentityFunction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/functions/Insertable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/Insertable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/functions/LinkedListTabulatedFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/LinkedListTabulatedFunction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/functions/MathFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/MathFunction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/functions/Removable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/Removable.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/functions/SimpleIterationMethod.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/SimpleIterationMethod.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/functions/SqrFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/SqrFunction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/functions/TabulatedFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/TabulatedFunction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/functions/UnitFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/UnitFunction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/functions/ZeroFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/ZeroFunction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/functions/ArrayTabulatedFunctionTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/ru/ssau/tk/pmi/functions/ArrayTabulatedFunctionTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/functions/BSplineFunctionTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/ru/ssau/tk/pmi/functions/BSplineFunctionTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/functions/CompositeFunctionTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/ru/ssau/tk/pmi/functions/CompositeFunctionTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/functions/ConstantFunctionTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/ru/ssau/tk/pmi/functions/ConstantFunctionTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/functions/IdentityFunctionTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/ru/ssau/tk/pmi/functions/IdentityFunctionTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/functions/LinkedListTabulatedFunctionTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/ru/ssau/tk/pmi/functions/LinkedListTabulatedFunctionTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/functions/SimpleIterationMethodTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/ru/ssau/tk/pmi/functions/SimpleIterationMethodTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/functions/SqrFunctionTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/ru/ssau/tk/pmi/functions/SqrFunctionTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -95,7 +118,7 @@
     "RunOnceActivity.git.unshallow": "true",
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
-    "git-widget-placeholder": "lab2",
+    "git-widget-placeholder": "lab3",
     "kotlin-language-version-configured": "true",
     "settings.editor.selected.configurable": "vcs.Git"
   }
