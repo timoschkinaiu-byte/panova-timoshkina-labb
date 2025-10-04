@@ -1,10 +1,16 @@
 package ru.ssau.tk.pmi.functions;
+import  ru.ssau.tk.pmi.exceptions.ArrayIsNotSortedException;
+import ru.ssau.tk.pmi.exceptions.DifferentLengthOfArraysException;
+import ru.ssau.tk.pmi.exceptions.InterpolationException;
+
 import java.util.Arrays;
 public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements Insertable, Removable{
     private double[] xValues;
     private double[] yValues;
     private int count;
     public ArrayTabulatedFunction(double[] xValues, double[] yValues) {
+        AbstractTabulatedFunction.checkLengthsIsTheSame(xValues, yValues);
+        AbstractTabulatedFunction.checkSorted(xValues);
         this.xValues = Arrays.copyOf(xValues, xValues.length);
         this.yValues = Arrays.copyOf(yValues, yValues.length);
         this.count = xValues.length;
@@ -103,6 +109,9 @@ public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements
     }
     @Override
     protected double interpolate(double x, int floorIndex) {
+        if(!(xValues[floorIndex]<=x && x<=xValues[floorIndex+1])){
+            throw new InterpolationException();
+        }
         if (count == 1) {
             return yValues[0];
         }

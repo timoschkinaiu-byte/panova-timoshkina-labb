@@ -10,6 +10,7 @@ import ru.ssau.tk.pmi.functions.*;
 import ru.ssau.tk.pmi.functions.LinkedListTabulatedFunction.Node;
 
 import static org.junit.jupiter.api.Assertions.*;
+import ru.ssau.tk.pmi.exceptions.InterpolationException;
 public class LinkedListTabulatedFunctionTest {
 
     private LinkedListTabulatedFunction function;
@@ -391,5 +392,23 @@ public class LinkedListTabulatedFunctionTest {
 
         function.remove(0);
         assertEquals(0, function.getCount());
+    }
+    @Test
+    public void testInterpolateThrowsExceptionWhenXLessThanLeftNode() {
+        double[] xValues = {1.0, 2.0, 3.0};
+        double[] yValues = {1.0, 4.0, 9.0};
+        LinkedListTabulatedFunction function = new LinkedListTabulatedFunction(xValues, yValues);
+        assertThrows(InterpolationException.class, () -> {
+            function.interpolate(0.5, 0); // x < leftNode.x
+        });
+    }
+    @Test
+    public void testInterpolateThrowsExceptionWhenXGreaterThanRightNode() {
+        double[] xValues = {1.0, 2.0, 3.0};
+        double[] yValues = {1.0, 4.0, 9.0};
+        LinkedListTabulatedFunction function = new LinkedListTabulatedFunction(xValues, yValues);
+        assertThrows(InterpolationException.class, () -> {
+            function.interpolate(2.5, 0); // x > rightNode.x
+        });
     }
 }

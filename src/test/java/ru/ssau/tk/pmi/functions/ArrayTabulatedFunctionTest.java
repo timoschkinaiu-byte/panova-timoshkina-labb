@@ -1,5 +1,6 @@
 package ru.ssau.tk.pmi.functions;
 import org.junit.jupiter.api.Test;
+import ru.ssau.tk.pmi.exceptions.InterpolationException;
 import ru.ssau.tk.pmi.functions.ArrayTabulatedFunction;
 import ru.ssau.tk.pmi.functions.MathFunction;
 import ru.ssau.tk.pmi.functions.SqrFunction;
@@ -207,5 +208,23 @@ public class ArrayTabulatedFunctionTest {
         assertEquals(2, function.getCount());
         assertEquals(2.0, function.getX(0));
         assertEquals(3.0, function.getX(1));
+    }
+    @Test
+    public void testInterpolateThrowsExceptionWhenXLessThan() {
+        double[] xValues = {1.0, 2.0, 3.0};
+        double[] yValues = {1.0, 4.0, 9.0};
+        ArrayTabulatedFunction function = new ArrayTabulatedFunction(xValues, yValues);
+        assertThrows(InterpolationException.class, () -> {
+            function.interpolate(0.5, 0); // x < leftNode.x
+        });
+    }
+    @Test
+    public void testInterpolateThrowsExceptionWhenXGreaterThan() {
+        double[] xValues = {1.0, 2.0, 3.0};
+        double[] yValues = {1.0, 4.0, 9.0};
+        ArrayTabulatedFunction function = new ArrayTabulatedFunction(xValues, yValues);
+        assertThrows(InterpolationException.class, () -> {
+            function.interpolate(2.5, 0);
+        });
     }
 }

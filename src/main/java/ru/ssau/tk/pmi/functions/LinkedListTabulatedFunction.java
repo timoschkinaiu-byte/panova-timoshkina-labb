@@ -1,4 +1,7 @@
 package ru.ssau.tk.pmi.functions;
+import ru.ssau.tk.pmi.exceptions.ArrayIsNotSortedException;
+import ru.ssau.tk.pmi.exceptions.DifferentLengthOfArraysException;
+import ru.ssau.tk.pmi.exceptions.InterpolationException;
 
 public class LinkedListTabulatedFunction extends AbstractTabulatedFunction implements Insertable, Removable{
 
@@ -45,6 +48,8 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
     }
 
     public LinkedListTabulatedFunction(double[] xValues, double [] yValues){
+        AbstractTabulatedFunction.checkLengthsIsTheSame(xValues, yValues);
+        AbstractTabulatedFunction.checkSorted(xValues);
         for (int i = 0; i < xValues.length; i++){
             addNode(xValues[i], yValues[i]);
         }
@@ -147,13 +152,14 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
 
         Node leftNode = getNode(floorIndex);
         Node rightNode;
-
         if (floorIndex == count - 1) {
             rightNode = head;
         } else {
             rightNode = getNode(floorIndex + 1);
         }
-
+        if(!(x>=leftNode.x && x<=rightNode.x)){
+            throw new InterpolationException();
+        }
         return interpolate(x, leftNode.x, rightNode.x, leftNode.y, rightNode.y);
     }
 
