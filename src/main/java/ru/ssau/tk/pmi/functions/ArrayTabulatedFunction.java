@@ -2,7 +2,7 @@ package ru.ssau.tk.pmi.functions;
 import  ru.ssau.tk.pmi.exceptions.ArrayIsNotSortedException;
 import ru.ssau.tk.pmi.exceptions.DifferentLengthOfArraysException;
 import ru.ssau.tk.pmi.exceptions.InterpolationException;
-
+import java.util.Iterator;
 import java.util.Arrays;
 public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements Insertable, Removable{
     private double[] xValues;
@@ -14,6 +14,9 @@ public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements
         this.xValues = Arrays.copyOf(xValues, xValues.length);
         this.yValues = Arrays.copyOf(yValues, yValues.length);
         this.count = xValues.length;
+    }
+    public Iterator<Point> iterator() {
+        throw new UnsupportedOperationException();
     }
     public ArrayTabulatedFunction(MathFunction source, double xFrom, double xTo, int count) {
         this.count = count;

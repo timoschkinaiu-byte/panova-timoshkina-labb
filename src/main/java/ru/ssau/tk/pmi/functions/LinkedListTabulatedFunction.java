@@ -2,7 +2,7 @@ package ru.ssau.tk.pmi.functions;
 import ru.ssau.tk.pmi.exceptions.ArrayIsNotSortedException;
 import ru.ssau.tk.pmi.exceptions.DifferentLengthOfArraysException;
 import ru.ssau.tk.pmi.exceptions.InterpolationException;
-
+import java.util.Iterator;
 public class LinkedListTabulatedFunction extends AbstractTabulatedFunction implements Insertable, Removable{
 
     static class Node {
@@ -11,7 +11,9 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
         public Node next;
         public Node prev;
     }
-
+    public Iterator<Point> iterator(){
+        throw  new UnsupportedOperationException();
+    }
     private int count = 0;
     private Node head = null;
     private void addNode(double x, double y) //добавление узла
