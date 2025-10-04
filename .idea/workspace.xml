@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="6eafdb01-f201-4252-9709-8fc58ee160e7" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/src/test/java/functions/ArrayTabulatedFunctionTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/functions/ArrayTabulatedFunctionTest.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="JUnit5 Test Class" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="lab2" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;AnnaPanova375&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/timoschkinaiu-byte/panova-timoshkina-labb.git&quot;,
+    &quot;accountId&quot;: &quot;0a0ff53f-d769-4f3e-8b89-2e59c29f006a&quot;
+  }
+}</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="33KL4XNrfcNLeYLQCYNNJP3Ytys" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "JUnit.ArrayTabulatedFunctionTest.insertTest.executor": "Run",
+    "JUnit.ArrayTabulatedFunctionTest.insertTest2.executor": "Run",
+    "JUnit.ArrayTabulatedFunctionTest.insertTestBagging.executor": "Run",
+    "JUnit.ArrayTabulatedFunctionTest.testInsertMultipleValues.executor": "Run",
+    "JUnit.BSplineFunctionTest.executor": "Run",
+    "JUnit.BSplineFunctionTest.testEdgeCases.executor": "Run",
+    "JUnit.BSplineFunctionTest.testInvalidArguments.executor": "Run",
+    "JUnit.BSplineFunctionTest.testNodesOrderVerification.executor": "Run",
+    "JUnit.BSplineFunctionTest.testSingleSegment.executor": "Run",
+    "JUnit.CompositeFunctionTest.testIndexSearchConsistency.executor": "Run",
+    "JUnit.CompositeFunctionTest.testInterpolationConsistencyBetweenImplementations.executor": "Run",
+    "JUnit.CompositeFunctionTest.testSinglePointFunctionHandling.executor": "Run",
+    "JUnit.IdentityFunctionTest.executor": "Run",
+    "JUnit.LinkedListTabulatedFunctionTest.executor": "Run",
+    "JUnit.LinkedListTabulatedFunctionTest.getCount.executor": "Run",
+    "JUnit.LinkedListTabulatedFunctionTest.removeTest.executor": "Run",
+    "JUnit.LinkedListTabulatedFunctionTest.removeTestMiddle.executor": "Run",
+    "JUnit.LinkedListTabulatedFunctionTest.testApply_BetweenNodes_ReturnsInterpolatedValue.executor": "Run",
+    "JUnit.LinkedListTabulatedFunctionTest.testApply_ExactMatch_ReturnsNodeValueWithoutInterpolation.executor": "Run",
+    "JUnit.LinkedListTabulatedFunctionTest.testApply_WithOptimizedSearch_ReturnsCorrectValues.executor": "Run",
+    "JUnit.LinkedListTabulatedFunctionTest.testConstructorFromArrays_ValidData_CreatesCorrectList.executor": "Run",
+    "JUnit.LinkedListTabulatedFunctionTest.testConstructorFromFunction_ReversedBounds_CorrectsOrder.executor": "Run",
+    "JUnit.LinkedListTabulatedFunctionTest.testConstructorFromFunction_SinglePoint_AllValuesEqual.executor": "Run",
+    "JUnit.LinkedListTabulatedFunctionTest.testConstructorFromFunction_UniformSampling_CreatesCorrectList.executor": "Run",
+    "JUnit.LinkedListTabulatedFunctionTest.testFloorIndexOfX_BetweenNodes_ReturnsLeftIndex.executor": "Run",
+    "JUnit.LinkedListTabulatedFunctionTest.testFloorNodeOfX_VariousCases_ReturnsCorrectNode.executor": "Run",
+    "JUnit.LinkedListTabulatedFunctionTest.testIndexOfX_ExistingValue_ReturnsCorrectIndex.executor": "Run",
+    "JUnit.LinkedListTabulatedFunctionTest.testIndexOfX_NonExistingValue_ReturnsMinusOne.executor": "Run",
+    "JUnit.LinkedListTabulatedFunctionTest.testIndexOfY_ExistingValue_ReturnsCorrectIndex.executor": "Run",
+    "JUnit.LinkedListTabulatedFunctionTest.testIndexOfY_NonExistingValue_ReturnsMinusOne.executor": "Run",
+    "JUnit.LinkedListTabulatedFunctionTest.testRemoveFromBeginning.executor": "Run",
+    "JUnit.LinkedListTabulatedFunctionTest.testRemoveFromEnd.executor": "Run",
+    "JUnit.LinkedListTabulatedFunctionTest.testRemoveSingleElement.executor": "Run",
+    "JUnit.LinkedListTabulatedFunctionTest.testTwoNodeList_AllMethodsWork.executor": "Run",
+    "Maven.labb_2 [compile].executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
+    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
+    "git-widget-placeholder": "lab2",
+    "kotlin-language-version-configured": "true",
+    "settings.editor.selected.configurable": "vcs.Git"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CreateTestDialog.Recents.Supers">
+      <recent name="" />
+    </key>
+    <key name="CreateTestDialog.RecentsKey">
+      <recent name="ru.ssau.tk.pmi.functions" />
+      <recent name="functions" />
+    </key>
+  </component>
+  <component name="RunManager" selected="JUnit.LinkedListTabulatedFunctionTest.testRemoveSingleElement">
+    <configuration name="LinkedListTabulatedFunctionTest.removeTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="labb_2" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="functions.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="functions" />
+      <option name="MAIN_CLASS_NAME" value="functions.LinkedListTabulatedFunctionTest" />
+      <option name="METHOD_NAME" value="removeTest" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="LinkedListTabulatedFunctionTest.removeTestMiddle" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="labb_2" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="functions.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="functions" />
+      <option name="MAIN_CLASS_NAME" value="functions.LinkedListTabulatedFunctionTest" />
+      <option name="METHOD_NAME" value="removeTestMiddle" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="LinkedListTabulatedFunctionTest.testRemoveFromBeginning" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="labb_2" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="functions.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="functions" />
+      <option name="MAIN_CLASS_NAME" value="functions.LinkedListTabulatedFunctionTest" />
+      <option name="METHOD_NAME" value="testRemoveFromBeginning" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="LinkedListTabulatedFunctionTest.testRemoveFromEnd" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="labb_2" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="functions.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="functions" />
+      <option name="MAIN_CLASS_NAME" value="functions.LinkedListTabulatedFunctionTest" />
+      <option name="METHOD_NAME" value="testRemoveFromEnd" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="LinkedListTabulatedFunctionTest.testRemoveSingleElement" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="labb_2" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="functions.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="functions" />
+      <option name="MAIN_CLASS_NAME" value="functions.LinkedListTabulatedFunctionTest" />
+      <option name="METHOD_NAME" value="testRemoveSingleElement" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="labb_2" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JUnit.LinkedListTabulatedFunctionTest.testRemoveSingleElement" />
+        <item itemvalue="JUnit.LinkedListTabulatedFunctionTest.testRemoveFromEnd" />
+        <item itemvalue="JUnit.LinkedListTabulatedFunctionTest.testRemoveFromBeginning" />
+        <item itemvalue="JUnit.LinkedListTabulatedFunctionTest.removeTestMiddle" />
+        <item itemvalue="JUnit.LinkedListTabulatedFunctionTest.removeTest" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="6eafdb01-f201-4252-9709-8fc58ee160e7" name="Changes" comment="" />
+      <created>1759060627658</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1759060627658</updated>
+    </task>
+    <task id="LOCAL-00001" summary="создание интерфейса MathFunction">
+      <option name="closed" value="true" />
+      <created>1759063359179</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1759063359179</updated>
+    </task>
+    <task id="LOCAL-00002" summary="создание класса IdentityFunction и тестов">
+      <option name="closed" value="true" />
+      <created>1759065903911</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1759065903911</updated>
+    </task>
+    <task id="LOCAL-00003" summary="создан класс BSplineFunction и тесты">
+      <option name="closed" value="true" />
+      <created>1759094881504</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1759094881504</updated>
+    </task>
+    <task id="LOCAL-00004" summary="добавлены тесты CompositeFunction">
+      <option name="closed" value="true" />
+      <created>1759096483931</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1759096483931</updated>
+    </task>
+    <task id="LOCAL-00005" summary="создан интерфейс TabulatedFunction">
+      <option name="closed" value="true" />
+      <created>1759153035604</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1759153035604</updated>
+    </task>
+    <task id="LOCAL-00006" summary="добавлен класс LinkedListTabulatedFunction">
+      <option name="closed" value="true" />
+      <created>1759158223038</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1759158223038</updated>
+    </task>
+    <task id="LOCAL-00007" summary="добавлен класс LinkedListTabulatedFunction">
+      <option name="closed" value="true" />
+      <created>1759160260005</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1759160260005</updated>
+    </task>
+    <task id="LOCAL-00008" summary="добавлены тесты класса LinkedListTabulatedFunction">
+      <option name="closed" value="true" />
+      <created>1759164691703</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1759164691703</updated>
+    </task>
+    <task id="LOCAL-00009" summary="переопределен метод apply(), добавлены методы floorNodeOfX, interpolateFromNode и тесты">
+      <option name="closed" value="true" />
+      <created>1759165653248</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1759165653248</updated>
+    </task>
+    <task id="LOCAL-00010" summary="добавлены тесты в CompositeFunctionTest">
+      <option name="closed" value="true" />
+      <created>1759167064271</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1759167064271</updated>
+    </task>
+    <task id="LOCAL-00011" summary="в класс ArrayTabulatedFunction добавлен метод insert и покрыт тестами">
+      <option name="closed" value="true" />
+      <created>1759174891736</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1759174891736</updated>
+    </task>
+    <task id="LOCAL-00012" summary="в класс LinkedListTabulatedFunction добавлен метод remove и покрыт тестами">
+      <option name="closed" value="true" />
+      <created>1759177594106</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1759177594106</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="OPEN_GENERIC_TABS">
+      <map>
+        <entry key="c5372c34-8cd1-4f39-bc4b-c5b123158ce9" value="TOOL_WINDOW" />
+        <entry key="f2c25721-e3ce-4297-817f-54bbefd57ccb" value="TOOL_WINDOW" />
+      </map>
+    </option>
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="Branch">
+          <value>
+            <list>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="origin/master" />
+                </option>
+              </RecentGroup>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="master" />
+                </option>
+              </RecentGroup>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="HEAD" />
+                </option>
+              </RecentGroup>
+            </list>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="origin/master" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+        <entry key="c5372c34-8cd1-4f39-bc4b-c5b123158ce9">
+          <value>
+            <State />
+          </value>
+        </entry>
+        <entry key="f2c25721-e3ce-4297-817f-54bbefd57ccb">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="создание интерфейса MathFunction" />
+    <MESSAGE value="создание класса IdentityFunction и тестов" />
+    <MESSAGE value="создан класс BSplineFunction и тесты" />
+    <MESSAGE value="добавлены тесты CompositeFunction" />
+    <MESSAGE value="создан интерфейс TabulatedFunction" />
+    <MESSAGE value="добавлен класс LinkedListTabulatedFunction" />
+    <MESSAGE value="добавлены тесты класса LinkedListTabulatedFunction" />
+    <MESSAGE value="переопределен метод apply(), добавлены методы floorNodeOfX, interpolateFromNode и тесты" />
+    <MESSAGE value="добавлены тесты в CompositeFunctionTest" />
+    <MESSAGE value="в класс ArrayTabulatedFunction добавлен метод insert и покрыт тестами" />
+    <MESSAGE value="в класс LinkedListTabulatedFunction добавлен метод remove и покрыт тестами" />
+    <option name="LAST_COMMIT_MESSAGE" value="в класс LinkedListTabulatedFunction добавлен метод remove и покрыт тестами" />
+  </component>
+</project>

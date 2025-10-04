@@ -1,0 +1,250 @@
+Index: src/main/java/functions/CompositeFunction.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/functions/CompositeFunction.java b/src/main/java/functions/CompositeFunction.java
+new file mode 100644
+--- /dev/null	(date 1759092411741)
++++ b/src/main/java/functions/CompositeFunction.java	(date 1759092411741)
+@@ -0,0 +1,18 @@
++package functions;
++
++public class CompositeFunction implements MathFunction{
++
++    private final MathFunction firstFunction;
++    private final MathFunction secondFunction;
++
++    public CompositeFunction(MathFunction firstFunction, MathFunction secondFunction){
++        this.firstFunction = firstFunction;
++        this.secondFunction = secondFunction;
++    }
++
++    public double apple(double x){
++        double firstResult = firstFunction.apply(x);
++        return secondFunction.apply(firstResult);
++        }
++    }
++}
+Index: src/main/java/functions/BSplineFunction.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/functions/BSplineFunction.java b/src/main/java/functions/BSplineFunction.java
+new file mode 100644
+--- /dev/null	(date 1759093579578)
++++ b/src/main/java/functions/BSplineFunction.java	(date 1759093579578)
+@@ -0,0 +1,117 @@
++package functions;
++import java.util.Arrays;
++
++public class BSplineFunction implements MathFunction {
++    private final double[] nodePoints;     // Точки узлов
++    private final int splineOrder;         // Порядок сплайна
++    private final double[] weights;        // Весовые коэффициенты
++
++    //конструктор
++    public BSplineFunction(double[] nodePoints, int splineOrder, double[] weights) {
++
++        this.nodePoints = nodePoints.clone();
++        this.splineOrder = splineOrder;
++        this.weights = weights.clone();
++    }
++
++    @Override
++    public double apply(double x) {
++        return computeSplineValue(x);
++    }
++
++     //Вычисление значения сплайна в заданной точке
++    private double computeSplineValue(double x) {
++        int segmentIndex = locateSegment(x);
++
++        if (segmentIndex < splineOrder) {
++            return 0.0; // Точка лежит слева от области определения
++        }
++        if (segmentIndex >= nodePoints.length - splineOrder - 1) {
++            return 0.0; // Точка лежит справа от области определения
++        }
++
++        double total = 0.0;
++        for (int i = segmentIndex - splineOrder; i <= segmentIndex; i++) {
++            double basisValue = computeBasis(i, splineOrder, x);
++            total += weights[i] * basisValue;
++        }
++
++        return total;
++    }
++
++     //Рекурсивный расчет базисной функции
++    private double computeBasis(int idx, int order, double x) {
++        if (order == 0) {
++            // Базовый случай - функция нулевого порядка
++            return (x >= nodePoints[idx] && x < nodePoints[idx + 1]) ? 1.0 : 0.0;
++        }
++
++        double firstPart = 0.0;
++        double secondPart = 0.0;
++
++        // Первая составляющая рекурсии
++        double div1 = nodePoints[idx + order] - nodePoints[idx];
++        if (div1 != 0.0) {
++            double ratio1 = (x - nodePoints[idx]) / div1;
++            firstPart = ratio1 * computeBasis(idx, order - 1, x);
++        }
++
++        // Вторая составляющая рекурсии
++        double div2 = nodePoints[idx + order + 1] - nodePoints[idx + 1];
++        if (div2 != 0.0) {
++            double ratio2 = (nodePoints[idx + order + 1] - x) / div2;
++            secondPart = ratio2 * computeBasis(idx + 1, order - 1, x);
++        }
++
++        return firstPart + secondPart;
++    }
++
++     //Определение сегмента, содержащего точку x
++    private int locateSegment(double x) {
++        if (x < nodePoints[0] || x > nodePoints[nodePoints.length - 1]) {
++            return -1;
++        }
++
++        int left = 0;
++        int right = nodePoints.length - 2;
++
++        while (left <= right) {
++            int middle = (left + right) / 2;
++            if (x < nodePoints[middle]) {
++                right = middle - 1;
++            } else if (x >= nodePoints[middle + 1]) {
++                left = middle + 1;
++            } else {
++                return middle;
++            }
++        }
++
++        return right;
++    }
++
++
++     //Создание сплайна с равномерными узлами
++    public static BSplineFunction buildUniformSpline(double from, double to,int order, int pointCount,double[] weights) {
++        if (pointCount <= order) {
++            throw new IllegalArgumentException("Количество точек должно превышать порядок");
++        }
++
++        int totalNodes = pointCount + order + 1;
++        double[] nodes = new double[totalNodes];
++
++        // Формирование узлового вектора
++        for (int i = 0; i < totalNodes; i++) {
++            if (i <= order) {
++                nodes[i] = from;
++            } else if (i >= pointCount) {
++                nodes[i] = to;
++            } else {
++                double position = (double) (i - order) / (pointCount - order);
++                nodes[i] = from + position * (to - from);
++            }
++        }
++
++        return new BSplineFunction(nodes, order, weights);
++    }
++
++}
+\ No newline at end of file
+Index: src/test/java/functions/BSplineFunctionTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/test/java/functions/BSplineFunctionTest.java b/src/test/java/functions/BSplineFunctionTest.java
+new file mode 100644
+--- /dev/null	(date 1759093579592)
++++ b/src/test/java/functions/BSplineFunctionTest.java	(date 1759093579592)
+@@ -0,0 +1,83 @@
++package functions;
++
++import org.junit.jupiter.api.Test;
++import static org.junit.jupiter.api.Assertions.*;
++
++public class BSplineFunctionTest {
++    @Test
++    public void testSpline1() {
++        double[] nodes = {0.0, 0.0, 1.0, 2.0, 2.0};
++        double[] weights = {1.0, 2.0, 3.0};
++        BSplineFunction spline = new BSplineFunction(nodes, 1, weights);
++
++        assertEquals(1.0, spline.apply(0.0), 1e-9);
++        assertEquals(2.0, spline.apply(1.0), 1e-9);
++        assertEquals(0.0, spline.apply(2.0), 1e-9);
++    }
++
++    @Test
++    public void testSpline2() {
++        double[] nodes = {0.0, 0.0, 0.0, 1.0, 2.0, 3.0, 3.0, 3.0};
++        double[] weights = {1.0, 2.0, 3.0, 4.0, 5.0};
++        BSplineFunction spline = new BSplineFunction(nodes, 2, weights);
++
++        assertTrue(spline.apply(1.5) > 0.0);
++        assertEquals(0.0, spline.apply(-1.0), 1e-9);
++        assertEquals(0.0, spline.apply(3.5), 1e-9);
++    }
++
++    @Test
++    public void testSpline0() {
++        double[] nodes = {0.0, 1.0, 2.0, 3.0};
++        double[] weights = {1.0, 2.0, 3.0};
++        BSplineFunction spline = new BSplineFunction(nodes, 0, weights);
++
++        assertEquals(1.0, spline.apply(0.5), 1e-9);
++        assertEquals(2.0, spline.apply(1.5), 1e-9);
++        assertEquals(3.0, spline.apply(2.5), 1e-9);
++        assertEquals(0.0, spline.apply(3.5), 1e-9);
++    }
++
++    @Test
++    public void testUniformSplineCreation() {
++        double[] weights = {1.0, 2.0, 3.0, 4.0};
++        BSplineFunction spline = BSplineFunction.buildUniformSpline(0.0, 10.0, 2, 4, weights);
++
++        assertNotNull(spline);
++        assertEquals(2, spline.getSplineOrder());
++        assertEquals(4, spline.getWeights().length);
++
++        double result = spline.apply(5.0);
++        assertTrue(result >= 0.0);
++    }
++
++
++    @Test
++    public void testUniformSplineInvalidArguments() {
++        double[] weights = {1.0, 2.0, 3.0};
++
++        assertThrows(IllegalArgumentException.class,
++                () -> BSplineFunction.buildUniformSpline(0.0, 10.0, 3, 3, weights));
++    }
++
++
++    @Test
++    public void testEdgeCases() {
++        double[] nodes = {0.0, 0.0, 1.0, 1.0};
++        double[] weights = {1.0, 2.0};
++        BSplineFunction spline = new BSplineFunction(nodes, 1, weights);
++
++        assertEquals(1.0, spline.apply(0.0), 1e-9);
++        assertEquals(0.0, spline.apply(1.0), 1e-9);
++    }
++
++    @Test
++    public void testSingleSegment() {
++        double[] nodes = {0.0, 0.0, 1.0};
++        double[] weights = {5.0};
++        BSplineFunction spline = new BSplineFunction(nodes, 1, weights);
++
++        assertEquals(0.0, spline.apply(0.5), 1e-9);
++    }
++
++}
+\ No newline at end of file
