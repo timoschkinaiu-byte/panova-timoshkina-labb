@@ -2,11 +2,17 @@ package ru.ssau.tk.pmi.functions;
 import  ru.ssau.tk.pmi.exceptions.ArrayIsNotSortedException;
 import ru.ssau.tk.pmi.exceptions.DifferentLengthOfArraysException;
 import ru.ssau.tk.pmi.exceptions.InterpolationException;
+
+import java.io.Serial;
+import java.io.Serializable;
+import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.util.Iterator;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 
-public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements Insertable, Removable, Iterable<Point>{
+public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements Insertable, Removable, Iterable<Point>, Serializable {
+    @Serial
+    private static final long serialVersionUID = 3369212386005378596L;
     private double[] xValues;
     private double[] yValues;
     private int count;
