@@ -2,6 +2,7 @@ package ru.ssau.tk.pmi.io;
 
 import ru.ssau.tk.pmi.functions.Point;
 import ru.ssau.tk.pmi.functions.TabulatedFunction;
+import ru.ssau.tk.pmi.functions.factory.TabulatedFunctionFactory;
 
 import java.io.*;
 
@@ -35,4 +36,24 @@ public final class FunctionsIO {
         ObjectInputStream objectInputStream = new ObjectInputStream(stream);
         return (TabulatedFunction) objectInputStream.readObject();
     }
+
+
+    public static TabulatedFunction readTabulatedFunction(BufferedInputStream inputStream, TabulatedFunctionFactory factory)
+            throws IOException {
+
+        DataInputStream dataIn = new DataInputStream(inputStream);
+
+        int count = dataIn.readInt();
+
+        double[] xValues = new double[count];
+        double[] yValues = new double[count];
+
+        for (int i = 0; i < count; i++) {
+            xValues[i] = dataIn.readDouble();
+            yValues[i] = dataIn.readDouble();
+        }
+
+        return factory.create(xValues, yValues);
+    }
+
 }
