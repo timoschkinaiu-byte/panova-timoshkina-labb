@@ -3,8 +3,7 @@ package ru.ssau.tk.pmi.io;
 import ru.ssau.tk.pmi.functions.Point;
 import ru.ssau.tk.pmi.functions.TabulatedFunction;
 
-import java.io.BufferedWriter;
-import java.io.PrintWriter;
+import java.io.*;
 
 public final class FunctionsIO {
     private FunctionsIO(){
@@ -18,5 +17,12 @@ public final class FunctionsIO {
         }
         printWriter.flush();
 
+    }
+
+
+
+    public static TabulatedFunction deserialize(BufferedInputStream stream) throws IOException, ClassNotFoundException{
+        ObjectInputStream objectInputStream = new ObjectInputStream(stream);
+        return (TabulatedFunction) objectInputStream.readObject();
     }
 }
