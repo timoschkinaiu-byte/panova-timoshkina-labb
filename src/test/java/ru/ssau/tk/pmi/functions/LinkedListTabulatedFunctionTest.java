@@ -144,10 +144,6 @@ public class LinkedListTabulatedFunctionTest {
     }
 
     // Тесты floorIndexOfX
-    @Test
-    public void testFloorIndexOfX_LessThanAll_ReturnsZero() {
-        assertEquals(0, function.floorIndexOfX(0.8));
-    }
 
     @Test
     public void testFloorIndexOfX_GreaterThanAll_ReturnsCount() {
@@ -278,14 +274,8 @@ public class LinkedListTabulatedFunctionTest {
         assertEquals(7.2, function.apply(2.7), 1e-9);
         assertEquals(12.4, function.apply(5.5), 1e-9);
     }
-    @Test
-    void testInsertIntoEmptyList() {
-        LinkedListTabulatedFunction function = new LinkedListTabulatedFunction(new double[0], new double[0]);
-        function.insert(2.0, 4.0);
-        assertEquals(1, function.getCount());
-        assertEquals(2.0, function.getX(0));
-        assertEquals(4.0, function.getY(0));
-    }
+
+
     @Test
     void testInsertAtBeginning() {
         // Создаем: (1,1) → (3,9) → (5,25)
@@ -383,16 +373,7 @@ public class LinkedListTabulatedFunctionTest {
         assertEquals(24.0, function.getY(1), 1e-9);
     }
 
-    @Test
-    public void testRemoveSingleElement() {
-        // Удаление единственного элемента
-        double[] xValues = {5.0};
-        double[] yValues = {50.0};
-        LinkedListTabulatedFunction function = new LinkedListTabulatedFunction(xValues, yValues);
 
-        function.remove(0);
-        assertEquals(0, function.getCount());
-    }
     @Test
     public void testInterpolateThrowsExceptionWhenXLessThanLeftNode() {
         double[] xValues = {1.0, 2.0, 3.0};
@@ -411,4 +392,93 @@ public class LinkedListTabulatedFunctionTest {
             function.interpolate(2.5, 0); // x > rightNode.x
         });
     }
+
+
+
+    @Test
+    public void testConstructorWithInvalidLength() {
+        double[] xValues = {1.0};
+        double[] yValues = {9.0};
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            new LinkedListTabulatedFunction(xValues, yValues);
+        });
+    }
+
+    @Test
+    public void testConstructorWithSourceInvalidLength(){
+
+        assertThrows(IllegalArgumentException.class, ()->{
+            new LinkedListTabulatedFunction(new IdentityFunction(), 3, 4, 1);
+        });
+    }
+
+    @Test
+    public void testGetXWithInvalidIndex() {
+        double[] xValues = {1.0, 2.0, 3.0};
+        double[] yValues = {4.0, 5.0, 6.0};
+        LinkedListTabulatedFunction function = new LinkedListTabulatedFunction(xValues, yValues);
+
+        assertThrows(IllegalArgumentException.class, () -> function.getX(-1));
+        assertThrows(IllegalArgumentException.class, () -> function.getX(3));
+    }
+
+    @Test
+    public void testGetYWithInvalidIndex() {
+        double[] xValues = {1.0, 2.0, 3.0};
+        double[] yValues = {4.0, 5.0, 6.0};
+        LinkedListTabulatedFunction function = new LinkedListTabulatedFunction(xValues, yValues);
+
+        assertThrows(IllegalArgumentException.class, () -> function.getY(-1));
+        assertThrows(IllegalArgumentException.class, () -> function.getY(3));
+    }
+
+    @Test
+    public void testSetYWithInvalidIndex() {
+        double[] xValues = {1.0, 2.0, 3.0};
+        double[] yValues = {4.0, 5.0, 6.0};
+        LinkedListTabulatedFunction function = new LinkedListTabulatedFunction(xValues, yValues);
+
+        assertThrows(IllegalArgumentException.class, () -> function.setY(-1, 10.0));
+        assertThrows(IllegalArgumentException.class, () -> function.setY(3, 10.0));
+    }
+
+    @Test
+    public void testFloorIndexOfXWithXLessThanLeftBound() {
+        double[] xValues = {1.0, 2.0, 3.0};
+        double[] yValues = {4.0, 5.0, 6.0};
+        LinkedListTabulatedFunction function = new LinkedListTabulatedFunction(xValues, yValues);
+
+        assertThrows(IllegalArgumentException.class, () -> function.floorIndexOfX(0.5));
+    }
+
+    @Test
+    public void testFloorNodeOfXWithXLessThanLeftBound() {
+        double[] xValues = {1.0, 2.0, 3.0};
+        double[] yValues = {4.0, 5.0, 6.0};
+        LinkedListTabulatedFunction function = new LinkedListTabulatedFunction(xValues, yValues);
+
+        assertThrows(IllegalArgumentException.class, () -> function.floorNodeOfX(0.5));
+    }
+
+    @Test
+    public void testRemoveWithInvalidIndex() {
+        double[] xValues = {1.0, 2.0, 3.0};
+        double[] yValues = {4.0, 5.0, 6.0};
+        LinkedListTabulatedFunction function = new LinkedListTabulatedFunction(xValues, yValues);
+
+        assertThrows(IllegalArgumentException.class, () -> function.remove(-1));
+        assertThrows(IllegalArgumentException.class, () -> function.remove(3));
+    }
+
+    @Test
+    public void testGetNodeWithInvalidIndex() {
+        double[] xValues = {1.0, 2.0, 3.0};
+        double[] yValues = {4.0, 5.0, 6.0};
+        LinkedListTabulatedFunction function = new LinkedListTabulatedFunction(xValues, yValues);
+
+        assertThrows(IllegalArgumentException.class, () -> function.getX(-1));
+        assertThrows(IllegalArgumentException.class, () -> function.getX(5));
+    }
+
 }
