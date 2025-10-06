@@ -2,12 +2,15 @@ package ru.ssau.tk.pmi.functions;
 import ru.ssau.tk.pmi.exceptions.ArrayIsNotSortedException;
 import ru.ssau.tk.pmi.exceptions.DifferentLengthOfArraysException;
 import ru.ssau.tk.pmi.exceptions.InterpolationException;
+import java.io.Serializable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class LinkedListTabulatedFunction extends AbstractTabulatedFunction implements Insertable, Removable{
+public class LinkedListTabulatedFunction extends AbstractTabulatedFunction implements Insertable, Removable, Serializable {
 
-    static class Node {
+    private static final long serialVersionUID = 1L;
+
+    static class Node implements Serializable{
         public double x;
         public double y;
         public Node next;
