@@ -65,6 +65,47 @@ public class TabulatedFunctionOperationService {
         }
         return factory.create(xValues,yValues);
     }
+
+
+    public TabulatedFunction multiplication (TabulatedFunction f1, TabulatedFunction f2){
+        if( f1.getCount() != f2.getCount()){
+            throw new InconsistentFunctionsException();
+        }
+        Point [] f1_mas = asPoints(f1);
+        Point [] f2_mas = asPoints(f2);
+        double [] xValues = new double[f1_mas.length];
+        double [] yValues = new double[f1_mas.length];
+        for(int i=0;i<f1_mas.length;i++){
+            if(f1_mas[i].x != f2_mas[i].x){
+                throw new InconsistentFunctionsException();
+            }
+            xValues [i] = f1_mas[i].x;
+            yValues [i] = f1_mas[i].y * f2_mas[i].y;
+        }
+        return factory.create(xValues,yValues);
+    }
+
+
+    public TabulatedFunction division (TabulatedFunction f1, TabulatedFunction f2){
+        if( f1.getCount() != f2.getCount()){
+            throw new InconsistentFunctionsException();
+        }
+        Point [] f1_mas = asPoints(f1);
+        Point [] f2_mas = asPoints(f2);
+        double [] xValues = new double[f1_mas.length];
+        double [] yValues = new double[f1_mas.length];
+        for(int i=0;i<f1_mas.length;i++){
+            if(f1_mas[i].x != f2_mas[i].x){
+                throw new InconsistentFunctionsException();
+            }
+            xValues [i] = f1_mas[i].x;
+            yValues [i] = f1_mas[i].y / f2_mas[i].y;
+        }
+        return factory.create(xValues,yValues);
+    }
+
+
+
     private interface BiOperation{
         public double apply(double u, double v);
     }
@@ -98,6 +139,24 @@ public class TabulatedFunctionOperationService {
             @Override
             public double apply(double f1, double f2) {
                 return f1-f2;
+            }
+        });
+    }
+
+    public TabulatedFunction multiplication2 (TabulatedFunction f1, TabulatedFunction f2){
+        return doOperation(f1, f2, new BiOperation() {
+            @Override
+            public double apply(double f1, double f2) {
+                return f1*f2;
+            }
+        });
+    }
+
+    public TabulatedFunction division2 (TabulatedFunction f1, TabulatedFunction f2){
+        return doOperation(f1, f2, new BiOperation() {
+            @Override
+            public double apply(double f1, double f2) {
+                return f1/f2;
             }
         });
     }

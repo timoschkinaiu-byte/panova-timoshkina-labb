@@ -12,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TabulatedFunctionOperationServiceTest {
 
-    // Ваши существующие тесты
     @Test
     public void testAsPoints() {
         double[] xValues = {1.0, 2.0, 3.0};
@@ -151,4 +150,225 @@ public class TabulatedFunctionOperationServiceTest {
             assertEquals(oldSub.getY(i), newSub.getY(i), 1e-10, "subtraction и subtraction2 должны давать одинаковые результаты");
         }
     }
+
+    //тесты умножения и деления
+    @Test
+    public void testAddWithArrayFunctions() {
+        TabulatedFunctionOperationService service = new TabulatedFunctionOperationService(new ArrayTabulatedFunctionFactory());
+
+        double[] xValues = {0.0, 1.0, 2.0, 3.0};
+        double[] yValues1 = {1.0, 3.0, 5.0, 7.0};
+        double[] yValues2 = {2.0, 4.0, 6.0, 8.0};
+
+        TabulatedFunction f1 = new ArrayTabulatedFunction(xValues, yValues1);
+        TabulatedFunction f2 = new ArrayTabulatedFunction(xValues, yValues2);
+
+        TabulatedFunction result = service.add(f1, f2);
+
+        assertEquals(4, result.getCount());
+        assertEquals(3.0, result.getY(0), 0.0001);
+        assertEquals(7.0, result.getY(1), 0.0001);
+        assertEquals(11.0, result.getY(2), 0.0001);
+        assertEquals(15.0, result.getY(3), 0.0001);
+        assertInstanceOf(ArrayTabulatedFunction.class, result);
+    }
+
+    @Test
+    public void testAddWithLinkedListFunctions() {
+        TabulatedFunctionOperationService service = new TabulatedFunctionOperationService(new LinkedListTabulatedFunctionFactory());
+
+        double[] xValues = {0.0, 1.0, 2.0, 3.0};
+        double[] yValues1 = {1.0, 3.0, 5.0, 7.0};
+        double[] yValues2 = {2.0, 4.0, 6.0, 8.0};
+
+        TabulatedFunction f1 = new LinkedListTabulatedFunction(xValues, yValues1);
+        TabulatedFunction f2 = new LinkedListTabulatedFunction(xValues, yValues2);
+
+        TabulatedFunction result = service.add(f1, f2);
+
+        assertEquals(4, result.getCount());
+        assertEquals(3.0, result.getY(0), 0.0001);
+        assertEquals(7.0, result.getY(1), 0.0001);
+        assertEquals(11.0, result.getY(2), 0.0001);
+        assertEquals(15.0, result.getY(3), 0.0001);
+        assertInstanceOf(LinkedListTabulatedFunction.class, result);
+    }
+
+    @Test
+    public void testAddWithMixedFunctionTypes() {
+        TabulatedFunctionOperationService service = new TabulatedFunctionOperationService(new ArrayTabulatedFunctionFactory());
+
+        double[] xValues = {0.0, 1.0, 2.0, 3.0};
+        double[] yValues1 = {1.0, 3.0, 5.0, 7.0};
+        double[] yValues2 = {2.0, 4.0, 6.0, 8.0};
+
+        TabulatedFunction f1 = new ArrayTabulatedFunction(xValues, yValues1);
+        TabulatedFunction f2 = new LinkedListTabulatedFunction(xValues, yValues2);
+
+        TabulatedFunction result = service.add(f1, f2);
+
+        assertEquals(4, result.getCount());
+        assertEquals(3.0, result.getY(0), 0.0001);
+        assertEquals(7.0, result.getY(1), 0.0001);
+        assertEquals(11.0, result.getY(2), 0.0001);
+        assertEquals(15.0, result.getY(3), 0.0001);
+        assertInstanceOf(ArrayTabulatedFunction.class, result);
+    }
+
+    @Test
+    public void testMultiplicationWithArrayFunctions() {
+        TabulatedFunctionOperationService service = new TabulatedFunctionOperationService(new ArrayTabulatedFunctionFactory());
+
+        double[] xValues = {0.0, 1.0, 2.0, 3.0};
+        double[] yValues1 = {1.0, 3.0, 5.0, 7.0};
+        double[] yValues2 = {2.0, 4.0, 6.0, 8.0};
+
+        TabulatedFunction f1 = new ArrayTabulatedFunction(xValues, yValues1);
+        TabulatedFunction f2 = new ArrayTabulatedFunction(xValues, yValues2);
+
+        TabulatedFunction result = service.multiplication(f1, f2);
+
+        assertEquals(4, result.getCount());
+        assertEquals(2.0, result.getY(0), 0.0001);
+        assertEquals(12.0, result.getY(1), 0.0001);
+        assertEquals(30.0, result.getY(2), 0.0001);
+        assertEquals(56.0, result.getY(3), 0.0001);
+        assertInstanceOf(ArrayTabulatedFunction.class, result);
+    }
+
+    @Test
+    public void testMultiplicationWithLinkedListFunctions() {
+        TabulatedFunctionOperationService service = new TabulatedFunctionOperationService(new LinkedListTabulatedFunctionFactory());
+
+        double[] xValues = {0.0, 1.0, 2.0, 3.0};
+        double[] yValues1 = {1.0, 3.0, 5.0, 7.0};
+        double[] yValues2 = {2.0, 4.0, 6.0, 8.0};
+
+        TabulatedFunction f1 = new LinkedListTabulatedFunction(xValues, yValues1);
+        TabulatedFunction f2 = new LinkedListTabulatedFunction(xValues, yValues2);
+
+        TabulatedFunction result = service.multiplication(f1, f2);
+
+        assertEquals(4, result.getCount());
+        assertEquals(2.0, result.getY(0), 0.0001);
+        assertEquals(12.0, result.getY(1), 0.0001);
+        assertEquals(30.0, result.getY(2), 0.0001);
+        assertEquals(56.0, result.getY(3), 0.0001);
+        assertInstanceOf(LinkedListTabulatedFunction.class, result);
+    }
+
+    @Test
+    public void testAddThrowsExceptionWithDifferentLengths() {
+        TabulatedFunctionOperationService service = new TabulatedFunctionOperationService();
+
+        double[] xValues1 = {0.0, 1.0, 2.0, 3.0};
+        double[] yValues1 = {1.0, 3.0, 5.0, 7.0};
+        double[] xValues2 = {0.0, 1.0};
+        double[] yValues2 = {1.0, 2.0};
+
+        TabulatedFunction f1 = new ArrayTabulatedFunction(xValues1, yValues1);
+        TabulatedFunction f2 = new ArrayTabulatedFunction(xValues2, yValues2);
+
+        assertThrows(InconsistentFunctionsException.class, () -> service.add(f1, f2));
+    }
+
+    @Test
+    public void testMultiplicationThrowsExceptionWithDifferentXValues() {
+        TabulatedFunctionOperationService service = new TabulatedFunctionOperationService();
+
+        double[] xValues1 = {0.0, 1.0, 2.0, 3.0};
+        double[] yValues1 = {1.0, 3.0, 5.0, 7.0};
+        double[] xValues2 = {0.0, 1.5, 2.0, 3.0};
+        double[] yValues2 = {2.0, 4.0, 6.0, 8.0};
+
+        TabulatedFunction f1 = new ArrayTabulatedFunction(xValues1, yValues1);
+        TabulatedFunction f2 = new ArrayTabulatedFunction(xValues2, yValues2);
+
+        assertThrows(InconsistentFunctionsException.class, () -> service.multiplication(f1, f2));
+    }
+
+    @Test
+    public void testAdd2WithArrayFunctions() {
+        TabulatedFunctionOperationService service = new TabulatedFunctionOperationService(new ArrayTabulatedFunctionFactory());
+
+        double[] xValues = {0.0, 1.0, 2.0, 3.0};
+        double[] yValues1 = {1.0, 3.0, 5.0, 7.0};
+        double[] yValues2 = {2.0, 4.0, 6.0, 8.0};
+
+        TabulatedFunction f1 = new ArrayTabulatedFunction(xValues, yValues1);
+        TabulatedFunction f2 = new ArrayTabulatedFunction(xValues, yValues2);
+
+        TabulatedFunction result = service.add2(f1, f2);
+
+        assertEquals(4, result.getCount());
+        assertEquals(3.0, result.getY(0), 0.0001);
+        assertEquals(7.0, result.getY(1), 0.0001);
+        assertEquals(11.0, result.getY(2), 0.0001);
+        assertEquals(15.0, result.getY(3), 0.0001);
+        assertInstanceOf(ArrayTabulatedFunction.class, result);
+    }
+
+    @Test
+    public void testMultiplication2WithLinkedListFunctions() {
+        TabulatedFunctionOperationService service = new TabulatedFunctionOperationService(new LinkedListTabulatedFunctionFactory());
+
+        double[] xValues = {0.0, 1.0, 2.0, 3.0};
+        double[] yValues1 = {1.0, 3.0, 5.0, 7.0};
+        double[] yValues2 = {2.0, 4.0, 6.0, 8.0};
+
+        TabulatedFunction f1 = new LinkedListTabulatedFunction(xValues, yValues1);
+        TabulatedFunction f2 = new LinkedListTabulatedFunction(xValues, yValues2);
+
+        TabulatedFunction result = service.multiplication2(f1, f2);
+
+        assertEquals(4, result.getCount());
+        assertEquals(2.0, result.getY(0), 0.0001);
+        assertEquals(12.0, result.getY(1), 0.0001);
+        assertEquals(30.0, result.getY(2), 0.0001);
+        assertEquals(56.0, result.getY(3), 0.0001);
+        assertTrue(result instanceof LinkedListTabulatedFunction);
+    }
+
+    @Test
+    public void testAddAndAdd2GiveSameResult() {
+        TabulatedFunctionOperationService service = new TabulatedFunctionOperationService();
+
+        double[] xValues = {0.0, 1.0, 2.0, 3.0};
+        double[] yValues1 = {1.0, 3.0, 5.0, 7.0};
+        double[] yValues2 = {2.0, 4.0, 6.0, 8.0};
+
+        TabulatedFunction f1 = new ArrayTabulatedFunction(xValues, yValues1);
+        TabulatedFunction f2 = new ArrayTabulatedFunction(xValues, yValues2);
+
+        TabulatedFunction result1 = service.add(f1, f2);
+        TabulatedFunction result2 = service.add2(f1, f2);
+
+        assertEquals(result1.getCount(), result2.getCount());
+        for (int i = 0; i < result1.getCount(); i++) {
+            assertEquals(result1.getX(i), result2.getX(i), 0.0001);
+            assertEquals(result1.getY(i), result2.getY(i), 0.0001);
+        }
+    }
+
+    @Test
+    public void testMultiplicationAndMultiplication2GiveSameResult() {
+        TabulatedFunctionOperationService service = new TabulatedFunctionOperationService();
+
+        double[] xValues = {0.0, 1.0, 2.0, 3.0};
+        double[] yValues1 = {1.0, 3.0, 5.0, 7.0};
+        double[] yValues2 = {2.0, 4.0, 6.0, 8.0};
+
+        TabulatedFunction f1 = new LinkedListTabulatedFunction(xValues, yValues1);
+        TabulatedFunction f2 = new LinkedListTabulatedFunction(xValues, yValues2);
+
+        TabulatedFunction result1 = service.multiplication(f1, f2);
+        TabulatedFunction result2 = service.multiplication2(f1, f2);
+
+        assertEquals(result1.getCount(), result2.getCount());
+        for (int i = 0; i < result1.getCount(); i++) {
+            assertEquals(result1.getX(i), result2.getX(i), 0.0001);
+            assertEquals(result1.getY(i), result2.getY(i), 0.0001);
+        }
+    }
+
 }
