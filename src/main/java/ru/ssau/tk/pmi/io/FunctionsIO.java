@@ -20,6 +20,16 @@ public final class FunctionsIO {
     }
 
 
+    public static void writeTabulatedFunction(BufferedOutputStream outputStream, TabulatedFunction function) throws IOException{
+        DataOutputStream out = new DataOutputStream(outputStream);
+        out.writeInt(function.getCount());
+        for(Point point : function){
+            out.writeDouble(point.x);
+            out.writeDouble(point.y);
+        }
+        out.flush();
+    }
+
 
     public static TabulatedFunction deserialize(BufferedInputStream stream) throws IOException, ClassNotFoundException{
         ObjectInputStream objectInputStream = new ObjectInputStream(stream);
