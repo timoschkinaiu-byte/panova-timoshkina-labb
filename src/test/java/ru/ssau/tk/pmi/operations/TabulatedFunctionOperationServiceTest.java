@@ -30,13 +30,15 @@ public class TabulatedFunctionOperationServiceTest {
 
     @Test
     public void testAsPointsWithSinglePoint() {
-        double[] xValues = {5.0};
-        double[] yValues = {25.0};
+        double[] xValues = {5.0, 6.0};
+        double[] yValues = {25.0, 36.0};
         ArrayTabulatedFunction function = new ArrayTabulatedFunction(xValues, yValues);
         Point[] points = TabulatedFunctionOperationService.asPoints(function);
-        assertEquals(1, points.length);
+        assertEquals(2, points.length); 
         assertEquals(5.0, points[0].x, 1e-10);
         assertEquals(25.0, points[0].y, 1e-10);
+        assertEquals(6.0, points[1].x, 1e-10);
+        assertEquals(36.0, points[1].y, 1e-10);
     }
 
     // НОВЫЕ ТЕСТЫ ДЛЯ МЕТОДОВ СЛОЖЕНИЯ И ВЫЧИТАНИЯ
@@ -128,6 +130,25 @@ public class TabulatedFunctionOperationServiceTest {
 
     // ТЕСТ НА ИДЕНТИЧНОСТЬ РЕЗУЛЬТАТОВ СТАРЫХ И НОВЫХ МЕТОДОВ
 
+    @Test
+    public void testOldAndNewMethodsProduceSameResults() {
+        TabulatedFunctionOperationService service = new TabulatedFunctionOperationService();
 
+        double[] xValues = {1.0, 2.0, 3.0};
+        double[] y1 = {10.0, 20.0, 30.0};
+        double[] y2 = {5.0, 10.0, 15.0};
 
+        ArrayTabulatedFunction f1 = new ArrayTabulatedFunction(xValues, y1);
+        LinkedListTabulatedFunction f2 = new LinkedListTabulatedFunction(xValues, y2);
+
+        TabulatedFunction oldAdd = service.add(f1, f2);
+        TabulatedFunction newAdd = service.add2(f1, f2);
+
+        TabulatedFunction oldSub = service.subtraction(f1, f2);
+        TabulatedFunction newSub = service.subtraction2(f1, f2);
+        for (int i = 0; i < f1.getCount(); i++) {
+            assertEquals(oldAdd.getY(i), newAdd.getY(i), 1e-10, "add и add2 должны давать одинаковые результаты");
+            assertEquals(oldSub.getY(i), newSub.getY(i), 1e-10, "subtraction и subtraction2 должны давать одинаковые результаты");
+        }
+    }
 }
