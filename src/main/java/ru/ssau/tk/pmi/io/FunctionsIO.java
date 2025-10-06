@@ -4,6 +4,10 @@ import ru.ssau.tk.pmi.functions.Point;
 import ru.ssau.tk.pmi.functions.TabulatedFunction;
 import ru.ssau.tk.pmi.functions.factory.TabulatedFunctionFactory;
 
+import ru.ssau.tk.pmi.functions.factory.TabulatedFunctionFactory;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.Locale;
 import java.io.*;
 
 public final class FunctionsIO {
@@ -19,7 +23,24 @@ public final class FunctionsIO {
         printWriter.flush();
 
     }
-
+    public static TabulatedFunction readTabulatedFunction(BufferedReader reader, TabulatedFunctionFactory factory) throws IOException {
+        String line = reader.readLine();
+        int count = Integer.parseInt(line.trim());
+        double[] xValues = new double[count];
+        double[] yValues = new double[count];
+        NumberFormat formatter = NumberFormat.getInstance(Locale.forLanguageTag("ru"));
+        for (int i = 0; i < count; i++) {
+            line = reader.readLine();
+            String[] parts = line.split(" ");
+            try {
+                xValues[i] = formatter.parse(parts[0]).doubleValue();
+                yValues[i] = formatter.parse(parts[1]).doubleValue();
+            } catch (ParseException e) {
+                throw new IOException();
+            }
+        }
+        return factory.create(xValues, yValues);
+    }
 
     public static void writeTabulatedFunction(BufferedOutputStream outputStream, TabulatedFunction function) throws IOException{
         DataOutputStream out = new DataOutputStream(outputStream);
@@ -30,7 +51,11 @@ public final class FunctionsIO {
         }
         out.flush();
     }
-
+    public static void serialize(BufferedOutputStream stream, TabulatedFunction function) throws IOException {
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(stream);
+        objectOutputStream.writeObject(function);
+        objectOutputStream.flush();
+    }
 
     public static TabulatedFunction deserialize(BufferedInputStream stream) throws IOException, ClassNotFoundException{
         ObjectInputStream objectInputStream = new ObjectInputStream(stream);
