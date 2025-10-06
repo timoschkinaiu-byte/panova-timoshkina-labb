@@ -1,6 +1,8 @@
 package ru.ssau.tk.pmi.functions;
 import ru.ssau.tk.pmi.exceptions.ArrayIsNotSortedException;
 import ru.ssau.tk.pmi.exceptions.DifferentLengthOfArraysException;
+import java.lang.String;
+
 public abstract class AbstractTabulatedFunction implements TabulatedFunction{
     protected abstract int floorIndexOfX(double x);
     protected abstract double extrapolateLeft(double x);
@@ -35,6 +37,16 @@ public abstract class AbstractTabulatedFunction implements TabulatedFunction{
             int floorIndex = floorIndexOfX(x);
             return interpolate(x, floorIndex);
         }
+    }
+
+    public String ToString(){
+        StringBuilder str = new StringBuilder();
+        str.append(getClass().getSimpleName()).append(" size = ").append(getCount());
+
+        for (Point point : this) {
+            str.append("\n").append("[").append(point.x).append("; ").append(point.y).append("]");
+        }
+        return str.toString();
     }
 }
 
