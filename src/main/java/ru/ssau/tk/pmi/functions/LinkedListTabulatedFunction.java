@@ -14,9 +14,9 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
         public Node prev;
     }
 
-    @Override
+
     public Iterator<Point> iterator(){
-        Iterator<Point> iter = new Iterator<Point>(){
+        return new Iterator<Point>(){
             private Node node = head;
             private int i=0;
             @Override
@@ -38,7 +38,6 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
                 return point;
             }
         };
-        return iter;
     }
 
 
