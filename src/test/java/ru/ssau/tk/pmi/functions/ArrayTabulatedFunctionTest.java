@@ -86,7 +86,6 @@ public class ArrayTabulatedFunctionTest {
         double[] xValues = {1.0, 2.0, 3.0, 4.0};
         double[] yValues = {10.0, 20.0, 30.0, 40.0};
         ArrayTabulatedFunction function = new ArrayTabulatedFunction(xValues, yValues);
-        assertEquals(0, function.floorIndexOfX(0.5));  // меньше первого - возвращает 0
         assertEquals(0, function.floorIndexOfX(1.5));  // между 1.0 и 2.0
         assertEquals(1, function.floorIndexOfX(2.5));  // между 2.0 и 3.0
         assertEquals(2, function.floorIndexOfX(3.5));  // между 3.0 и 4.0
@@ -111,15 +110,7 @@ public class ArrayTabulatedFunctionTest {
         assertTrue(leftResult < 1.0);
         assertTrue(rightResult > 9.0);
     }
-    @Test
-    public void testApplySinglePoint() {
-        double[] xValues = {5.0};
-        double[] yValues = {25.0};
-        ArrayTabulatedFunction function = new ArrayTabulatedFunction(xValues, yValues);
-        assertEquals(25.0, function.apply(5.0), 0.0001);
-        assertEquals(25.0, function.apply(0.0), 0.0001);
-        assertEquals(25.0, function.apply(10.0), 0.0001);
-    }
+
     @Test
     public void testApplyExactMatch() {
         double[] xValues = {1.0, 2.0, 3.0};
@@ -259,4 +250,85 @@ public class ArrayTabulatedFunctionTest {
         }
         assertEquals(4, index); // Проверяем, что прошли все 4 точки
     }
+
+
+    @Test
+    public void testConstructorWithInvalidLength() {
+        double[] xValues = {1.0};
+        double[] yValues = {9.0};
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            new ArrayTabulatedFunction(xValues, yValues);
+        });
+    }
+
+    @Test
+    public void testConstructorWithSourceInvalidLength(){
+
+        assertThrows(IllegalArgumentException.class, ()->{
+            new ArrayTabulatedFunction(new IdentityFunction(), 3, 4, 1);
+        });
+    }
+
+    @Test
+    public void testGetXWithInvalidIndex() {
+        double[] xValues = {1.0, 2.0, 3.0};
+        double[] yValues = {4.0, 5.0, 6.0};
+        ArrayTabulatedFunction function = new ArrayTabulatedFunction(xValues, yValues);
+
+        assertThrows(IllegalArgumentException.class, () -> function.getX(-1));
+        assertThrows(IllegalArgumentException.class, () -> function.getX(3));
+    }
+
+    @Test
+    public void testGetYWithInvalidIndex() {
+        double[] xValues = {1.0, 2.0, 3.0};
+        double[] yValues = {4.0, 5.0, 6.0};
+        ArrayTabulatedFunction function = new ArrayTabulatedFunction(xValues, yValues);
+
+        assertThrows(IllegalArgumentException.class, () -> function.getY(-1));
+        assertThrows(IllegalArgumentException.class, () -> function.getY(3));
+    }
+
+    @Test
+    public void testSetYWithInvalidIndex() {
+        double[] xValues = {1.0, 2.0, 3.0};
+        double[] yValues = {4.0, 5.0, 6.0};
+        ArrayTabulatedFunction function = new ArrayTabulatedFunction(xValues, yValues);
+
+        assertThrows(IllegalArgumentException.class, () -> function.setY(-1, 10.0));
+        assertThrows(IllegalArgumentException.class, () -> function.setY(3, 10.0));
+    }
+
+    @Test
+    public void testFloorIndexOfXWithXLessThanLeftBound() {
+        double[] xValues = {1.0, 2.0, 3.0};
+        double[] yValues = {4.0, 5.0, 6.0};
+        ArrayTabulatedFunction function = new ArrayTabulatedFunction(xValues, yValues);
+
+        assertThrows(IllegalArgumentException.class, () -> function.floorIndexOfX(0.5));
+    }
+
+
+    @Test
+    public void testRemoveWithInvalidIndex() {
+        double[] xValues = {1.0, 2.0, 3.0};
+        double[] yValues = {4.0, 5.0, 6.0};
+        ArrayTabulatedFunction function = new ArrayTabulatedFunction(xValues, yValues);
+
+        assertThrows(IllegalArgumentException.class, () -> function.remove(-1));
+        assertThrows(IllegalArgumentException.class, () -> function.remove(3));
+    }
+
+    @Test
+    public void testGetNodeWithInvalidIndex() {
+        double[] xValues = {1.0, 2.0, 3.0};
+        double[] yValues = {4.0, 5.0, 6.0};
+        ArrayTabulatedFunction function = new ArrayTabulatedFunction(xValues, yValues);
+
+        assertThrows(IllegalArgumentException.class, () -> function.getX(-1));
+        assertThrows(IllegalArgumentException.class, () -> function.getX(5));
+    }
+
+
 }
