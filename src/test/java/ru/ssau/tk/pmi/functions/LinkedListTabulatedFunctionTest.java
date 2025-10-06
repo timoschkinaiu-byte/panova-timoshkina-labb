@@ -11,6 +11,8 @@ import ru.ssau.tk.pmi.functions.LinkedListTabulatedFunction.Node;
 
 import static org.junit.jupiter.api.Assertions.*;
 import ru.ssau.tk.pmi.exceptions.InterpolationException;
+
+import java.util.Iterator;
 public class LinkedListTabulatedFunctionTest {
 
     private LinkedListTabulatedFunction function;
@@ -481,4 +483,38 @@ public class LinkedListTabulatedFunctionTest {
         assertThrows(IllegalArgumentException.class, () -> function.getX(5));
     }
 
-}
+
+    //тесты итератора
+    @Test
+    public void testIteratorWithWhileLoop() {
+        double[] xValues = {1.0, 2.0, 3.0};
+        double[] yValues = {4.0, 5.0, 6.0};
+        LinkedListTabulatedFunction function = new LinkedListTabulatedFunction(xValues, yValues);
+
+        Iterator<Point> iterator = function.iterator();
+        int index = 0;
+        while (iterator.hasNext()) {
+            Point point = iterator.next();
+            assertEquals(xValues[index], point.x, 0.0001);
+            assertEquals(yValues[index], point.y,0.0001);
+            index++;
+        }
+        assertEquals(3, index);
+    }
+
+    @Test
+    public void testIteratorWithForEachLoop() {
+        double[] xValues = {1.0, 2.0, 3.0};
+        double[] yValues = {4.0, 5.0, 6.0};
+        LinkedListTabulatedFunction function = new LinkedListTabulatedFunction(xValues, yValues);
+
+        int index = 0;
+        for (Point point : function) {
+            assertEquals(xValues[index],point.x,  0.0001);
+            assertEquals(yValues[index], point.y,0.0001);
+            index++;
+        }
+        assertEquals(3, index);
+    }
+
+    }

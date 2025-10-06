@@ -3,6 +3,8 @@ import ru.ssau.tk.pmi.exceptions.ArrayIsNotSortedException;
 import ru.ssau.tk.pmi.exceptions.DifferentLengthOfArraysException;
 import ru.ssau.tk.pmi.exceptions.InterpolationException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
+
 public class LinkedListTabulatedFunction extends AbstractTabulatedFunction implements Insertable, Removable{
 
     static class Node {
@@ -11,9 +13,35 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
         public Node next;
         public Node prev;
     }
+
+    @Override
     public Iterator<Point> iterator(){
-        throw  new UnsupportedOperationException();
+        Iterator<Point> iter = new Iterator<Point>(){
+            private Node node = head;
+            private int i=0;
+            @Override
+            public boolean hasNext() {
+                return node != null;
+            }
+
+            public Point next(){
+                if(!hasNext()){
+                    throw  new NoSuchElementException();
+                }
+
+                Point point = new Point(node.x, node.y);
+                node = node.next;
+                i++;
+                if(i >= count){
+                    node = null;
+                }
+                return point;
+            }
+        };
+        return iter;
     }
+
+
     private int count = 0;
     private Node head = null;
     private void addNode(double x, double y) //добавление узла
