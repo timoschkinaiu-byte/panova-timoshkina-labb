@@ -11,7 +11,7 @@ class ArrayTabulatedFunctionFactoryTest {
     @Test
     public void testArrayTabulatedFunctionFactory() {
         TabulatedFunctionFactory factory = new ArrayTabulatedFunctionFactory();
-        double[] xValues = {1.0, 21.0, 3.7};
+        double[] xValues = {1.0, 3.7, 21.9};
         double[] yValues = {8.0, 5.0, 6.3};
 
         TabulatedFunction function = factory.create(xValues, yValues);

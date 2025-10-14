@@ -11,7 +11,7 @@ class LinkedListTabulatedFunctionFactoryTest {
     @Test
     public void testLinkedListTabulatedFunctionFactory() {
         TabulatedFunctionFactory factory = new LinkedListTabulatedFunctionFactory();
-        double[] xValues = {1.0, 21.0, 3.7};
+        double[] xValues = {1.0, 3.7, 21.9};
         double[] yValues = {8.0, 5.0, 6.0};
 
         TabulatedFunction function = factory.create(xValues, yValues);

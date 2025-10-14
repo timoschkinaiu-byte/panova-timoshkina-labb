@@ -164,9 +164,9 @@ public class CompositeFunctionTest {
         CompositeFunction firstComposite = new CompositeFunction(addOne, multiplyTwo);
         CompositeFunction finalComposite = new CompositeFunction(firstComposite, subtractThree);
 
-        assertEquals(-1.0, finalComposite.apply(0.0), 1e-9);  // ((0+1)*2)-3 = -1
-        assertEquals(1.0, finalComposite.apply(1.0), 1e-9);   // ((1+1)*2)-3 = 1
-        assertEquals(5.0, finalComposite.apply(2.0), 1e-9);   // ((2+1)*2)-3 = 3
+        assertEquals(-1.0, finalComposite.apply(0.0), 1e-9);
+        assertEquals(1.0, finalComposite.apply(1.0), 1e-9);
+        assertEquals(3.0, finalComposite.apply(2.0), 1e-9);
     }
     @Test
     public  void testTwoArrayTabledFunctions(){
@@ -240,16 +240,13 @@ public class CompositeFunctionTest {
         double[] singleX = {2.5};
         double[] singleY = {7.3};
 
-        ArrayTabulatedFunction arraySingle = new ArrayTabulatedFunction(singleX, singleY);
-        LinkedListTabulatedFunction linkedListSingle = new LinkedListTabulatedFunction(singleX, singleY);
+        assertThrows(IllegalArgumentException.class, () -> {
+            new ArrayTabulatedFunction(singleX, singleY);
+        });
 
+        assertThrows(IllegalArgumentException.class, () -> {
+            new LinkedListTabulatedFunction(singleX, singleY);
+        });
 
-        assertEquals(7.3, arraySingle.apply(0.0), 1e-9);
-        assertEquals(7.3, arraySingle.apply(2.5), 1e-9);
-        assertEquals(7.3, arraySingle.apply(5.0), 1e-9);
-
-        assertEquals(linkedListSingle.apply(0.0), arraySingle.apply(0.0), 1e-9);
-        assertEquals(linkedListSingle.apply(2.5), arraySingle.apply(2.5), 1e-9);
-        assertEquals(linkedListSingle.apply(5.0), arraySingle.apply(5.0), 1e-9);
     }
 }
