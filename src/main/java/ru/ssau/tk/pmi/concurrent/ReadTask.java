@@ -10,10 +10,12 @@ public class ReadTask implements Runnable{
     @Override
     public void run(){
         for(int i = 0; i < func.getCount(); i++){
-            double X = func.getX(i);
-            double Y = func.getY(i);
+            synchronized (func) {
+                double X = func.getX(i);
+                double Y = func.getY(i);
 
-            System.out.printf("After read: i = %d, x = %f, y = %f \n", i, X, Y);
+                System.out.printf("After read: i = %d, x = %f, y = %f \n", i, X, Y);
+            }
         }
     }
 }

@@ -14,8 +14,10 @@ public class WriteTask implements Runnable{
     @Override
     public void run(){
         for(int i = 0; i < func.getCount(); i++){
-            func.setY(i, value);
-            System.out.printf("Writing for index %d complete%n", i);
+            synchronized (func) {
+                func.setY(i, value);
+                System.out.printf("Writing for index %d complete%n", i);
+            }
         }
     }
 }
