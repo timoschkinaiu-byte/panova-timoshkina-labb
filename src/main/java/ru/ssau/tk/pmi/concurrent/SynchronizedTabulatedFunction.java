@@ -2,7 +2,10 @@ package ru.ssau.tk.pmi.concurrent;
 
 import ru.ssau.tk.pmi.functions.TabulatedFunction;
 import ru.ssau.tk.pmi.functions.Point;
+import ru.ssau.tk.pmi.operations.TabulatedFunctionOperationService;
+
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 public class SynchronizedTabulatedFunction implements TabulatedFunction {
     private final TabulatedFunction func;
@@ -57,6 +60,23 @@ public class SynchronizedTabulatedFunction implements TabulatedFunction {
 
     @Override
     public synchronized Iterator<Point> iterator() {
-        return func.iterator();
+        Point[] pointsCopy = TabulatedFunctionOperationService.asPoints(func);
+
+        return new Iterator<Point>() {
+            private int currentIndex = 0;
+
+            @Override
+            public boolean hasNext() {
+                return currentIndex < pointsCopy.length;
+            }
+
+            @Override
+            public Point next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+                return pointsCopy[currentIndex++];
+            }
+        };
     }
 }
