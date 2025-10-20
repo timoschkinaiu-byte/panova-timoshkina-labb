@@ -182,4 +182,29 @@ public class SynchronizedTabulatedFunctionTest {
         assertFalse(iterator1.hasNext());
         assertTrue(iterator2.hasNext());
     }
+    @Test
+    public void testDoSynchronouslyWithReturnValue() {
+        TabulatedFunction baseFunction = new ArrayTabulatedFunction(new double[]{1, 2, 3}, new double[]{1, 2, 3});
+        SynchronizedTabulatedFunction syncFunction = new SynchronizedTabulatedFunction(baseFunction);
+
+        Double result = syncFunction.doSynchronously(func -> {
+            return func.getX(0) + func.getY(0);
+        });
+
+        assertEquals(result, 2.0);
+    }
+    @Test
+    public void testDoSynchronouslyWithVoid() {
+        TabulatedFunction baseFunction = new ArrayTabulatedFunction(new double[]{1, 2, 3}, new double[]{1, 2, 3});
+        SynchronizedTabulatedFunction syncFunction = new SynchronizedTabulatedFunction(baseFunction);
+        Void result = syncFunction.doSynchronously(func -> {
+            func.setY(0, 10.0);
+            return null;
+        });
+        assertNull(result);
+        assertEquals(syncFunction.getY(0), 10.0);
+    }
 }
+
+
+

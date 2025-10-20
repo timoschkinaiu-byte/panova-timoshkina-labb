@@ -2,6 +2,7 @@ package ru.ssau.tk.pmi.operations;
 import ru.ssau.tk.pmi.functions.TabulatedFunction;
 import ru.ssau.tk.pmi.functions.factory.*;
 import ru.ssau.tk.pmi.functions.Point;
+import ru.ssau.tk.pmi.concurrent.SynchronizedTabulatedFunction;
 
 public class TabulatedDifferentialOperator implements DifferentialOperator<TabulatedFunction>{
     private TabulatedFunctionFactory factory;
@@ -44,6 +45,15 @@ public class TabulatedDifferentialOperator implements DifferentialOperator<Tabul
 
     public TabulatedFunctionFactory getFactory(){
         return factory;
+    }
+    public TabulatedFunction deriveSynchronously(TabulatedFunction function) {
+        // Проверяем, является ли функция уже синхронизированной обёрткой
+        SynchronizedTabulatedFunction synchronizedFunction = (function instanceof SynchronizedTabulatedFunction)
+                ? (SynchronizedTabulatedFunction) function
+                : new SynchronizedTabulatedFunction(function);
+
+        // Вызываем операцию вычисления производной внутри синхронизированного блока
+        return synchronizedFunction.doSynchronously(func -> derive(func));
     }
 
 }

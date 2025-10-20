@@ -4,7 +4,7 @@ import ru.ssau.tk.pmi.functions.*;
 import ru.ssau.tk.pmi.functions.factory.*;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-
+import ru.ssau.tk.pmi.concurrent.SynchronizedTabulatedFunction;
 
 public class TabulatedDifferentialOperatorTest {
     @Test
@@ -87,5 +87,67 @@ public class TabulatedDifferentialOperatorTest {
 
         // Проверяем, что теперь производная имеет тип LinkedList
         assertTrue(linkedListDerivative instanceof LinkedListTabulatedFunction);
+    }
+
+    @Test
+    public void testDeriveSynchronously() {
+        // Создаем исходную функцию
+        double[] xValues = {1, 2, 3, 4};
+        double[] yValues = {1, 4, 9, 16};
+        ArrayTabulatedFunction function = new ArrayTabulatedFunction(xValues, yValues);
+
+        // Создаем оператор
+        TabulatedDifferentialOperator operator = new TabulatedDifferentialOperator();
+
+        // Вычисляем производную
+        TabulatedFunction derived = operator.deriveSynchronously(function);
+
+        // Проверяем результаты
+        assertEquals(3, derived.getY(0), 1e-9); // Производная в точке x=1
+        assertEquals(5, derived.getY(1), 1e-9); // Производная в точке x=2
+        assertEquals(7, derived.getY(2), 1e-9); // Производная в точке x=3
+    }
+
+    @Test
+    public void testDeriveSynchronously_AlreadySynchronized() {
+        // Создаем исходную функцию и оборачиваем её в синхронизированную обёртку
+        double[] xValues = {1, 2, 3};
+        double[] yValues = {2, 4, 6};
+        TabulatedFunction baseFunction = new ArrayTabulatedFunction(xValues, yValues);
+        SynchronizedTabulatedFunction synchronizedFunction = new SynchronizedTabulatedFunction(baseFunction);
+
+        // Создаем оператор
+        TabulatedDifferentialOperator operator = new TabulatedDifferentialOperator();
+
+        // Вычисляем производную
+        TabulatedFunction derived = operator.deriveSynchronously(synchronizedFunction);
+
+        // Проверяем корректность вычислений (вместо проверки через рефлексию)
+        assertEquals(2, derived.getY(0), 1e-9); // Производная должна быть 2
+        assertEquals(2, derived.getY(1), 1e-9); // Производная должна быть 2
+        assertEquals(2, derived.getY(2), 1e-9); // Производная должна быть 2
+    }
+
+    @Test
+    public void testDeriveSynchronously_CompareWithRegularDerive() {
+        // Создаем исходную функцию
+        double[] xValues = {0, 1, 2, 3};
+        double[] yValues = {0, 1, 8, 27};
+        TabulatedFunction function = new ArrayTabulatedFunction(xValues, yValues);
+
+        // Создаем оператор
+        TabulatedDifferentialOperator operator = new TabulatedDifferentialOperator();
+
+        // Вычисляем производную обоими методами
+        TabulatedFunction derivedRegular = operator.derive(function);
+        TabulatedFunction derivedSynchronously = operator.deriveSynchronously(function);
+
+        // Проверяем, что результаты одинаковы
+        assertEquals(derivedSynchronously.getCount(), derivedRegular.getCount());
+
+        for (int i = 0; i < derivedRegular.getCount(); i++) {
+            assertEquals(derivedSynchronously.getX(i), derivedRegular.getX(i), 1e-9);
+            assertEquals(derivedSynchronously.getY(i), derivedRegular.getY(i), 1e-9);
+        }
     }
 }
