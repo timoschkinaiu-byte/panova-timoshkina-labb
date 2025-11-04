@@ -7,6 +7,9 @@ import ru.ssau.tk.pmi.functions.SqrFunction;
 import ru.ssau.tk.pmi.functions.Point;
 import java.util.Iterator;
 import static org.junit.jupiter.api.Assertions.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class ArrayTabulatedFunctionTest {
     @Test
     public void testConstructorWithArrays() {

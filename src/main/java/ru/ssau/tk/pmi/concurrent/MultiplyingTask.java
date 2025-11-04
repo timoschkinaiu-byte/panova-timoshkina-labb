@@ -1,5 +1,6 @@
 package ru.ssau.tk.pmi.concurrent;
 import ru.ssau.tk.pmi.functions.TabulatedFunction;
+
 public class MultiplyingTask implements Runnable {
     private final TabulatedFunction function;
 

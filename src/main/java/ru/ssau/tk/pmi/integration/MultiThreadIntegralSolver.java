@@ -1,24 +1,32 @@
 package ru.ssau.tk.pmi.integration;
-
 import ru.ssau.tk.pmi.functions.TabulatedFunction;
 import java.util.concurrent.*;
 import java.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class MultiThreadIntegralSolver implements IntegralSolver {
     private final int workerCount;
+    private static final Logger logger = LogManager.getLogger(MultiThreadIntegralSolver.class);
 
     public MultiThreadIntegralSolver(int workerCount) {
+        logger.info("Создание MultiThreadIntegralSolver с {} потоками", workerCount);
         this.workerCount = Math.max(1, workerCount);
     }
 
     public MultiThreadIntegralSolver() {
-        this(Runtime.getRuntime().availableProcessors()); // Исправлено здесь
+        int processors = Runtime.getRuntime().availableProcessors();
+        logger.info("Создание MultiThreadIntegralSolver с {} потоками (по умолчанию)", processors);
+        this.workerCount = processors;
     }
 
     @Override
     public double computeIntegral(TabulatedFunction func) {
+        logger.info("Вычисление интеграла для функции с {} точками, потоков: {}", func.getCount(), workerCount);
+
         int totalSegments = func.getCount() - 1;
         if (totalSegments < 1) {
+            logger.warn("Недостаточно точек для вычисления интеграла");
             return 0.0;
         }
 
@@ -27,6 +35,8 @@ public class MultiThreadIntegralSolver implements IntegralSolver {
 
         int baseSegmentsPerWorker = totalSegments / workerCount;
         int extraSegments = totalSegments % workerCount;
+
+        logger.debug("Распределение сегментов: базово {}, дополнительно {}", baseSegmentsPerWorker, extraSegments);
 
         int currentStart = 0;
         for (int workerIndex = 0; workerIndex < workerCount; workerIndex++) {
@@ -58,6 +68,7 @@ public class MultiThreadIntegralSolver implements IntegralSolver {
         }
 
         workers.shutdown();
+        logger.info("Интеграл вычислен: {}", finalResult);
         return finalResult;
     }
 }

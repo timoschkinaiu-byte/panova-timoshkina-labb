@@ -10,14 +10,22 @@ import java.util.Iterator;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements Insertable, Removable, Iterable<Point>, Serializable {
     @Serial
     private static final long serialVersionUID = 3369212386005378596L;
     private double[] xValues;
     private double[] yValues;
     private int count;
+    private static final Logger logger = LogManager.getLogger(ArrayTabulatedFunction.class);
+
     public ArrayTabulatedFunction(double[] xValues, double[] yValues) {
+        logger.info("Создание ArrayTabulatedFunction с {} точками", xValues.length);
+
         if(xValues.length < 2){
+            logger.error("Попытка создания функции с {} точками (минимум 2)", xValues.length);
             throw new IllegalArgumentException("длина меньше минимальной");
         }
         AbstractTabulatedFunction.checkLengthsIsTheSame(xValues, yValues);
@@ -25,6 +33,9 @@ public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements
         this.xValues = Arrays.copyOf(xValues, xValues.length);
         this.yValues = Arrays.copyOf(yValues, yValues.length);
         this.count = xValues.length;
+
+        logger.debug("ArrayTabulatedFunction успешно создана. X values: {}, Y values: {}",
+                Arrays.toString(xValues), Arrays.toString(yValues));
     }
     public Iterator<Point> iterator() {
         return new Iterator<Point>() {
@@ -46,7 +57,11 @@ public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements
         };
     }
     public ArrayTabulatedFunction(MathFunction source, double xFrom, double xTo, int count) {
+        logger.info("Создание функции из {} на интервале [{}, {}] с {} точками",
+                source.getClass().getSimpleName(), xFrom, xTo, count);
+
         if(count < 2){
+            logger.error("ОШИБКА: Недостаточно точек - {}", count);
             throw new IllegalArgumentException("длина меньше минимальной");
         }
         this.count = count;
@@ -76,6 +91,7 @@ public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements
     @Override
     public double getX(int index) {
         if (index < 0 || index >= count) {
+            logger.error("ОШИБКА: Индекс {} выходит за границы [0, {}]", index, count-1);
             throw new IllegalArgumentException("Индекс выходит за границы: " + index);
         }
         return xValues[index];
@@ -83,13 +99,17 @@ public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements
     @Override
     public double getY(int index) {
         if (index < 0 || index >= count) {
+            logger.error("ОШИБКА: Индекс {} выходит за границы [0, {}]", index, count-1);
             throw new IllegalArgumentException("Индекс выходит за границы: " + index);
         }
         return yValues[index];
     }
     @Override
     public void setY(int index, double value) {
+        logger.debug("Изменение Y[{}] = {}", index, value);
+
         if (index < 0 || index >= count) {
+            logger.error("ОШИБКА: Индекс {} выходит за границы", index);
             throw new IllegalArgumentException("Индекс выходит за границы: " + index);
         }
         yValues[index] = value;
@@ -122,7 +142,10 @@ public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements
     }
     @Override
     protected int floorIndexOfX(double x) {
+        logger.debug("Поиск интервала для x={}", x);
+
         if (x < xValues[0]) {
+            logger.error("ОШИБКА: x меньше левой границы");
             throw new IllegalArgumentException("x меньше левой границы: " + x);
         }
         if (x >= xValues[count - 1]) {
@@ -193,6 +216,7 @@ public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements
 
     public void remove(int index) {
         if (index < 0 || index >= count) {
+            logger.error("ОШИБКА: Индекс {} выходит за границы", index);
             throw new IllegalArgumentException("Индекс выходит за границы: " + index);
         }
         for (int i = index; i < count - 1; i++) {

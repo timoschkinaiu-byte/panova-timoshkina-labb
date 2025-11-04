@@ -6,9 +6,13 @@ import ru.ssau.tk.pmi.operations.TabulatedFunctionOperationService;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class SynchronizedTabulatedFunction implements TabulatedFunction {
     private final TabulatedFunction func;
+    private static final Logger logger = LogManager.getLogger(SynchronizedTabulatedFunction.class);
+
     public SynchronizedTabulatedFunction(TabulatedFunction func){
         this.func = func;
     }
@@ -55,11 +59,13 @@ public class SynchronizedTabulatedFunction implements TabulatedFunction {
 
     @Override
     public synchronized double apply(double x) {
+        logger.debug("Вычисление apply(x={})", x);
         return func.apply(x);
     }
 
     @Override
     public synchronized Iterator<Point> iterator() {
+        logger.debug("Создание потокобезопасного итератора");
         Point[] pointsCopy = TabulatedFunctionOperationService.asPoints(func);
 
         return new Iterator<Point>() {
@@ -73,6 +79,7 @@ public class SynchronizedTabulatedFunction implements TabulatedFunction {
             @Override
             public Point next() {
                 if (!hasNext()) {
+                    logger.warn("Попытка получить следующий элемент при отсутствии элементов");
                     throw new NoSuchElementException();
                 }
                 return pointsCopy[currentIndex++];

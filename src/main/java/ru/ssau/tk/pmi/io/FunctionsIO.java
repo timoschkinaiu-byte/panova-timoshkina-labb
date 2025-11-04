@@ -9,21 +9,28 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
 import java.io.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public final class FunctionsIO {
+    private static final Logger logger = LogManager.getLogger(FunctionsIO.class);
+
     private FunctionsIO(){
         throw new UnsupportedOperationException();
     }
     public static void writeTabulatedFunction(BufferedWriter writer, TabulatedFunction function){
+        logger.info("Запись функции в текстовый файл, точек: {}", function.getCount());
         PrintWriter printWriter = new PrintWriter(writer);
         printWriter.println(function.getCount());
         for(Point point: function){
             printWriter.printf("%f %f\n", point.x, point.y);
         }
         printWriter.flush();
+        logger.debug("Функция записана успешно");
 
     }
     public static TabulatedFunction readTabulatedFunction(BufferedReader reader, TabulatedFunctionFactory factory) throws IOException {
+        logger.info("Чтение функции из текстового файла");
         String line = reader.readLine();
         int count = Integer.parseInt(line.trim());
         double[] xValues = new double[count];
@@ -36,10 +43,13 @@ public final class FunctionsIO {
                 xValues[i] = formatter.parse(parts[0]).doubleValue();
                 yValues[i] = formatter.parse(parts[1]).doubleValue();
             } catch (ParseException e) {
+                logger.error("Ошибка парсинга чисел в строке: {}", line);
                 throw new IOException();
             }
         }
-        return factory.create(xValues, yValues);
+        TabulatedFunction result = factory.create(xValues, yValues);
+        logger.info("Функция прочитана успешно");
+        return result;
     }
 
     public static void writeTabulatedFunction(BufferedOutputStream outputStream, TabulatedFunction function) throws IOException{
@@ -52,9 +62,11 @@ public final class FunctionsIO {
         out.flush();
     }
     public static void serialize(BufferedOutputStream stream, TabulatedFunction function) throws IOException {
+        logger.info("Сериализация функции");
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(stream);
         objectOutputStream.writeObject(function);
         objectOutputStream.flush();
+        logger.debug("Сериализация завершена");
     }
 
     public static TabulatedFunction deserialize(BufferedInputStream stream) throws IOException, ClassNotFoundException{
@@ -66,6 +78,7 @@ public final class FunctionsIO {
     public static TabulatedFunction readTabulatedFunction(BufferedInputStream inputStream, TabulatedFunctionFactory factory)
             throws IOException {
 
+        logger.info("Чтение функции из бинарного файла");
         DataInputStream dataIn = new DataInputStream(inputStream);
 
         int count = dataIn.readInt();
@@ -78,7 +91,9 @@ public final class FunctionsIO {
             yValues[i] = dataIn.readDouble();
         }
 
-        return factory.create(xValues, yValues);
+        TabulatedFunction result = factory.create(xValues, yValues);
+        logger.info("Бинарное чтение завершено");
+        return result;
     }
 
 }
