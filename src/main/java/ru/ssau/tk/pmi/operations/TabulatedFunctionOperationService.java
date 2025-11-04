@@ -5,13 +5,18 @@ import ru.ssau.tk.pmi.functions.Point;
 import ru.ssau.tk.pmi.functions.TabulatedFunction;
 import ru.ssau.tk.pmi.functions.factory.ArrayTabulatedFunctionFactory;
 import ru.ssau.tk.pmi.functions.factory.TabulatedFunctionFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class TabulatedFunctionOperationService {
     private TabulatedFunctionFactory factory;
+    private static final Logger logger = LogManager.getLogger(TabulatedFunctionOperationService.class);
     public  TabulatedFunctionOperationService(TabulatedFunctionFactory factory){
+        logger.info("Создание TabulatedFunctionOperationService с фабрикой: {}", factory.getClass().getSimpleName());
         this.factory = factory;
     }
     public TabulatedFunctionOperationService(){
+        logger.info("Создание TabulatedFunctionOperationService с фабрикой по умолчанию");
         this.factory = new ArrayTabulatedFunctionFactory();
     }
 
@@ -32,6 +37,7 @@ public class TabulatedFunctionOperationService {
         return mas;
     }
     public TabulatedFunction add (TabulatedFunction f1, TabulatedFunction f2){
+        logger.info("Операция сложения функций с {} и {} точками", f1.getCount(), f2.getCount());
         if( f1.getCount() != f2.getCount()){
             throw new InconsistentFunctionsException();
         }
@@ -49,6 +55,7 @@ public class TabulatedFunctionOperationService {
         return factory.create(xValues,yValues);
     }
     public TabulatedFunction subtraction (TabulatedFunction f1, TabulatedFunction f2){
+        logger.info("Операция вычитания функций с {} и {} точками", f1.getCount(), f2.getCount());
         if( f1.getCount() != f2.getCount()){
             throw new InconsistentFunctionsException();
         }
@@ -68,6 +75,7 @@ public class TabulatedFunctionOperationService {
 
 
     public TabulatedFunction multiplication (TabulatedFunction f1, TabulatedFunction f2){
+        logger.info("Операция умножения функций с {} и {} точками", f1.getCount(), f2.getCount());
         if( f1.getCount() != f2.getCount()){
             throw new InconsistentFunctionsException();
         }
@@ -87,6 +95,7 @@ public class TabulatedFunctionOperationService {
 
 
     public TabulatedFunction division (TabulatedFunction f1, TabulatedFunction f2){
+        logger.info("Операция деления функций с {} и {} точками", f1.getCount(), f2.getCount());
         if( f1.getCount() != f2.getCount()){
             throw new InconsistentFunctionsException();
         }
@@ -110,7 +119,9 @@ public class TabulatedFunctionOperationService {
         public double apply(double u, double v);
     }
     private TabulatedFunction doOperation(TabulatedFunction f1, TabulatedFunction f2, BiOperation operation){
+        logger.debug("Выполнение операции над функциями");
         if( f1.getCount() != f2.getCount()){
+            logger.error("ОШИБКА: Разное количество точек - {} и {}", f1.getCount(), f2.getCount());
             throw new InconsistentFunctionsException();
         }
         Point [] f1_mas = asPoints(f1);
@@ -119,11 +130,13 @@ public class TabulatedFunctionOperationService {
         double [] yValues = new double[f1_mas.length];
         for(int i=0;i<f1_mas.length;i++){
             if(f1_mas[i].x != f2_mas[i].x){
+                logger.error("ОШИБКА: Несовпадение X в точке {}", i);
                 throw new InconsistentFunctionsException();
             }
             xValues [i] = f1_mas[i].x;
             yValues [i] = operation.apply(f1_mas[i].y, f2_mas[i].y);
         }
+
         return factory.create(xValues,yValues);
     }
     public TabulatedFunction add2 (TabulatedFunction f1, TabulatedFunction f2){

@@ -3,11 +3,15 @@ import ru.ssau.tk.pmi.functions.TabulatedFunction;
 import ru.ssau.tk.pmi.functions.factory.*;
 import ru.ssau.tk.pmi.functions.Point;
 import ru.ssau.tk.pmi.concurrent.SynchronizedTabulatedFunction;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class TabulatedDifferentialOperator implements DifferentialOperator<TabulatedFunction>{
     private TabulatedFunctionFactory factory;
+    private static final Logger logger = LogManager.getLogger(TabulatedDifferentialOperator.class);
 
     public TabulatedDifferentialOperator(TabulatedFunctionFactory factory){
+        logger.info("Создание TabulatedDifferentialOperator с фабрикой: {}", factory.getClass().getSimpleName());
         this.factory = factory;
     }
 
@@ -17,6 +21,7 @@ public class TabulatedDifferentialOperator implements DifferentialOperator<Tabul
 
     @Override
     public TabulatedFunction derive(TabulatedFunction function) {
+        logger.info("Вычисление производной для функции с {} точками", function.getCount());
         Point[] points = TabulatedFunctionOperationService.asPoints(function);
         int pointCount = points.length;
 
@@ -36,6 +41,7 @@ public class TabulatedDifferentialOperator implements DifferentialOperator<Tabul
 
         yValues[pointCount - 1] = yValues[pointCount - 2];
 
+        logger.info("Производная успешно вычислена, создана новая функция");
         return factory.create(xValues, yValues);
     }
 
@@ -47,12 +53,14 @@ public class TabulatedDifferentialOperator implements DifferentialOperator<Tabul
         return factory;
     }
     public TabulatedFunction deriveSynchronously(TabulatedFunction function) {
+        logger.info("Синхронное вычисление производной для функции с {} точками", function.getCount());
         // Проверяем, является ли функция уже синхронизированной обёрткой
         SynchronizedTabulatedFunction synchronizedFunction = (function instanceof SynchronizedTabulatedFunction)
                 ? (SynchronizedTabulatedFunction) function
                 : new SynchronizedTabulatedFunction(function);
 
         // Вызываем операцию вычисления производной внутри синхронизированного блока
+        logger.info("Синхронное вычисление производной завершено");
         return synchronizedFunction.doSynchronously(func -> derive(func));
     }
 

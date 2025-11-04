@@ -5,10 +5,13 @@ import ru.ssau.tk.pmi.exceptions.InterpolationException;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class LinkedListTabulatedFunction extends AbstractTabulatedFunction implements Insertable, Removable, Serializable {
 
     private static final long serialVersionUID = 1L;
+    private static final Logger logger = LogManager.getLogger(LinkedListTabulatedFunction.class);
 
     static class Node implements Serializable{
         public double x;
@@ -65,6 +68,7 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
             newNode.next = head;
             head.prev = newNode;
         }
+        logger.trace("Добавлен узел: x={}, y={}", x, y);
 
         count += 1;
     }
@@ -72,6 +76,7 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
     private Node getNode(int index){
 
         if (index < 0 || index >= count) {
+            logger.error("ОШИБКА: Попытка доступа к несуществующему узлу с индексом {}", index);
             throw new IllegalArgumentException("Индекс выходит за границы: " + index);
         }
         Node temp = head;
@@ -84,7 +89,10 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
     }
 
     public LinkedListTabulatedFunction(double[] xValues, double [] yValues){
+        logger.info("Создание LinkedListTabulatedFunction с {} точками", xValues.length);
+
         if(xValues.length < 2){
+            logger.error("ОШИБКА: Недостаточно точек для создания списка - {}", xValues.length);
             throw new IllegalArgumentException("длина меньше минимальной");
         }
         AbstractTabulatedFunction.checkLengthsIsTheSame(xValues, yValues);
@@ -92,11 +100,15 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
         for (int i = 0; i < xValues.length; i++){
             addNode(xValues[i], yValues[i]);
         }
+        logger.debug("Список создан. Количество узлов: {}", count);
     }
 
     public LinkedListTabulatedFunction(MathFunction source, double xFrom, double xTo, int count){
+        logger.info("Создание списка из {} на интервале [{}, {}] с {} точками",
+                source.getClass().getSimpleName(), xFrom, xTo, count);
 
         if(count < 2){
+            logger.error("ОШИБКА: Недостаточно точек для списка - {}", count);
             throw new IllegalArgumentException("длина меньше минимальной");
         }
 
@@ -105,6 +117,7 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
             for (int i = 0; i < count; i++) {
                 addNode(xFrom, yValue);
             }
+            logger.debug("Создан список с постоянным значением: {}", yValue);
         }
 
         else {
@@ -114,6 +127,7 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
                 double y = source.apply(x);
                 addNode(x, y);
             }
+            logger.debug("Список создан с шагом: {}", step);
         }
     }
 
@@ -200,6 +214,7 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
 
 
     protected double interpolate(double x, int floorIndex) {
+        logger.debug("Интерполяция x={} в интервале {}", x, floorIndex);
         if (count == 1) {
             return head.y;
         }
@@ -212,6 +227,7 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
             rightNode = getNode(floorIndex + 1);
         }
         if(!(x>=leftNode.x && x<=rightNode.x)){
+            logger.error("ОШИБКА интерполяции: x={} не в интервале [{}, {}]", x, leftNode.x, rightNode.x);
             throw new InterpolationException();
         }
         return interpolate(x, leftNode.x, rightNode.x, leftNode.y, rightNode.y);
@@ -219,19 +235,23 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
 
 
     protected double  extrapolateLeft(double x){
-
+        logger.debug("Экстраполяция слева для x={}", x);
         return interpolate(x, head.x, head.next.x, head.y, head.next.y);
     }
 
     protected double extrapolateRight(double x) {
-
+        logger.debug("Экстраполяция справа для x={}", x);
         Node last = head.prev;
         Node prevLast = last.prev;
-        return interpolate(x, prevLast.x, last.x, prevLast.y, last.y);
+        double result = interpolate(x, prevLast.x, last.x, prevLast.y, last.y);
+        logger.trace("Результат экстраполяции справа: {}", result);
+        return result;
     }
 
     @Override
     public double apply(double x) {
+        logger.debug("Вычисление apply(x={})", x);
+        logger.debug("Вычисление apply(x={}) для списка", x);
         if (x < leftBound()) {
             return extrapolateLeft(x);
         }
@@ -247,13 +267,16 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
         }
 
         Node floorNode = floorNodeOfX(x);
-        return interpolateFromNode(x, floorNode);
+        double result = interpolateFromNode(x, floorNode);
+        logger.trace("Применена интерполяция, результат: {}", result);
+        return result;
     }
 
 
     protected Node floorNodeOfX(double x) {
         if (head == null) return null;
         if (x < head.x){
+            logger.error("ОШИБКА: x={} меньше левой границы {}", x, head.x);
             throw new IllegalArgumentException("x меньше левой границы: " + x);
         }
         if (x > head.prev.x) return head.prev;
@@ -318,6 +341,7 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
             }
             temp = temp.next;
         }while (temp!= head);
+        logger.debug("Точка добавлена в конец списка");
     }
 
     public void remove(int index){
@@ -334,6 +358,8 @@ public class LinkedListTabulatedFunction extends AbstractTabulatedFunction imple
         count --;
         temp.prev = null;
         temp.next = null;
+
+        logger.debug("Точка удалена");
     }
 
 }
