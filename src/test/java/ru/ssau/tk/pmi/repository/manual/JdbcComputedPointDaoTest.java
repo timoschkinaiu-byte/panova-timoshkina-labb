@@ -30,10 +30,10 @@ public class JdbcComputedPointDaoTest {
             stmt.executeUpdate("DELETE FROM functions");
             stmt.executeUpdate("DELETE FROM users");
 
-            // создаём пользователя и функцию
+            // создаём пользователя и функцию БЕЗ function_type
             stmt.executeUpdate("INSERT INTO users (user_id, username, password_hash, role) VALUES (1, 'test_user', '123', 'USER')");
-            stmt.executeUpdate("INSERT INTO functions (function_id, function_name, function_definition, function_type, owner_id, is_public) " +
-                    "VALUES (1, 'f1', 'x^2', 'POLYNOMIAL', 1, true)");
+            stmt.executeUpdate("INSERT INTO functions (function_id, function_name, function_definition, owner_id, is_public) " +
+                    "VALUES (1, 'f1', 'x^2', 1, true)");
         }
         logger.info("Test DB initialized");
     }
@@ -63,7 +63,9 @@ public class JdbcComputedPointDaoTest {
 
     @AfterAll
     void cleanup() throws SQLException {
-        connection.close();
+        if (connection != null && !connection.isClosed()) {
+            connection.close();
+        }
         logger.info("Connection closed");
     }
 }

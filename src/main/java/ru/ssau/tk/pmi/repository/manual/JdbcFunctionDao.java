@@ -5,18 +5,19 @@ import java.util.*;
 
 public class JdbcFunctionDao implements FunctionDao {
     private final Connection connection;
+
     public JdbcFunctionDao(Connection connection) {
         this.connection = connection;
     }
+
     @Override
-    public Long insertFunction(String functionName, String functionDefinition, String functionType, Long ownerId, boolean isPublic) {
-        String sql = "INSERT INTO functions (function_name, function_definition, function_type, owner_id, is_public) VALUES (?, ?, ?, ?, ?) RETURNING function_id";
+    public Long insertFunction(String functionName, String functionDefinition, Long ownerId, boolean isPublic) {
+        String sql = "INSERT INTO functions (function_name, function_definition, owner_id, is_public) VALUES (?, ?, ?, ?) RETURNING function_id";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, functionName);
             stmt.setString(2, functionDefinition);
-            stmt.setString(3, functionType);
-            stmt.setLong(4, ownerId);
-            stmt.setBoolean(5, isPublic);
+            stmt.setLong(3, ownerId);
+            stmt.setBoolean(4, isPublic);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 return rs.getLong("function_id");
@@ -26,6 +27,7 @@ public class JdbcFunctionDao implements FunctionDao {
         }
         return null;
     }
+
     @Override
     public Map<String, Object> getFunctionById(Long id) {
         String sql = "SELECT * FROM functions WHERE function_id = ?";
@@ -56,20 +58,21 @@ public class JdbcFunctionDao implements FunctionDao {
         }
         return functions;
     }
+
     @Override
-    public void updateFunction(Long id, String name, String definition, String functionType, boolean isPublic) {
-        String sql = "UPDATE functions SET function_name = ?, function_definition = ?, function_type = ?, is_public = ? WHERE function_id = ?";
+    public void updateFunction(Long id, String name, String definition, boolean isPublic) {
+        String sql = "UPDATE functions SET function_name = ?, function_definition = ?, is_public = ? WHERE function_id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, name);
             stmt.setString(2, definition);
-            stmt.setString(3, functionType);
-            stmt.setBoolean(4, isPublic);
-            stmt.setLong(5, id);
+            stmt.setBoolean(3, isPublic);
+            stmt.setLong(4, id);
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
     @Override
     public void deleteFunction(Long id) {
         String sql = "DELETE FROM functions WHERE function_id = ?";
@@ -80,12 +83,12 @@ public class JdbcFunctionDao implements FunctionDao {
             e.printStackTrace();
         }
     }
+
     private Map<String, Object> mapRow(ResultSet rs) throws SQLException {
         Map<String, Object> map = new HashMap<>();
         map.put("function_id", rs.getLong("function_id"));
         map.put("function_name", rs.getString("function_name"));
         map.put("function_definition", rs.getString("function_definition"));
-        map.put("function_type", rs.getString("function_type"));
         map.put("owner_id", rs.getLong("owner_id"));
         map.put("is_public", rs.getBoolean("is_public"));
         return map;

@@ -5,9 +5,11 @@ import java.util.*;
 
 public class JdbcFunctionAccessDao implements FunctionAccessDao {
     private final Connection connection;
+
     public JdbcFunctionAccessDao(Connection connection) {
         this.connection = connection;
     }
+
     @Override
     public Long insertAccess(Long functionId, Long userId, String accessType) {
         String sql = "INSERT INTO functions_access (function_id, user_id, access_type) VALUES (?, ?, ?) RETURNING access_id";
@@ -24,6 +26,7 @@ public class JdbcFunctionAccessDao implements FunctionAccessDao {
         }
         return null;
     }
+
     @Override
     public Map<String, Object> getAccessById(Long accessId) {
         String sql = "SELECT * FROM functions_access WHERE access_id = ?";
@@ -38,6 +41,7 @@ public class JdbcFunctionAccessDao implements FunctionAccessDao {
         }
         return null;
     }
+
     @Override
     public List<Map<String, Object>> getAccessByFunctionAndUser(Long functionId, Long userId) {
         List<Map<String, Object>> list = new ArrayList<>();
@@ -54,6 +58,7 @@ public class JdbcFunctionAccessDao implements FunctionAccessDao {
         }
         return list;
     }
+
     @Override
     public List<Map<String, Object>> getAllAccess() {
         List<Map<String, Object>> list = new ArrayList<>();
@@ -68,6 +73,7 @@ public class JdbcFunctionAccessDao implements FunctionAccessDao {
         }
         return list;
     }
+
     @Override
     public void updateAccess(Long accessId, String accessType) {
         String sql = "UPDATE functions_access SET access_type = ? WHERE access_id = ?";
@@ -79,6 +85,7 @@ public class JdbcFunctionAccessDao implements FunctionAccessDao {
             e.printStackTrace();
         }
     }
+
     @Override
     public void deleteAccess(Long accessId) {
         String sql = "DELETE FROM functions_access WHERE access_id = ?";
@@ -89,6 +96,7 @@ public class JdbcFunctionAccessDao implements FunctionAccessDao {
             e.printStackTrace();
         }
     }
+
     private Map<String, Object> mapRow(ResultSet rs) throws SQLException {
         Map<String, Object> map = new HashMap<>();
         map.put("access_id", rs.getLong("access_id"));
