@@ -4,16 +4,14 @@ public class FunctionDto {
     private Long functionId;
     private String functionName;
     private String functionDefinition;
-    private String functionType;
     private Long ownerId;
     private boolean isPublic;
 
     public FunctionDto(Long functionId, String functionName, String functionDefinition,
-                       String functionType, Long ownerId, boolean isPublic) {
+                       Long ownerId, boolean isPublic) {
         this.functionId = functionId;
         this.functionName = functionName;
         this.functionDefinition = functionDefinition;
-        this.functionType = functionType;
         this.ownerId = ownerId;
         this.isPublic = isPublic;
     }
@@ -21,7 +19,6 @@ public class FunctionDto {
     public Long getFunctionId() { return functionId; }
     public String getFunctionName() { return functionName; }
     public String getFunctionDefinition() { return functionDefinition; }
-    public String getFunctionType() { return functionType; }
     public Long getOwnerId() { return ownerId; }
     public boolean isPublic() { return isPublic; }
 
