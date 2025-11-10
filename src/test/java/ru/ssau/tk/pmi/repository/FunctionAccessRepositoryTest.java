@@ -1,174 +1,184 @@
 package ru.ssau.tk.pmi.repository;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import ru.ssau.tk.pmi.entity.FunctionAccess;
-import ru.ssau.tk.pmi.entity.MathFunction;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+import org.junit.jupiter.api.*;
 import ru.ssau.tk.pmi.entity.User;
+import ru.ssau.tk.pmi.entity.MathFunction;
+import ru.ssau.tk.pmi.entity.ComputedPoint;
+import ru.ssau.tk.pmi.entity.FunctionAccess;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class FunctionAccessRepositoryTest {
 
-    @Mock
-    private FunctionAccessRepository functionAccessRepository;
-
+    private SessionFactory sessionFactory;
     private User testUser1;
     private User testUser2;
     private MathFunction testFunction1;
     private MathFunction testFunction2;
 
-    @BeforeEach
+    @BeforeAll
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        Configuration configuration = new Configuration();
+        Properties settings = new Properties();
+        settings.put("hibernate.connection.driver_class", "org.postgresql.Driver");
+        settings.put("hibernate.connection.url", "jdbc:postgresql://localhost:5432/lab_db");
+        settings.put("hibernate.connection.username", "postgres");
+        settings.put("hibernate.connection.password", "user");
+        settings.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
+        settings.put("hibernate.hbm2ddl.auto", "create-drop");
+        settings.put("hibernate.show_sql", "false");
 
-        // Create test users
-        testUser1 = new User("test_user_1", "hash1", "USER");
-        testUser1.setUserId(1L);
+        configuration.setProperties(settings);
+        configuration.addAnnotatedClass(User.class);
+        configuration.addAnnotatedClass(MathFunction.class);
+        configuration.addAnnotatedClass(ComputedPoint.class);
+        configuration.addAnnotatedClass(FunctionAccess.class);
 
-        testUser2 = new User("test_user_2", "hash2", "ADMIN");
-        testUser2.setUserId(2L);
+        sessionFactory = configuration.buildSessionFactory();
 
-        // Create test functions
-        testFunction1 = new MathFunction("function_1", "x^2", "POLYNOMIAL", testUser1);
-        testFunction1.setFunctionId(1L);
+        // Очистка и подготовка данных
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            session.createMutationQuery("DELETE FROM ComputedPoint").executeUpdate();
+            session.createMutationQuery("DELETE FROM FunctionAccess").executeUpdate();
+            session.createMutationQuery("DELETE FROM MathFunction").executeUpdate();
+            session.createMutationQuery("DELETE FROM User").executeUpdate();
 
-        testFunction2 = new MathFunction("function_2", "sin(x)", "TRIGONOMETRIC", testUser1);
-        testFunction2.setFunctionId(2L);
+            // Создаем тестовых пользователей и функции
+            testUser1 = new User("user1", "hash1", "USER");
+            testUser2 = new User("user2", "hash2", "ADMIN");
+            testFunction1 = new MathFunction("function1", "x^2", "ПОЛИНОМ", testUser1);
+            testFunction2 = new MathFunction("function2", "sin(x)", "ТРИГОНОМЕТРИЧЕСКАЯ", testUser1);
+
+            session.persist(testUser1);
+            session.persist(testUser2);
+            session.persist(testFunction1);
+            session.persist(testFunction2);
+            session.getTransaction().commit();
+        }
     }
 
     @Test
-    void testFindByFunction() {
-        // Given
-        FunctionAccess access1 = new FunctionAccess("READ", testFunction1, testUser1);
-        FunctionAccess access2 = new FunctionAccess("WRITE", testFunction1, testUser2);
-        List<FunctionAccess> expectedAccesses = List.of(access1, access2);
+    void testFindByFunction_Database() {
+        // Подготовка данных - создаем права доступа
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            FunctionAccess access1 = new FunctionAccess("READ", testFunction1, testUser1);
+            FunctionAccess access2 = new FunctionAccess("WRITE", testFunction1, testUser2);
+            session.persist(access1);
+            session.persist(access2);
+            session.flush();
 
-        when(functionAccessRepository.findByFunction(testFunction1)).thenReturn(expectedAccesses);
+        // Тестируем поиск прав доступа по функции
+            List<FunctionAccess> accesses = session.createQuery(
+                            "FROM FunctionAccess WHERE function.functionId = :functionId", FunctionAccess.class)
+                    .setParameter("functionId", testFunction1.getFunctionId())
+                    .getResultList();
 
-        // When
-        List<FunctionAccess> result = functionAccessRepository.findByFunction(testFunction1);
+            assertEquals(2, accesses.size());
+            assertTrue(accesses.stream().allMatch(access ->
+                    access.getFunction().getFunctionId().equals(testFunction1.getFunctionId())));
 
-        // Then
-        assertNotNull(result);
-        assertEquals(2, result.size());
-        assertEquals("READ", result.get(0).getAccessType());
-        assertEquals("WRITE", result.get(1).getAccessType());
-        verify(functionAccessRepository, times(1)).findByFunction(testFunction1);
+            // Проверяем типы доступа
+            assertTrue(accesses.stream().anyMatch(access -> "READ".equals(access.getAccessType())));
+            assertTrue(accesses.stream().anyMatch(access -> "WRITE".equals(access.getAccessType())));
+            session.getTransaction().rollback();
+        }
     }
 
     @Test
-    void testFindByUser() {
-        // Given
-        FunctionAccess access1 = new FunctionAccess("READ", testFunction1, testUser1);
-        FunctionAccess access2 = new FunctionAccess("WRITE", testFunction2, testUser1);
-        List<FunctionAccess> expectedAccesses = List.of(access1, access2);
+    void testFindByUser_Database() {
+        // Подготовка данных - создаем права доступа
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            FunctionAccess access1 = new FunctionAccess("READ", testFunction1, testUser1);
+            FunctionAccess access2 = new FunctionAccess("EXECUTE", testFunction2, testUser1);
+            session.persist(access1);
+            session.persist(access2);
+            session.flush();
 
-        when(functionAccessRepository.findByUser(testUser1)).thenReturn(expectedAccesses);
 
-        // When
-        List<FunctionAccess> result = functionAccessRepository.findByUser(testUser1);
+            List<FunctionAccess> userAccesses = session.createQuery(
+                            "FROM FunctionAccess WHERE user.userId = :userId", FunctionAccess.class)
+                    .setParameter("userId", testUser1.getUserId())
+                    .getResultList();
 
-        // Then
-        assertNotNull(result);
-        assertEquals(2, result.size());
-        assertTrue(result.stream().allMatch(access -> access.getUser().getUserId().equals(1L)));
-        verify(functionAccessRepository, times(1)).findByUser(testUser1);
+            assertEquals(2, userAccesses.size());
+            assertTrue(userAccesses.stream().allMatch(access ->
+                    access.getUser().getUserId().equals(testUser1.getUserId())));
+
+            // Проверяем разные функции
+            assertTrue(userAccesses.stream().anyMatch(access ->
+                    access.getFunction().getFunctionId().equals(testFunction1.getFunctionId())));
+            assertTrue(userAccesses.stream().anyMatch(access ->
+                    access.getFunction().getFunctionId().equals(testFunction2.getFunctionId())));
+            session.getTransaction().rollback();
+        }
     }
 
     @Test
-    void testFindByFunctionAndUser() {
-        // Given
-        FunctionAccess expectedAccess = new FunctionAccess("READ", testFunction1, testUser1);
-        expectedAccess.setAccessId(1L);
+    void testFindByFunctionAndUser_Database() {
+        // Подготовка данных - создаем права доступа
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            FunctionAccess access1 = new FunctionAccess("READ", testFunction1, testUser1);
+            FunctionAccess access2 = new FunctionAccess("WRITE", testFunction1, testUser2);
+            session.persist(access1);
+            session.persist(access2);
+            session.flush();
 
-        when(functionAccessRepository.findByFunctionAndUser(testFunction1, testUser1))
-                .thenReturn(Optional.of(expectedAccess));
-        when(functionAccessRepository.findByFunctionAndUser(testFunction1, testUser2))
-                .thenReturn(Optional.empty());
+            FunctionAccess access = session.createQuery(
+                            "FROM FunctionAccess WHERE function.functionId = :functionId AND user.userId = :userId",
+                            FunctionAccess.class)
+                    .setParameter("functionId", testFunction1.getFunctionId())
+                    .setParameter("userId", testUser1.getUserId())
+                    .uniqueResult();
 
-        // When
-        Optional<FunctionAccess> result1 = functionAccessRepository.findByFunctionAndUser(testFunction1, testUser1);
-        Optional<FunctionAccess> result2 = functionAccessRepository.findByFunctionAndUser(testFunction1, testUser2);
-
-        // Then
-        assertTrue(result1.isPresent());
-        assertEquals(1L, result1.get().getAccessId());
-        assertEquals("READ", result1.get().getAccessType());
-        assertEquals(testFunction1.getFunctionId(), result1.get().getFunction().getFunctionId());
-        assertEquals(testUser1.getUserId(), result1.get().getUser().getUserId());
-
-        assertFalse(result2.isPresent());
-        verify(functionAccessRepository, times(1)).findByFunctionAndUser(testFunction1, testUser1);
-        verify(functionAccessRepository, times(1)).findByFunctionAndUser(testFunction1, testUser2);
+            assertNotNull(access);
+            assertEquals("READ", access.getAccessType());
+            assertEquals(testFunction1.getFunctionId(), access.getFunction().getFunctionId());
+            assertEquals(testUser1.getUserId(), access.getUser().getUserId());
+            session.getTransaction().rollback();
+        }
     }
 
     @Test
-    void testExistsByFunctionAndUser() {
-        // Given
-        when(functionAccessRepository.existsByFunctionAndUser(testFunction1, testUser1)).thenReturn(true);
-        when(functionAccessRepository.existsByFunctionAndUser(testFunction1, testUser2)).thenReturn(false);
+    void testExistsByFunctionAndUser_Database() {
+        // Подготовка данных - создаем права доступа
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            FunctionAccess access = new FunctionAccess("READ", testFunction1, testUser1);
+            session.persist(access);
+            session.flush();
 
-        // When
-        boolean exists = functionAccessRepository.existsByFunctionAndUser(testFunction1, testUser1);
-        boolean notExists = functionAccessRepository.existsByFunctionAndUser(testFunction1, testUser2);
+            // Проверяем существующий доступ
+            Long countExists = session.createQuery(
+                            "SELECT COUNT(*) FROM FunctionAccess WHERE function.functionId = :functionId AND user.userId = :userId",
+                            Long.class)
+                    .setParameter("functionId", testFunction1.getFunctionId())
+                    .setParameter("userId", testUser1.getUserId())
+                    .uniqueResult();
 
-        // Then
-        assertTrue(exists);
-        assertFalse(notExists);
-        verify(functionAccessRepository, times(1)).existsByFunctionAndUser(testFunction1, testUser1);
-        verify(functionAccessRepository, times(1)).existsByFunctionAndUser(testFunction1, testUser2);
-    }
+            assertTrue(countExists > 0);
 
-    @Test
-    void testDeleteByFunctionAndUser() {
-        // Given - no return value for void method
+            // Проверяем несуществующий доступ
+            Long countNotExists = session.createQuery(
+                            "SELECT COUNT(*) FROM FunctionAccess WHERE function.functionId = :functionId AND user.userId = :userId",
+                            Long.class)
+                    .setParameter("functionId", testFunction1.getFunctionId())
+                    .setParameter("userId", testUser2.getUserId())
+                    .uniqueResult();
 
-        // When
-        functionAccessRepository.deleteByFunctionAndUser(testFunction1, testUser1);
+            assertEquals(0, countNotExists);
 
-        // Then
-        verify(functionAccessRepository, times(1)).deleteByFunctionAndUser(testFunction1, testUser1);
-        // For void methods, we just verify they were called with correct parameters
-    }
-
-    @Test
-    void testFindSharedFunctionsForUser() {
-        // Given
-        List<MathFunction> expectedFunctions = List.of(testFunction2);
-
-        when(functionAccessRepository.findSharedFunctionsForUser(testUser2)).thenReturn(expectedFunctions);
-
-        // When
-        List<MathFunction> result = functionAccessRepository.findSharedFunctionsForUser(testUser2);
-
-        // Then
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals(testFunction2.getFunctionId(), result.get(0).getFunctionId());
-        verify(functionAccessRepository, times(1)).findSharedFunctionsForUser(testUser2);
-    }
-
-    @Test
-    void testFindUsersWithAccessToFunction() {
-        // Given
-        List<User> expectedUsers = List.of(testUser2);
-
-        when(functionAccessRepository.findUsersWithAccessToFunction(testFunction1)).thenReturn(expectedUsers);
-
-        // When
-        List<User> result = functionAccessRepository.findUsersWithAccessToFunction(testFunction1);
-
-        // Then
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals(testUser2.getUserId(), result.get(0).getUserId());
-        verify(functionAccessRepository, times(1)).findUsersWithAccessToFunction(testFunction1);
+            session.getTransaction().rollback();
+        }
     }
 }

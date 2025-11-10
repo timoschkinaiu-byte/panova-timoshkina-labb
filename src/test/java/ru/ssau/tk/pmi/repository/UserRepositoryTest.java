@@ -1,99 +1,127 @@
 package ru.ssau.tk.pmi.repository;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeEach;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+import org.junit.jupiter.api.*;
 import ru.ssau.tk.pmi.entity.User;
 import ru.ssau.tk.pmi.entity.MathFunction;
 import ru.ssau.tk.pmi.entity.ComputedPoint;
+import ru.ssau.tk.pmi.entity.FunctionAccess;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UserRepositoryTest {
 
-    @Mock
-    private UserRepository userRepository;
+    private SessionFactory sessionFactory;
 
-    private User testUser1;
-    private User testUser2;
-
-    @BeforeEach
+    @BeforeAll
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        Configuration configuration = new Configuration();
+        Properties settings = new Properties();
+        settings.put("hibernate.connection.driver_class", "org.postgresql.Driver");
+        settings.put("hibernate.connection.url", "jdbc:postgresql://localhost:5432/lab_db");
+        settings.put("hibernate.connection.username", "postgres");
+        settings.put("hibernate.connection.password", "user");
+        settings.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
+        settings.put("hibernate.hbm2ddl.auto", "create-drop");
+        settings.put("hibernate.show_sql", "false");
 
-        testUser1 = new User("user1", "hash1", "USER");
-        testUser1.setUserId(1L);
+        configuration.setProperties(settings);
+        configuration.addAnnotatedClass(User.class);
+        configuration.addAnnotatedClass(MathFunction.class);
+        configuration.addAnnotatedClass(ComputedPoint.class);
+        configuration.addAnnotatedClass(FunctionAccess.class);
 
-        testUser2 = new User("user2", "hash2", "ADMIN");
-        testUser2.setUserId(2L);
+        sessionFactory = configuration.buildSessionFactory();
+
+        // Очистка базы перед тестами
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            session.createMutationQuery("DELETE FROM ComputedPoint").executeUpdate();
+            session.createMutationQuery("DELETE FROM FunctionAccess").executeUpdate();
+            session.createMutationQuery("DELETE FROM MathFunction").executeUpdate();
+            session.createMutationQuery("DELETE FROM User").executeUpdate();
+            session.getTransaction().commit();
+        }
     }
 
     @Test
-    void testFindByUsername() {
-        when(userRepository.findByUsername("user1")).thenReturn(Optional.of(testUser1));
-        when(userRepository.findByUsername("unknown")).thenReturn(Optional.empty());
+    void testFindByUsername_RealDatabase() {
+        // Подготовка данных
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            User testUser = new User("test_user_1", "hash_1", "USER");
+            session.persist(testUser);
+            session.getTransaction().commit();
+        }
 
-        Optional<User> result1 = userRepository.findByUsername("user1");
-        Optional<User> result2 = userRepository.findByUsername("unknown");
+        // Тестируем поиск по имени пользователя
+        try (Session session = sessionFactory.openSession()) {
+            User user = session.createQuery("FROM User WHERE username = :username", User.class)
+                    .setParameter("username", "test_user_1")
+                    .uniqueResult();
 
-        assertTrue(result1.isPresent());
-        assertEquals("user1", result1.get().getUsername());
-        assertFalse(result2.isPresent());
-        verify(userRepository, times(1)).findByUsername("user1");
+            assertNotNull(user);
+            assertEquals("test_user_1", user.getUsername());
+            assertEquals("USER", user.getRole());
+        }
+    }
+
+
+    @Test
+    void testFindByRole_RealDatabase() {
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+
+
+            User adminUser = new User("admin_user", "hash_admin", "ADMIN");
+            User regularUser = new User("regular_user", "hash_user", "USER");
+            session.persist(adminUser);
+            session.persist(regularUser);
+            session.flush();
+
+            List<User> admins = session.createQuery("FROM User WHERE role = :role", User.class)
+                    .setParameter("role", "ADMIN")
+                    .getResultList();
+
+            assertEquals(1, admins.size());
+            assertEquals("admin_user", admins.get(0).getUsername());
+
+            session.getTransaction().rollback();
+        }
     }
 
     @Test
-    void testFindByRole() {
-        List<User> users = List.of(testUser1);
-        when(userRepository.findByRole("USER")).thenReturn(users);
+    void testSaveAndFindById_RealDatabase() {
+        User newUser = new User("new_test_user", "new_hash", "USER");
 
-        List<User> result = userRepository.findByRole("USER");
+        // Сохраняем пользователя
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            session.persist(newUser);
+            session.getTransaction().commit();
+        }
 
-        assertEquals(1, result.size());
-        assertEquals("USER", result.get(0).getRole());
-        verify(userRepository, times(1)).findByRole("USER");
+        // Ищем по ID
+        try (Session session = sessionFactory.openSession()) {
+            User foundUser = session.find(User.class, newUser.getUserId());
+
+            assertNotNull(foundUser);
+            assertEquals("new_test_user", foundUser.getUsername());
+            assertEquals("USER", foundUser.getRole());
+        }
     }
 
-    @Test
-    void testExistsByUsername() {
-        when(userRepository.existsByUsername("user1")).thenReturn(true);
-        when(userRepository.existsByUsername("unknown")).thenReturn(false);
-
-        boolean exists1 = userRepository.existsByUsername("user1");
-        boolean exists2 = userRepository.existsByUsername("unknown");
-
-        assertTrue(exists1);
-        assertFalse(exists2);
-        verify(userRepository, times(1)).existsByUsername("user1");
-        verify(userRepository, times(1)).existsByUsername("unknown");
-    }
-
-    @Test
-    void testFindByUsernameContaining() {
-        List<User> users = List.of(testUser1, testUser2);
-        when(userRepository.findByUsernameContaining("user")).thenReturn(users);
-
-        List<User> result = userRepository.findByUsernameContaining("user");
-
-        assertEquals(2, result.size());
-        assertTrue(result.stream().allMatch(user -> user.getUsername().contains("user")));
-        verify(userRepository, times(1)).findByUsernameContaining("user");
-    }
-
-    @Test
-    void testFindUsersWithMoreThanNFunctions() {
-        List<User> users = List.of(testUser2);
-        when(userRepository.findUsersWithMoreThanNFunctions(5)).thenReturn(users);
-
-        List<User> result = userRepository.findUsersWithMoreThanNFunctions(5);
-
-        assertEquals(1, result.size());
-        assertEquals("user2", result.get(0).getUsername());
-        verify(userRepository, times(1)).findUsersWithMoreThanNFunctions(5);
+    @AfterAll
+    void tearDown() {
+        if (sessionFactory != null) {
+            sessionFactory.close();
+        }
     }
 }
