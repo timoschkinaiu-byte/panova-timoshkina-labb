@@ -1,6 +1,9 @@
 package ru.ssau.tk.pmi.repository.manual;
 
 import org.junit.jupiter.api.*;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.*;
 import java.util.Map;
 import java.util.Random;
@@ -13,13 +16,31 @@ public class JdbcUserDaoTest {
 
     @BeforeAll
     void setUpDatabase() throws Exception {
-        // ⚙️ Укажи свои реальные параметры подключения
-        String url = "jdbc:postgresql://localhost:5432/lab_db";
+
+        String url = "jdbc:postgresql://localhost:5432/lab_db2";
         String username = "postgres";
         String password = "user";
 
         connection = DriverManager.getConnection(url, username, password);
+        initializeDatabase();
         userDao = new JdbcUserDao(connection);
+    }
+
+    private void initializeDatabase() throws Exception {
+        // Чтение SQL скрипта
+        String sqlScript = new String(Files.readAllBytes(
+                Paths.get(getClass().getClassLoader().getResource("setup-test-db.sql").toURI())
+        ));
+
+        try (Statement stmt = connection.createStatement()) {
+            // Выполнение скрипта построчно
+            String[] statements = sqlScript.split(";");
+            for (String statement : statements) {
+                if (!statement.trim().isEmpty()) {
+                    stmt.execute(statement.trim());
+                }
+            }
+        }
     }
 
     @BeforeEach

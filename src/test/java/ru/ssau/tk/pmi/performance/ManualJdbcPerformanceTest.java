@@ -3,6 +3,8 @@ package ru.ssau.tk.pmi.performance;
 import org.junit.jupiter.api.*;
 import ru.ssau.tk.pmi.repository.manual.*;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,12 +31,14 @@ class ManualJdbcPerformanceTest {
     private AtomicLong userCounter = new AtomicLong(1000000); // для уникальных username
 
     @BeforeAll
-    void setUp() throws SQLException {
+    void setUp() throws Exception{
         connection = DriverManager.getConnection(
                 "jdbc:postgresql://localhost:5432/lab_db",
                 "postgres",
                 "user"
         );
+
+        initializeDatabase();
 
         userDao = new JdbcUserDao(connection);
         functionDao = new JdbcFunctionDao(connection);
@@ -42,6 +46,24 @@ class ManualJdbcPerformanceTest {
         accessDao = new JdbcFunctionAccessDao(connection);
 
         generateTestData();
+    }
+
+    private void initializeDatabase() throws Exception {
+        // Чтение SQL скрипта
+        String sqlScript = new String(Files.readAllBytes(
+                Paths.get(getClass().getClassLoader().getResource("setup-test-db.sql").toURI())
+        ));
+
+        try (Statement stmt = connection.createStatement()) {
+            // Выполнение скрипта построчно
+            String[] statements = sqlScript.split(";");
+            for (String statement : statements) {
+                if (!statement.trim().isEmpty()) {
+                    stmt.execute(statement.trim());
+                }
+            }
+        }
+
     }
 
     private void generateTestData() throws SQLException {

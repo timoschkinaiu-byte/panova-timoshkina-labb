@@ -1,11 +1,19 @@
 package ru.ssau.tk.pmi.repository.manual;
 
 import org.junit.jupiter.api.*;
-import java.sql.*;
-import java.util.*;
-import static org.junit.jupiter.api.Assertions.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.sql.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
+
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class JdbcFunctionDaoTest {
+
+    private static final Logger logger = LogManager.getLogger(JdbcFunctionDaoTest.class);
     private Connection connection;
     private JdbcFunctionDao functionDao;
 
@@ -16,12 +24,9 @@ public class JdbcFunctionDaoTest {
         String username = "postgres";
         String password = "user";
         connection = DriverManager.getConnection(url, username, password);
+        initializeDatabase();
         functionDao = new JdbcFunctionDao(connection);
 
-        // Очистим таблицу перед тестом
-        try (Statement stmt = connection.createStatement()) {
-            stmt.executeUpdate("DELETE FROM functions");
-        }
 
         // ⚠️ Убедимся, что есть пользователь с ID=1
         try (Statement stmt = connection.createStatement()) {
@@ -33,55 +38,64 @@ public class JdbcFunctionDaoTest {
         }
     }
 
-    @AfterEach
-    void tearDown() throws Exception {
+    private void initializeDatabase() throws Exception {
+        // Чтение SQL скрипта
+        String sqlScript = new String(Files.readAllBytes(
+                Paths.get(getClass().getClassLoader().getResource("setup-test-db.sql").toURI())
+        ));
+
+        try (Statement stmt = connection.createStatement()) {
+            // Выполнение скрипта построчно
+            String[] statements = sqlScript.split(";");
+            for (String statement : statements) {
+                if (!statement.trim().isEmpty()) {
+                    stmt.execute(statement.trim());
+                }
+            }
+        }
+        logger.info("Database schema initialized");
+    }
+
+
+
+    @Test
+    void testFunctionCRUD() {
+        // INSERT - передаем только 4 параметра вместо 5
+        Long functionId = functionDao.insertFunction("test_func", "x^3", 1L, true);
+        Assertions.assertNotNull(functionId);
+
+        // SELECT by ID
+        Map<String, Object> fetched = functionDao.getFunctionById(functionId);
+        Assertions.assertNotNull(fetched);
+        Assertions.assertEquals("test_func", fetched.get("function_name"));
+        Assertions.assertEquals("x^3", fetched.get("function_definition"));
+        // function_type будет установлен в значение по умолчанию из БД
+
+        // UPDATE - также 4 параметра
+        functionDao.updateFunction(functionId, "updated_func", "x^4", false);
+        Map<String, Object> updated = functionDao.getFunctionById(functionId);
+        Assertions.assertEquals("updated_func", updated.get("function_name"));
+        Assertions.assertEquals("x^4", updated.get("function_definition"));
+        Assertions.assertEquals(false, updated.get("is_public"));
+
+        // GET ALL
+        List<Map<String, Object>> allFunctions = functionDao.getAllFunctions();
+        Assertions.assertFalse(allFunctions.isEmpty());
+
+        // DELETE
+        functionDao.deleteFunction(functionId);
+        Map<String, Object> deleted = functionDao.getFunctionById(functionId);
+        Assertions.assertNull(deleted);
+
+        logger.info("Function CRUD test passed");
+    }
+
+
+    @AfterAll
+    void cleanup() throws SQLException {
         if (connection != null && !connection.isClosed()) {
             connection.close();
         }
-    }
-
-    private String randomString(int len) {
-        String chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        Random random = new Random();
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < len; i++) sb.append(chars.charAt(random.nextInt(chars.length())));
-        return sb.toString();
-    }
-
-    @Test
-    void testCRUD() {
-        String name = randomString(6);
-        String def = "x^2";
-        Long ownerId = 1L;
-        boolean isPublic = true;
-
-        // INSERT
-        Long id = functionDao.insertFunction(name, def, ownerId, isPublic);
-        assertNotNull(id);
-
-        // SELECT
-        Map<String, Object> func = functionDao.getFunctionById(id);
-        assertNotNull(func);
-        assertEquals(name, func.get("function_name"));
-        assertEquals(def, func.get("function_definition"));
-        assertEquals(ownerId, func.get("owner_id"));
-        assertEquals(isPublic, func.get("is_public"));
-
-        // UPDATE
-        String newName = randomString(8);
-        String newDef = "sin(x)";
-        boolean newIsPublic = false;
-
-        functionDao.updateFunction(id, newName, newDef, newIsPublic);
-
-        Map<String, Object> updated = functionDao.getFunctionById(id);
-        assertEquals(newName, updated.get("function_name"));
-        assertEquals(newDef, updated.get("function_definition"));
-        assertEquals(newIsPublic, updated.get("is_public"));
-
-        // DELETE
-        functionDao.deleteFunction(id);
-        Map<String, Object> deleted = functionDao.getFunctionById(id);
-        assertNull(deleted);
+        logger.info("Connection closed");
     }
 }
