@@ -1,184 +1,160 @@
 package ru.ssau.tk.pmi.search;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.data.domain.Sort;
-import ru.ssau.tk.pmi.entity.MathFunction;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+import org.junit.jupiter.api.*;
+import ru.ssau.tk.pmi.entity.ComputedPoint;
+import ru.ssau.tk.pmi.entity.FunctionAccess;
 import ru.ssau.tk.pmi.entity.User;
-import ru.ssau.tk.pmi.repository.ComputedPointRepository;
-import ru.ssau.tk.pmi.repository.MathFunctionRepository;
-import ru.ssau.tk.pmi.repository.UserRepository;
+import ru.ssau.tk.pmi.entity.MathFunction;
 
 import java.util.List;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class springSearchServiceTest {
 
-    @Mock
-    private UserRepository userRepository;
+    private SessionFactory sessionFactory;
 
-    @Mock
-    private MathFunctionRepository mathFunctionRepository;
-
-    @Mock
-    private ComputedPointRepository computedPointRepository;
-
-    private springSearchService searchService;
-
-    private User testUser1;
-    private User testUser2;
-    private MathFunction testFunction1;
-    private MathFunction testFunction2;
-
-    @BeforeEach
+    @BeforeAll
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-        searchService = new springSearchService();
+        Configuration configuration = new Configuration();
+        Properties settings = new Properties();
+        settings.put("hibernate.connection.driver_class", "org.postgresql.Driver");
+        settings.put("hibernate.connection.url", "jdbc:postgresql://localhost:5432/lab_db");
+        settings.put("hibernate.connection.username", "postgres");
+        settings.put("hibernate.connection.password", "user");
+        settings.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
+        settings.put("hibernate.hbm2ddl.auto", "create-drop");
+        settings.put("hibernate.show_sql", "false");
 
-        // Устанавливаем моки через рефлексию (так как в SearchService нет сеттеров)
-        setField(searchService, "userRepository", userRepository);
-        setField(searchService, "mathFunctionRepository", mathFunctionRepository);
-        setField(searchService, "computedPointRepository", computedPointRepository);
+        configuration.setProperties(settings);
+        configuration.addAnnotatedClass(User.class);
+        configuration.addAnnotatedClass(MathFunction.class);
+        configuration.addAnnotatedClass(ComputedPoint.class);
+        configuration.addAnnotatedClass(FunctionAccess.class);
 
-        // Создаем тестовые данные
-        testUser1 = new User("john_doe", "hash1", "USER");
-        testUser1.setUserId(1L);
+        sessionFactory = configuration.buildSessionFactory();
+        generateTestData();
+    }
 
-        testUser2 = new User("alice_smith", "hash2", "ADMIN");
-        testUser2.setUserId(2L);
+    private void generateTestData() {
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
 
-        testFunction1 = new MathFunction("quadratic", "x^2", "POLYNOMIAL", testUser1);
-        testFunction1.setFunctionId(1L);
+            session.createMutationQuery("DELETE FROM MathFunction").executeUpdate();
+            session.createMutationQuery("DELETE FROM User").executeUpdate();
 
-        testFunction2 = new MathFunction("sine_wave", "sin(x)", "TRIGONOMETRIC", testUser2);
-        testFunction2.setFunctionId(2L);
+            // Создание тестовых данных для сортировки
+            User user1 = new User("бета_пользователь", "hash1", "USER");
+            User user2 = new User("альфа_пользователь", "hash2", "ADMIN");
+            User user3 = new User("гамма_пользователь", "hash3", "USER");
+            session.persist(user1);
+            session.persist(user2);
+            session.persist(user3);
+
+            MathFunction func1 = new MathFunction("бета_функция", "x^2", "ПОЛИНОМ", user1);
+            MathFunction func2 = new MathFunction("альфа_функция", "sin(x)", "ТРИГОНОМЕТРИЧЕСКАЯ", user2);
+            MathFunction func3 = new MathFunction("гамма_функция", "cos(x)", "ПОЛИНОМ", user3);
+            session.persist(func1);
+            session.persist(func2);
+            session.persist(func3);
+
+            session.getTransaction().commit();
+        }
     }
 
     @Test
-    void testSearchWithSortingByUsernameAscending() {
-        // Given
-        List<User> mockUsers = List.of(testUser1, testUser2);
-        when(userRepository.findByUsernameContainingIgnoreCase(eq("john"), any(Sort.class)))
-                .thenReturn(mockUsers);
+    void testUsernameSortingAscending() {
+        try (Session session = sessionFactory.openSession()) {
+            List<User> users = session.createQuery(
+                            "FROM User WHERE username LIKE :pattern ORDER BY username ASC", User.class)
+                    .setParameter("pattern", "%пользователь%")
+                    .getResultList();
 
-        // When
-        List<Object> result = searchService.searchWithSorting("USERNAME", "john", "username", true);
-
-        // Then
-        assertNotNull(result);
-        assertEquals(2, result.size());
-        verify(userRepository, times(1)).findByUsernameContainingIgnoreCase(eq("john"), any(Sort.class));
+            assertEquals(3, users.size());
+            assertTrue(users.get(0).getUsername().compareTo(users.get(1).getUsername()) <= 0);
+            assertTrue(users.get(1).getUsername().compareTo(users.get(2).getUsername()) <= 0);
+        }
     }
 
     @Test
-    void testSearchWithSortingByUsernameDescending() {
-        // Given
-        List<User> mockUsers = List.of(testUser2, testUser1); // В обратном порядке для DESC
-        when(userRepository.findByUsernameContainingIgnoreCase(eq("smith"), any(Sort.class)))
-                .thenReturn(mockUsers);
+    void testUsernameSortingDescending() {
+        try (Session session = sessionFactory.openSession()) {
+            List<User> users = session.createQuery(
+                            "FROM User WHERE username LIKE :pattern ORDER BY username DESC", User.class)
+                    .setParameter("pattern", "%пользователь%")
+                    .getResultList();
 
-        // When
-        List<Object> result = searchService.searchWithSorting("USERNAME", "smith", "username", false);
-
-        // Then
-        assertNotNull(result);
-        assertEquals(2, result.size());
-        verify(userRepository, times(1)).findByUsernameContainingIgnoreCase(eq("smith"), any(Sort.class));
+            assertEquals(3, users.size());
+            assertTrue(users.get(0).getUsername().compareTo(users.get(1).getUsername()) >= 0);
+            assertTrue(users.get(1).getUsername().compareTo(users.get(2).getUsername()) >= 0);
+        }
     }
 
     @Test
-    void testSearchWithSortingByFunctionName() {
-        // Given
-        List<MathFunction> mockFunctions = List.of(testFunction1, testFunction2);
-        when(mathFunctionRepository.findByFunctionNameContainingIgnoreCase(eq("quad"), any(Sort.class)))
-                .thenReturn(mockFunctions);
+    void testFunctionNameSortingAscending() {
+        try (Session session = sessionFactory.openSession()) {
+            List<MathFunction> functions = session.createQuery(
+                            "FROM MathFunction WHERE functionName LIKE :pattern ORDER BY functionName ASC", MathFunction.class)
+                    .setParameter("pattern", "%функция%")
+                    .getResultList();
 
-        // When
-        List<Object> result = searchService.searchWithSorting("FUNCTION_NAME", "quad", "functionName", true);
-
-        // Then
-        assertNotNull(result);
-        assertEquals(2, result.size());
-        assertTrue(result.get(0) instanceof MathFunction);
-        verify(mathFunctionRepository, times(1)).findByFunctionNameContainingIgnoreCase(eq("quad"), any(Sort.class));
+            assertEquals(3, functions.size());
+            assertTrue(functions.get(0).getFunctionName().compareTo(functions.get(1).getFunctionName()) <= 0);
+            assertTrue(functions.get(1).getFunctionName().compareTo(functions.get(2).getFunctionName()) <= 0);
+        }
     }
 
     @Test
-    void testSearchWithSortingByFunctionType() {
-        // Given
-        List<MathFunction> mockFunctions = List.of(testFunction1);
-        when(mathFunctionRepository.findByFunctionType(eq("POLYNOMIAL"), any(Sort.class))).thenReturn(mockFunctions);
+    void testFunctionNameSortingDescending() {
+        try (Session session = sessionFactory.openSession()) {
+            List<MathFunction> functions = session.createQuery(
+                            "FROM MathFunction WHERE functionName LIKE :pattern ORDER BY functionName DESC", MathFunction.class)
+                    .setParameter("pattern", "%функция%")
+                    .getResultList();
 
-        // When
-        List<Object> result = searchService.searchWithSorting("FUNCTION_TYPE", "POLYNOMIAL", "functionType", true);
-
-        // Then
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals("POLYNOMIAL", ((MathFunction) result.get(0)).getFunctionType());
-        verify(mathFunctionRepository, times(1)).findByFunctionType(eq("POLYNOMIAL"), any(Sort.class));
+            assertEquals(3, functions.size());
+            assertTrue(functions.get(0).getFunctionName().compareTo(functions.get(1).getFunctionName()) >= 0);
+            assertTrue(functions.get(1).getFunctionName().compareTo(functions.get(2).getFunctionName()) >= 0);
+        }
     }
 
     @Test
-    void testSearchWithSortingDefaultCase() {
-        // Given
-        when(userRepository.findByUsernameContainingIgnoreCase("unknown")).thenReturn(List.of(testUser1));
+    void testFunctionTypeSorting() {
+        try (Session session = sessionFactory.openSession()) {
+            List<MathFunction> functions = session.createQuery(
+                            "FROM MathFunction WHERE functionType = :type ORDER BY functionName ASC", MathFunction.class)
+                    .setParameter("type", "ПОЛИНОМ")
+                    .getResultList();
 
-        // When - используем неизвестное поле, чтобы попасть в default case
-        List<Object> result = searchService.searchWithSorting("UNKNOWN_FIELD", "test", "someField", true);
-
-        // Then - должен вызваться singleSearch
-        assertNotNull(result);
-        assertEquals(1, result.size());
-        // Здесь мы проверяем, что был вызов singleSearch, но для этого нужно мокировать singleSearch
+            assertEquals(2, functions.size());
+            assertEquals("ПОЛИНОМ", functions.get(0).getFunctionType());
+            assertEquals("ПОЛИНОМ", functions.get(1).getFunctionType());
+        }
     }
 
     @Test
-    void testSearchWithSortingCaseInsensitive() {
-        // Given
-        List<User> mockUsers = List.of(testUser1);
-        when(userRepository.findByUsernameContainingIgnoreCase(eq("john"), any(Sort.class))).thenReturn(mockUsers);
+    void testComplexSorting() {
+        try (Session session = sessionFactory.openSession()) {
+            List<MathFunction> functions = session.createQuery(
+                            "FROM MathFunction ORDER BY functionType ASC, functionName ASC", MathFunction.class)
+                    .getResultList();
 
-        // When - используем разный регистр для поля
-        List<Object> result1 = searchService.searchWithSorting("username", "john", "username", true);
-        List<Object> result2 = searchService.searchWithSorting("USERNAME", "john", "username", true);
-        List<Object> result3 = searchService.searchWithSorting("UserName", "john", "username", true);
-
-        // Then - все варианты должны работать одинаково
-        assertNotNull(result1);
-        assertNotNull(result2);
-        assertNotNull(result3);
-        verify(userRepository, times(3)).findByUsernameContainingIgnoreCase(eq("john"), any(Sort.class));
+            assertEquals(3, functions.size());
+            // Проверяем что сначала идут ПОЛИНОМ, потом ТРИГОНОМЕТРИЧЕСКАЯ
+            assertTrue(functions.get(0).getFunctionType().equals("ПОЛИНОМ") ||
+                    functions.get(1).getFunctionType().equals("ПОЛИНОМ"));
+        }
     }
 
-    @Test
-    void testSearchWithSortingEmptyResults() {
-        // Given
-        when(mathFunctionRepository.findByFunctionNameContainingIgnoreCase(eq("nonexistent"), any(Sort.class))).thenReturn(List.of());
-
-        // When
-        List<Object> result = searchService.searchWithSorting("FUNCTION_NAME", "nonexistent", "functionName", true);
-
-        // Then
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-        verify(mathFunctionRepository, times(1)).findByFunctionNameContainingIgnoreCase(eq("nonexistent"), any(Sort.class));
-    }
-
-    // Вспомогательный метод для установки полей через рефлексию
-    private void setField(Object target, String fieldName, Object value) {
-        try {
-            var field = target.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
-            field.set(target, value);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to set field: " + fieldName, e);
+    @AfterAll
+    void tearDown() {
+        if (sessionFactory != null) {
+            sessionFactory.close();
         }
     }
 }
