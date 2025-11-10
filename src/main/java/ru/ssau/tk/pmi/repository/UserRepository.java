@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.data.domain.Sort;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,6 +15,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // Автоматически генерируемые методы
     Optional<User> findByUsername(String username);
     List<User> findByRole(String role);
+    List<User> findByUsernameContainingIgnoreCase(String username);
+    List<User> findByUsernameContainingIgnoreCase(String username, Sort sort);
+    List<User> findByRole(String role, Sort sort);
+
     boolean existsByUsername(String username);
 
     // Кастомный запрос для поиска по части имени
@@ -23,4 +28,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // Поиск пользователей с количеством функций больше указанного
     @Query("SELECT u FROM User u WHERE SIZE(u.functions) > :minFunctions")
     List<User> findUsersWithMoreThanNFunctions(@Param("minFunctions") int minFunctions);
+
+
+    @Query("SELECT u FROM User u JOIN u.functions f WHERE f.functionType = :functionType")
+    List<User> findUsersByFunctionType(@Param("functionType") String functionType);
+
+    @Query("SELECT u FROM User u WHERE u.username LIKE %:pattern% OR u.role LIKE %:pattern%")
+    List<User> findByUsernameOrRoleContaining(@Param("pattern") String pattern);
 }
