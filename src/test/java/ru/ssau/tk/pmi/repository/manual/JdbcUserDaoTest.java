@@ -17,7 +17,7 @@ public class JdbcUserDaoTest {
     @BeforeAll
     void setUpDatabase() throws Exception {
 
-        String url = "jdbc:postgresql://localhost:5432/lab_db2";
+        String url = "jdbc:postgresql://localhost:5432/lab_db";
         String username = "postgres";
         String password = "user";
 
