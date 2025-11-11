@@ -126,8 +126,6 @@ class ManualJdbcSortingPerformanceTest {
         System.out.println("- Прав доступа: " + DATA_SIZE);
         System.out.println();
     }
-
-    // ОСТАВИЛ ТОЛЬКО 4 ТЕСТА КАК В HIBERNATE
     @Test
     void testUserSortingByName() {
         System.out.println("=== ТЕСТ 1: СОРТИРОВКА ПОЛЬЗОВАТЕЛЕЙ ПО ИМЕНИ (JDBC) ===");

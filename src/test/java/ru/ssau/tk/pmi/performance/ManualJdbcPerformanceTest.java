@@ -137,7 +137,7 @@ class ManualJdbcPerformanceTest {
         System.out.println();
     }
 
-    // ==================== ТЕСТЫ ПОИСКА ====================
+    //ТЕСТЫ ПОИСКА
 
     @Test
     void testSearchPerformance() {
@@ -164,13 +164,13 @@ class ManualJdbcPerformanceTest {
         });
     }
 
-    // ==================== ТЕСТЫ ДОБАВЛЕНИЯ ====================
+    //  ДОБАВЛЕНИЯ
 
     @Test
     void testInsertPerformance() {
         System.out.println("=== JDBC: СКОРОСТЬ ДОБАВЛЕНИЯ ===");
 
-        // Добавление пользователя (без возврата ID)
+        // Добавление пользователя
         measureInsertPerformance("User", () -> {
             String uniqueUsername = "new_user_" + userCounter.getAndIncrement();
             userDao.insertUser(uniqueUsername, "new_hash", "USER");
@@ -198,13 +198,13 @@ class ManualJdbcPerformanceTest {
         });
     }
 
-    // ==================== ТЕСТЫ ОБНОВЛЕНИЯ ====================
+    //ТЕСТЫ ОБНОВЛЕНИЯ
 
     @Test
     void testUpdatePerformance() {
         System.out.println("=== JDBC: СКОРОСТЬ ОБНОВЛЕНИЯ ===");
 
-        // Обновление пользователя - только пароль и роль (не username)
+        // Обновление пользователя
         measureUpdatePerformance("User", (id) -> {
             String uniqueUsername = "updated_user_" + userCounter.getAndIncrement();
             userDao.updateUser(id, uniqueUsername, "updated_hash", "UPDATED");
@@ -227,13 +227,13 @@ class ManualJdbcPerformanceTest {
         });
     }
 
-    // ==================== ТЕСТЫ УДАЛЕНИЯ ====================
+    //ТЕСТЫ УДАЛЕНИЯ
 
     @Test
     void testDeletePerformance() {
         System.out.println("=== JDBC: СКОРОСТЬ УДАЛЕНИЯ ===");
 
-        // Удаление пользователя (создаем временные данные)
+        // Удаление пользователя
         measureDeletePerformance("User", () -> {
             String uniqueUsername = "temp_user_" + userCounter.getAndIncrement();
             userDao.insertUser(uniqueUsername, "temp_hash", "USER");
@@ -241,20 +241,20 @@ class ManualJdbcPerformanceTest {
             return user != null ? (Long) user.get("user_id") : null;
         });
 
-        // Удаление функции (создаем временные данные)
+        // Удаление функции
         measureDeletePerformance("MathFunction", () -> {
             Long ownerId = testUserIds.get(0);
             String uniqueFuncName = "temp_func_" + userCounter.getAndIncrement();
             return functionDao.insertFunction(uniqueFuncName, "x^2", ownerId, true);
         });
 
-        // Удаление точки (создаем временные данные)
+        // Удаление точки
         measureDeletePerformance("ComputedPoint", () -> {
             Long functionId = testFunctionIds.get(0);
             return computedPointDao.insertComputedPoint(functionId, 777.0, 777.0);
         });
 
-        // Удаление права доступа (создаем временные данные)
+        // Удаление права доступа
         measureDeletePerformance("FunctionAccess", () -> {
             Long functionId = testFunctionIds.get(0);
             Long userId = testUserIds.get(1);
@@ -262,7 +262,6 @@ class ManualJdbcPerformanceTest {
         });
     }
 
-    // ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ
 
     private void measureSearchPerformance(String tableName, SearchOperation operation) {
         List<Long> times = new ArrayList<>();

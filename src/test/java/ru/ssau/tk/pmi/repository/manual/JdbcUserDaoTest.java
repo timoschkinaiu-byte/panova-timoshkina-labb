@@ -57,10 +57,10 @@ public class JdbcUserDaoTest {
         String passwordHash = "hash_" + random.nextInt(10000);
         String role = "USER";
 
-        // 🔹 INSERT
+        //INSERT
         userDao.insertUser(userName, passwordHash, role);
 
-        // 🔹 SELECT BY USERNAME
+        //SELECT BY USERNAME
         Map<String, Object> inserted = userDao.getUserByUsername(userName);
         Assertions.assertNotNull(inserted, "User should exist after insert");
         Long userId = ((Number) inserted.get("user_id")).longValue();
@@ -69,7 +69,7 @@ public class JdbcUserDaoTest {
         Assertions.assertEquals(passwordHash, inserted.get("password_hash"));
         Assertions.assertEquals(role, inserted.get("role"));
 
-        // 🔹 UPDATE
+        // UPDATE
         String newName = userName + "_updated";
         String newPass = passwordHash + "_new";
         String newRole = "ADMIN";
@@ -80,7 +80,7 @@ public class JdbcUserDaoTest {
         Assertions.assertEquals(newPass, updated.get("password_hash"));
         Assertions.assertEquals(newRole, updated.get("role"));
 
-        // 🔹 DELETE
+        // DELETE
         userDao.deleteUser(userId);
         Map<String, Object> deleted = userDao.getUserById(userId);
         Assertions.assertNull(deleted, "User should be deleted");

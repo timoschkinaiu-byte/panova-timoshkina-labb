@@ -7,7 +7,7 @@ import java.util.Map;
 
 public interface SearchService {
 
-    // Поиск по полю (одиночный)
+    // Поиск по полю
     <T> List<T> searchByField(Class<T> dtoClass, String fieldName, Object value);
     // Поиск по нескольким полям
     <T> List<T> searchByFields(Class<T> dtoClass, Map<String, Object> filters);

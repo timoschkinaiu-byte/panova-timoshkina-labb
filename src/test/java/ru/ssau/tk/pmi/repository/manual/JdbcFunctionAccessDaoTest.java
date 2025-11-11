@@ -124,7 +124,7 @@ public class JdbcFunctionAccessDaoTest {
         ));
 
         try (Statement stmt = connection.createStatement()) {
-            // Выполнение скрипта построчно
+            // Выполнение скрипта
             String[] statements = sqlScript.split(";");
             for (String statement : statements) {
                 if (!statement.trim().isEmpty()) {

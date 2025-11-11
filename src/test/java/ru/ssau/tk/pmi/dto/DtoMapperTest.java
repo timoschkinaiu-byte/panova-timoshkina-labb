@@ -50,7 +50,7 @@ public class DtoMapperTest {
                 "function_name", "f(x)=x^2",
                 "function_definition", "x*x",
                 "owner_id", 1L,
-                "is_public", "true"  // тестируем строковое значение
+                "is_public", "true"
         );
         FunctionDto dto = DtoMapper.mapToFunctionDto(data);
         logger.info("Mapped FunctionDTO with string boolean: {}", dto);
@@ -128,7 +128,6 @@ public class DtoMapperTest {
 
     @Test
     void testPartialMapMapping() {
-        // Map с отсутствующими обязательными полями
         Map<String, Object> partialMap = new HashMap<>();
         partialMap.put("function_id", 10L);
         partialMap.put("function_name", "test");

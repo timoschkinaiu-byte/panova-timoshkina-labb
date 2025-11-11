@@ -19,16 +19,12 @@ public class JdbcFunctionDaoTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        // Подключение к твоей реальной базе PostgreSQL
         String url = "jdbc:postgresql://localhost:5432/lab_db";
         String username = "postgres";
         String password = "user";
         connection = DriverManager.getConnection(url, username, password);
         initializeDatabase();
         functionDao = new JdbcFunctionDao(connection);
-
-
-        // ⚠️ Убедимся, что есть пользователь с ID=1
         try (Statement stmt = connection.createStatement()) {
             ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM users WHERE user_id = 1");
             rs.next();
@@ -37,7 +33,6 @@ public class JdbcFunctionDaoTest {
             }
         }
     }
-
     private void initializeDatabase() throws Exception {
         // Чтение SQL скрипта
         String sqlScript = new String(Files.readAllBytes(
@@ -45,7 +40,7 @@ public class JdbcFunctionDaoTest {
         ));
 
         try (Statement stmt = connection.createStatement()) {
-            // Выполнение скрипта построчно
+            // Выполнение скрипта
             String[] statements = sqlScript.split(";");
             for (String statement : statements) {
                 if (!statement.trim().isEmpty()) {
@@ -60,7 +55,6 @@ public class JdbcFunctionDaoTest {
 
     @Test
     void testFunctionCRUD() {
-        // INSERT - передаем только 4 параметра вместо 5
         Long functionId = functionDao.insertFunction("test_func", "x^3", 1L, true);
         Assertions.assertNotNull(functionId);
 
@@ -69,9 +63,7 @@ public class JdbcFunctionDaoTest {
         Assertions.assertNotNull(fetched);
         Assertions.assertEquals("test_func", fetched.get("function_name"));
         Assertions.assertEquals("x^3", fetched.get("function_definition"));
-        // function_type будет установлен в значение по умолчанию из БД
-
-        // UPDATE - также 4 параметра
+        // UPDATE
         functionDao.updateFunction(functionId, "updated_func", "x^4", false);
         Map<String, Object> updated = functionDao.getFunctionById(functionId);
         Assertions.assertEquals("updated_func", updated.get("function_name"));

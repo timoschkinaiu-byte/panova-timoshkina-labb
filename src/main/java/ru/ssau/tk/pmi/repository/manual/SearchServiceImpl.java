@@ -135,8 +135,6 @@ public class SearchServiceImpl implements SearchService {
         logger.info("BFS completed, found {} functions", visited.size());
         return visited;
     }
-
-    // --- Вспомогательные методы ---
     private String getTableName(Class<?> dtoClass) {
         if (dtoClass == UserDto.class) return "users";
         if (dtoClass == FunctionDto.class) return "functions";
