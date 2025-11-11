@@ -1,3 +1,4 @@
+
 package ru.ssau.tk.pmi.performance;
 
 import org.junit.jupiter.api.*;
@@ -55,7 +56,6 @@ class ManualJdbcSortingPerformanceTest {
                 }
             }
         }
-
     }
 
     private void generateTestData() throws SQLException {
@@ -103,6 +103,7 @@ class ManualJdbcSortingPerformanceTest {
             }
         }
 
+
         // Генерация точек с разными значениями X для сортировки
         for (int i = 0; i < DATA_SIZE; i++) {
             Long functionId = testFunctionIds.get(i % testFunctionIds.size());
@@ -126,6 +127,7 @@ class ManualJdbcSortingPerformanceTest {
         System.out.println();
     }
 
+    // ОСТАВИЛ ТОЛЬКО 4 ТЕСТА КАК В HIBERNATE
     @Test
     void testUserSortingByName() {
         System.out.println("=== ТЕСТ 1: СОРТИРОВКА ПОЛЬЗОВАТЕЛЕЙ ПО ИМЕНИ (JDBC) ===");
@@ -194,68 +196,11 @@ class ManualJdbcSortingPerformanceTest {
         printSortingStats("Сортировка точек по X", ascTimes);
     }
 
-    @Test
-    void testAccessSortingByType() {
-        System.out.println("=== ТЕСТ 5: СОРТИРОВКА ПРАВ ДОСТУПА ПО ТИПУ (JDBC) ===");
-
-        List<Long> ascTimes = new ArrayList<>();
-
-        for (int i = 0; i < TEST_RUNS; i++) {
-            long start = System.nanoTime();
-            List<FunctionAccessDto> accessAsc = searchService.searchByFieldSorted(
-                    FunctionAccessDto.class, "user_id", testUserIds.get(0), "access_type", true);
-            long ascTime = System.nanoTime() - start;
-            ascTimes.add(ascTime);
-        }
-
-        printSortingStats("Сортировка прав доступа по типу", ascTimes);
-    }
-
-    // Дополнительные тесты для сравнения производительности
-
-    @Test
-    void testDirectSqlSortingPerformance() {
-        System.out.println("=== ПРЯМЫЕ SQL ЗАПРОСЫ ДЛЯ СОРТИРОВКИ (JDBC) ===");
-
-        // Тест 1: Прямой SQL для сортировки пользователей
-        measureDirectSqlSorting("Пользователи (прямой SQL)",
-                "SELECT * FROM users WHERE role = ? ORDER BY username ASC", "ADMIN");
-
-        // Тест 2: Прямой SQL для сортировки функций
-        measureDirectSqlSorting("Функции (прямой SQL)",
-                "SELECT * FROM functions WHERE is_public = ? ORDER BY function_name ASC", true);
-
-        // Тест 3: Прямой SQL для сортировки точек
-        measureDirectSqlSorting("Точки (прямой SQL)",
-                "SELECT * FROM computed_points WHERE function_id = ? ORDER BY x_value ASC", testFunctionIds.get(0));
-    }
-
-    private void measureDirectSqlSorting(String testName, String sql, Object param) {
-        List<Long> times = new ArrayList<>();
-
-        for (int i = 0; i < TEST_RUNS; i++) {
-            try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-                stmt.setObject(1, param);
-                long start = System.nanoTime();
-                ResultSet rs = stmt.executeQuery();
-                // Читаем все результаты для точного измерения
-                while (rs.next()) {
-                    rs.getObject(1); // Просто читаем данные
-                }
-                long time = System.nanoTime() - start;
-                times.add(time);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-
-        printSortingStats(testName, times);
-    }
-
     private void printSortingStats(String operation, List<Long> times) {
         double avg = times.stream().mapToLong(Long::longValue).average().orElse(0) / 1_000_000.0;
         double min = times.stream().mapToLong(Long::longValue).min().orElse(0) / 1_000_000.0;
         double max = times.stream().mapToLong(Long::longValue).max().orElse(0) / 1_000_000.0;
+
 
         System.out.println("Операция: " + operation);
         System.out.printf("Среднее время: %.3f мс\n", avg);
@@ -274,28 +219,5 @@ class ManualJdbcSortingPerformanceTest {
         System.out.println("=== РЕЗУЛЬТАТЫ ТЕСТИРОВАНИЯ СКОРОСТИ СОРТИРОВКИ JDBC ===");
         System.out.println("Тестирование завершено. Размер каждой таблицы: " + DATA_SIZE + " записей");
         System.out.println("Количество запусков на тест: " + TEST_RUNS);
-
-        // Создание таблицы результатов для GitHub
-        createResultsTable();
-    }
-
-    private void createResultsTable() {
-        System.out.println("\n=== ТАБЛИЦА РЕЗУЛЬТАТОВ ДЛЯ GITHUB ===");
-        System.out.println("| Тест | Среднее время (мс) | Минимальное время (мс) | Максимальное время (мс) |");
-        System.out.println("|------|-------------------|----------------------|----------------------|");
-        System.out.println("| Сортировка пользователей по имени | - | - | - |");
-        System.out.println("| Сортировка функций по имени | - | - | - |");
-        System.out.println("| Сортировка функций по владельцу | - | - | - |");
-        System.out.println("| Сортировка точек по X | - | - | - |");
-        System.out.println("| Сортировка прав доступа по типу | - | - | - |");
-        System.out.println("| Пользователи (прямой SQL) | - | - | - |");
-        System.out.println("| Функции (прямой SQL) | - | - | - |");
-        System.out.println("| Точки (прямой SQL) | - | - | - |");
-
-        System.out.println("\n**Параметры тестирования:**");
-        System.out.println("- База данных: PostgreSQL");
-        System.out.println("- Размер данных: " + DATA_SIZE + " записей в каждой таблице");
-        System.out.println("- Количество запусков: " + TEST_RUNS + " на тест");
-        System.out.println("- Реализация: JDBC (Manual)");
     }
 }
