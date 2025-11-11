@@ -1,0 +1,680 @@
+2025-11-10 21:16:01.089 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 3 точками
+2025-11-10 21:16:01.093 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 3
+2025-11-10 21:16:01.603 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:01.604 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [2.0, 4.0, 6.0]
+2025-11-10 21:16:01.605 [main] INFO  TabulatedDifferentialOperator - Синхронное вычисление производной для функции с 3 точками
+2025-11-10 21:16:01.607 [main] INFO  TabulatedDifferentialOperator - Синхронное вычисление производной завершено
+2025-11-10 21:16:01.614 [main] INFO  TabulatedDifferentialOperator - Вычисление производной для функции с 3 точками
+2025-11-10 21:16:01.615 [main] DEBUG SynchronizedTabulatedFunction - Создание потокобезопасного итератора
+2025-11-10 21:16:01.615 [main] INFO  TabulatedDifferentialOperator - Производная успешно вычислена, создана новая функция
+2025-11-10 21:16:01.615 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:01.616 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [2.0, 2.0, 2.0]
+2025-11-10 21:16:01.618 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:01.618 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 1.0, 2.0, 3.0], Y values: [0.0, 1.0, 8.0, 27.0]
+2025-11-10 21:16:01.618 [main] INFO  TabulatedDifferentialOperator - Вычисление производной для функции с 4 точками
+2025-11-10 21:16:01.619 [main] INFO  TabulatedDifferentialOperator - Производная успешно вычислена, создана новая функция
+2025-11-10 21:16:01.619 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:01.619 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 1.0, 2.0, 3.0], Y values: [1.0, 7.0, 19.0, 19.0]
+2025-11-10 21:16:01.619 [main] INFO  TabulatedDifferentialOperator - Синхронное вычисление производной для функции с 4 точками
+2025-11-10 21:16:01.620 [main] INFO  TabulatedDifferentialOperator - Синхронное вычисление производной завершено
+2025-11-10 21:16:01.620 [main] INFO  TabulatedDifferentialOperator - Вычисление производной для функции с 4 точками
+2025-11-10 21:16:01.620 [main] DEBUG SynchronizedTabulatedFunction - Создание потокобезопасного итератора
+2025-11-10 21:16:01.620 [main] INFO  TabulatedDifferentialOperator - Производная успешно вычислена, создана новая функция
+2025-11-10 21:16:01.622 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:01.622 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 1.0, 2.0, 3.0], Y values: [1.0, 7.0, 19.0, 19.0]
+2025-11-10 21:16:01.625 [main] INFO  TabulatedDifferentialOperator - Создание TabulatedDifferentialOperator с фабрикой: ArrayTabulatedFunctionFactory
+2025-11-10 21:16:01.627 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:01.628 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 1.0, 2.0, 3.0], Y values: [0.0, 2.0, 4.0, 6.0]
+2025-11-10 21:16:01.628 [main] INFO  TabulatedDifferentialOperator - Вычисление производной для функции с 4 точками
+2025-11-10 21:16:01.628 [main] INFO  TabulatedDifferentialOperator - Производная успешно вычислена, создана новая функция
+2025-11-10 21:16:01.629 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:01.629 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 1.0, 2.0, 3.0], Y values: [2.0, 2.0, 2.0, 2.0]
+2025-11-10 21:16:01.637 [main] INFO  TabulatedDifferentialOperator - Создание TabulatedDifferentialOperator с фабрикой: LinkedListTabulatedFunctionFactory
+2025-11-10 21:16:01.637 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 4 точками
+2025-11-10 21:16:01.637 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 4
+2025-11-10 21:16:01.637 [main] INFO  TabulatedDifferentialOperator - Вычисление производной для функции с 4 точками
+2025-11-10 21:16:01.638 [main] INFO  TabulatedDifferentialOperator - Производная успешно вычислена, создана новая функция
+2025-11-10 21:16:01.638 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 4 точками
+2025-11-10 21:16:01.638 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 4
+2025-11-10 21:16:01.640 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:01.642 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0, 4.0], Y values: [1.0, 4.0, 9.0, 16.0]
+2025-11-10 21:16:01.642 [main] INFO  TabulatedDifferentialOperator - Синхронное вычисление производной для функции с 4 точками
+2025-11-10 21:16:01.642 [main] INFO  TabulatedDifferentialOperator - Синхронное вычисление производной завершено
+2025-11-10 21:16:01.643 [main] INFO  TabulatedDifferentialOperator - Вычисление производной для функции с 4 точками
+2025-11-10 21:16:01.644 [main] DEBUG SynchronizedTabulatedFunction - Создание потокобезопасного итератора
+2025-11-10 21:16:01.644 [main] INFO  TabulatedDifferentialOperator - Производная успешно вычислена, создана новая функция
+2025-11-10 21:16:01.644 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:01.645 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0, 4.0], Y values: [3.0, 5.0, 7.0, 7.0]
+2025-11-10 21:16:01.648 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:01.648 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 1.0, 2.0], Y values: [0.0, 1.0, 4.0]
+2025-11-10 21:16:01.648 [main] INFO  TabulatedDifferentialOperator - Вычисление производной для функции с 3 точками
+2025-11-10 21:16:01.648 [main] INFO  TabulatedDifferentialOperator - Производная успешно вычислена, создана новая функция
+2025-11-10 21:16:01.648 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:01.649 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 1.0, 2.0], Y values: [1.0, 3.0, 3.0]
+2025-11-10 21:16:01.649 [main] INFO  TabulatedDifferentialOperator - Вычисление производной для функции с 3 точками
+2025-11-10 21:16:01.649 [main] INFO  TabulatedDifferentialOperator - Производная успешно вычислена, создана новая функция
+2025-11-10 21:16:01.650 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 3 точками
+2025-11-10 21:16:01.650 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 3
+2025-11-10 21:16:01.664 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 3 точками
+2025-11-10 21:16:01.665 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 3
+2025-11-10 21:16:01.665 [main] DEBUG SynchronizedTabulatedFunction - Создание потокобезопасного итератора
+2025-11-10 21:16:01.668 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:01.669 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [4.0, 5.0, 6.0]
+2025-11-10 21:16:01.672 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 2 точками
+2025-11-10 21:16:01.672 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0], Y values: [3.0, 4.0]
+2025-11-10 21:16:01.673 [main] DEBUG SynchronizedTabulatedFunction - Создание потокобезопасного итератора
+2025-11-10 21:16:01.680 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:01.680 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [4.0, 5.0, 6.0]
+2025-11-10 21:16:01.681 [main] DEBUG SynchronizedTabulatedFunction - Вычисление apply(x=1.0)
+2025-11-10 21:16:01.681 [main] DEBUG SynchronizedTabulatedFunction - Вычисление apply(x=2.0)
+2025-11-10 21:16:01.681 [main] DEBUG SynchronizedTabulatedFunction - Вычисление apply(x=3.0)
+2025-11-10 21:16:01.682 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:01.684 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [4.0, 5.0, 6.0]
+2025-11-10 21:16:01.684 [main] DEBUG ArrayTabulatedFunction - Изменение Y[1] = 10.0
+2025-11-10 21:16:01.685 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 3 точками
+2025-11-10 21:16:01.685 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 3
+2025-11-10 21:16:01.688 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 2 точками
+2025-11-10 21:16:01.688 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0], Y values: [3.0, 4.0]
+2025-11-10 21:16:01.689 [main] DEBUG SynchronizedTabulatedFunction - Создание потокобезопасного итератора
+2025-11-10 21:16:01.692 [main] WARN  SynchronizedTabulatedFunction - Попытка получить следующий элемент при отсутствии элементов
+2025-11-10 21:16:01.697 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:01.698 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [1.0, 2.0, 3.0]
+2025-11-10 21:16:01.701 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:01.702 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [1.0, 2.0, 3.0]
+2025-11-10 21:16:01.702 [main] DEBUG ArrayTabulatedFunction - Изменение Y[0] = 10.0
+2025-11-10 21:16:01.706 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 2 точками
+2025-11-10 21:16:01.706 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0], Y values: [3.0, 4.0]
+2025-11-10 21:16:01.706 [main] DEBUG SynchronizedTabulatedFunction - Создание потокобезопасного итератора
+2025-11-10 21:16:01.706 [main] DEBUG SynchronizedTabulatedFunction - Создание потокобезопасного итератора
+2025-11-10 21:16:01.709 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:01.709 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [4.0, 5.0, 6.0]
+2025-11-10 21:16:01.710 [main] DEBUG SynchronizedTabulatedFunction - Создание потокобезопасного итератора
+2025-11-10 21:16:01.710 [main] DEBUG ArrayTabulatedFunction - Изменение Y[1] = 10.0
+2025-11-10 21:16:01.713 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:01.714 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [4.0, 5.0, 6.0]
+2025-11-10 21:16:01.714 [main] DEBUG SynchronizedTabulatedFunction - Создание потокобезопасного итератора
+2025-11-10 21:16:01.732 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.732 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.732 [main] DEBUG LinkedListTabulatedFunction - Экстраполяция слева для x=0.5
+2025-11-10 21:16:01.735 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.735 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.738 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.739 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.740 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 1 точками
+2025-11-10 21:16:01.740 [main] ERROR LinkedListTabulatedFunction - ОШИБКА: Недостаточно точек для создания списка - 1
+2025-11-10 21:16:01.746 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.746 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.746 [main] INFO  LinkedListTabulatedFunction - Создание списка из IdentityFunction на интервале [2.4, 7.2] с 4 точками
+2025-11-10 21:16:01.747 [main] DEBUG LinkedListTabulatedFunction - Список создан с шагом: 1.6000000000000003
+2025-11-10 21:16:01.749 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.749 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.749 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 3 точками
+2025-11-10 21:16:01.751 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 3
+2025-11-10 21:16:01.751 [main] DEBUG LinkedListTabulatedFunction - Точка удалена
+2025-11-10 21:16:01.754 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.754 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.755 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=7.3)
+2025-11-10 21:16:01.755 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=7.3) для списка
+2025-11-10 21:16:01.756 [main] DEBUG LinkedListTabulatedFunction - Экстраполяция справа для x=7.3
+2025-11-10 21:16:01.760 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.760 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.761 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 3 точками
+2025-11-10 21:16:01.761 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 3
+2025-11-10 21:16:01.762 [main] DEBUG LinkedListTabulatedFunction - Точка удалена
+2025-11-10 21:16:01.764 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.764 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.766 [main] INFO  LinkedListTabulatedFunction - Создание списка из IdentityFunction на интервале [3.0, 4.0] с 1 точками
+2025-11-10 21:16:01.766 [main] ERROR LinkedListTabulatedFunction - ОШИБКА: Недостаточно точек для списка - 1
+2025-11-10 21:16:01.769 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.769 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.770 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 3 точками
+2025-11-10 21:16:01.770 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 3
+2025-11-10 21:16:01.771 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.772 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.772 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 3 точками
+2025-11-10 21:16:01.772 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 3
+2025-11-10 21:16:01.779 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.779 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.783 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.783 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.785 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=2.7)
+2025-11-10 21:16:01.785 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=2.7) для списка
+2025-11-10 21:16:01.785 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=5.5)
+2025-11-10 21:16:01.785 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=5.5) для списка
+2025-11-10 21:16:01.789 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.789 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.790 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=1.3)
+2025-11-10 21:16:01.790 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=1.3) для списка
+2025-11-10 21:16:01.790 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=2.7)
+2025-11-10 21:16:01.791 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=2.7) для списка
+2025-11-10 21:16:01.791 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=6.9)
+2025-11-10 21:16:01.791 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=6.9) для списка
+2025-11-10 21:16:01.794 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.796 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.796 [main] INFO  LinkedListTabulatedFunction - Создание списка из SqrFunction на интервале [1.5, 3.5] с 4 точками
+2025-11-10 21:16:01.796 [main] DEBUG LinkedListTabulatedFunction - Список создан с шагом: 0.6666666666666666
+2025-11-10 21:16:01.798 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.798 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.802 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.802 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.805 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.805 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.805 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=0.8)
+2025-11-10 21:16:01.805 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=0.8) для списка
+2025-11-10 21:16:01.805 [main] DEBUG LinkedListTabulatedFunction - Экстраполяция слева для x=0.8
+2025-11-10 21:16:01.809 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.809 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.810 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 3 точками
+2025-11-10 21:16:01.810 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 3
+2025-11-10 21:16:01.813 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.813 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.814 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 3 точками
+2025-11-10 21:16:01.814 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 3
+2025-11-10 21:16:01.814 [main] DEBUG LinkedListTabulatedFunction - Точка удалена
+2025-11-10 21:16:01.816 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.816 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.817 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 3 точками
+2025-11-10 21:16:01.817 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 3
+2025-11-10 21:16:01.820 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.821 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.821 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 3 точками
+2025-11-10 21:16:01.821 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 3
+2025-11-10 21:16:01.822 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.822 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.823 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 3 точками
+2025-11-10 21:16:01.823 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 3
+2025-11-10 21:16:01.827 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.828 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.828 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 3 точками
+2025-11-10 21:16:01.828 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 3
+2025-11-10 21:16:01.830 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.830 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.831 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.832 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.832 [main] DEBUG LinkedListTabulatedFunction - Интерполяция x=4.8 в интервале 2
+2025-11-10 21:16:01.834 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.834 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.835 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 3 точками
+2025-11-10 21:16:01.835 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 3
+2025-11-10 21:16:01.838 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.838 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.838 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=1.3)
+2025-11-10 21:16:01.838 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=1.3) для списка
+2025-11-10 21:16:01.838 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=3.4)
+2025-11-10 21:16:01.838 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=3.4) для списка
+2025-11-10 21:16:01.838 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=0.5)
+2025-11-10 21:16:01.840 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=0.5) для списка
+2025-11-10 21:16:01.840 [main] DEBUG LinkedListTabulatedFunction - Экстраполяция слева для x=0.5
+2025-11-10 21:16:01.840 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=7.8)
+2025-11-10 21:16:01.840 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=7.8) для списка
+2025-11-10 21:16:01.840 [main] DEBUG LinkedListTabulatedFunction - Экстраполяция справа для x=7.8
+2025-11-10 21:16:01.844 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.844 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.848 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 3 точками
+2025-11-10 21:16:01.848 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 3
+2025-11-10 21:16:01.850 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.850 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.853 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.853 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.853 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 3 точками
+2025-11-10 21:16:01.853 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 3
+2025-11-10 21:16:01.854 [main] ERROR LinkedListTabulatedFunction - ОШИБКА: x=0.5 меньше левой границы 1.0
+2025-11-10 21:16:01.859 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.859 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.860 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 3 точками
+2025-11-10 21:16:01.860 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 3
+2025-11-10 21:16:01.863 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.863 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.865 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.865 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.867 [main] DEBUG LinkedListTabulatedFunction - Интерполяция x=3.4 в интервале 1
+2025-11-10 21:16:01.870 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.870 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.870 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 2 точками
+2025-11-10 21:16:01.870 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 2
+2025-11-10 21:16:01.871 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=3.9)
+2025-11-10 21:16:01.871 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=3.9) для списка
+2025-11-10 21:16:01.874 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.875 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.880 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.880 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.880 [main] INFO  LinkedListTabulatedFunction - Создание списка из ConstantFunction на интервале [3.3, 3.3] с 4 точками
+2025-11-10 21:16:01.880 [main] DEBUG LinkedListTabulatedFunction - Создан список с постоянным значением: 8.7
+2025-11-10 21:16:01.884 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.884 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.887 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.887 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.887 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 3 точками
+2025-11-10 21:16:01.887 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 3
+2025-11-10 21:16:01.887 [main] DEBUG LinkedListTabulatedFunction - Интерполяция x=2.5 в интервале 0
+2025-11-10 21:16:01.888 [main] ERROR LinkedListTabulatedFunction - ОШИБКА интерполяции: x=2.5 не в интервале [1.0, 2.0]
+2025-11-10 21:16:01.889 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.890 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.890 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=3.4)
+2025-11-10 21:16:01.890 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=3.4) для списка
+2025-11-10 21:16:01.894 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.894 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.904 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 3 точками
+2025-11-10 21:16:01.904 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 3
+2025-11-10 21:16:01.905 [main] DEBUG LinkedListTabulatedFunction - Интерполяция x=0.5 в интервале 0
+2025-11-10 21:16:01.906 [main] ERROR LinkedListTabulatedFunction - ОШИБКА интерполяции: x=0.5 не в интервале [1.0, 2.0]
+2025-11-10 21:16:01.918 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.919 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.919 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 3 точками
+2025-11-10 21:16:01.920 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 3
+2025-11-10 21:16:01.921 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.921 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.922 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.922 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.927 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.927 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.928 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 3 точками
+2025-11-10 21:16:01.928 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 3
+2025-11-10 21:16:01.931 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.931 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.932 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.933 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.934 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.934 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.935 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.935 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:01.935 [main] DEBUG LinkedListTabulatedFunction - Экстраполяция справа для x=7.8
+2025-11-10 21:16:01.956 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:01.956 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:02.051 [main] INFO  JdbcComputedPointDaoTest - Connection closed
+2025-11-10 21:16:02.064 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.064 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [10.0, 20.0, 30.0]
+2025-11-10 21:16:02.067 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:02.067 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0, 4.0], Y values: [10.0, 20.0, 30.0, 40.0]
+2025-11-10 21:16:02.069 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 1 точками
+2025-11-10 21:16:02.069 [main] ERROR ArrayTabulatedFunction - Попытка создания функции с 1 точками (минимум 2)
+2025-11-10 21:16:02.072 [main] INFO  ArrayTabulatedFunction - Создание функции из IdentityFunction на интервале [3.0, 4.0] с 1 точками
+2025-11-10 21:16:02.072 [main] ERROR ArrayTabulatedFunction - ОШИБКА: Недостаточно точек - 1
+2025-11-10 21:16:02.075 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.075 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [1.0, 4.0, 9.0]
+2025-11-10 21:16:02.081 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.082 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [4.0, 5.0, 6.0]
+2025-11-10 21:16:02.083 [main] ERROR ArrayTabulatedFunction - ОШИБКА: Индекс -1 выходит за границы [0, 2]
+2025-11-10 21:16:02.084 [main] ERROR ArrayTabulatedFunction - ОШИБКА: Индекс 3 выходит за границы [0, 2]
+2025-11-10 21:16:02.087 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.087 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [10.0, 20.0, 30.0]
+2025-11-10 21:16:02.087 [main] DEBUG ArrayTabulatedFunction - Изменение Y[1] = 25.0
+2025-11-10 21:16:02.088 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.088 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [10.0, 20.0, 30.0]
+2025-11-10 21:16:02.091 [main] INFO  ArrayTabulatedFunction - Создание функции из SqrFunction на интервале [4.0, 0.0] с 5 точками
+2025-11-10 21:16:02.096 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.096 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [4.0, 5.0, 6.0]
+2025-11-10 21:16:02.097 [main] DEBUG ArrayTabulatedFunction - Изменение Y[-1] = 10.0
+2025-11-10 21:16:02.097 [main] ERROR ArrayTabulatedFunction - ОШИБКА: Индекс -1 выходит за границы
+2025-11-10 21:16:02.098 [main] DEBUG ArrayTabulatedFunction - Изменение Y[3] = 10.0
+2025-11-10 21:16:02.099 [main] ERROR ArrayTabulatedFunction - ОШИБКА: Индекс 3 выходит за границы
+2025-11-10 21:16:02.102 [main] INFO  ArrayTabulatedFunction - Создание функции из SqrFunction на интервале [3.0, 3.0] с 4 точками
+2025-11-10 21:16:02.105 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.105 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [4.0, 5.0, 6.0]
+2025-11-10 21:16:02.106 [main] ERROR ArrayTabulatedFunction - ОШИБКА: Индекс -1 выходит за границы [0, 2]
+2025-11-10 21:16:02.107 [main] ERROR ArrayTabulatedFunction - ОШИБКА: Индекс 5 выходит за границы [0, 2]
+2025-11-10 21:16:02.111 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:02.112 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0, 4.0], Y values: [1.0, 4.0, 9.0, 16.0]
+2025-11-10 21:16:02.116 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.116 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [10.0, 20.0, 30.0]
+2025-11-10 21:16:02.118 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.119 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [4.0, 5.0, 6.0]
+2025-11-10 21:16:02.120 [main] ERROR ArrayTabulatedFunction - ОШИБКА: Индекс -1 выходит за границы [0, 2]
+2025-11-10 21:16:02.121 [main] ERROR ArrayTabulatedFunction - ОШИБКА: Индекс 3 выходит за границы [0, 2]
+2025-11-10 21:16:02.126 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.126 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [4.0, 5.0, 6.0]
+2025-11-10 21:16:02.127 [main] ERROR ArrayTabulatedFunction - ОШИБКА: Индекс -1 выходит за границы
+2025-11-10 21:16:02.128 [main] ERROR ArrayTabulatedFunction - ОШИБКА: Индекс 3 выходит за границы
+2025-11-10 21:16:02.131 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.132 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 2.0, 4.0], Y values: [0.0, 4.0, 16.0]
+2025-11-10 21:16:02.132 [main] DEBUG ArrayTabulatedFunction - Поиск интервала для x=1.0
+2025-11-10 21:16:02.132 [main] DEBUG ArrayTabulatedFunction - Поиск интервала для x=3.0
+2025-11-10 21:16:02.133 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:02.133 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0, 4.0], Y values: [1.0, 4.0, 9.0, 16.0]
+2025-11-10 21:16:02.135 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.136 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [10.0, 20.0, 30.0]
+2025-11-10 21:16:02.136 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.137 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [1.0, 4.0, 9.0]
+2025-11-10 21:16:02.139 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.139 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [1.0, 4.0, 9.0]
+2025-11-10 21:16:02.142 [main] INFO  ArrayTabulatedFunction - Создание функции из SqrFunction на интервале [0.0, 4.0] с 5 точками
+2025-11-10 21:16:02.144 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.145 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [10.0, 20.0, 30.0]
+2025-11-10 21:16:02.147 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.147 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [10.0, 20.0, 30.0]
+2025-11-10 21:16:02.148 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:02.148 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0, 4.0], Y values: [10.0, 20.0, 30.0, 40.0]
+2025-11-10 21:16:02.150 [main] DEBUG ArrayTabulatedFunction - Поиск интервала для x=1.5
+2025-11-10 21:16:02.150 [main] DEBUG ArrayTabulatedFunction - Поиск интервала для x=2.5
+2025-11-10 21:16:02.150 [main] DEBUG ArrayTabulatedFunction - Поиск интервала для x=3.5
+2025-11-10 21:16:02.150 [main] DEBUG ArrayTabulatedFunction - Поиск интервала для x=4.0
+2025-11-10 21:16:02.150 [main] DEBUG ArrayTabulatedFunction - Поиск интервала для x=5.0
+2025-11-10 21:16:02.152 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 2 точками
+2025-11-10 21:16:02.152 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [2.0, 4.0], Y values: [4.0, 8.0]
+2025-11-10 21:16:02.152 [main] DEBUG ArrayTabulatedFunction - Поиск интервала для x=3.0
+2025-11-10 21:16:02.155 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.155 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [4.0, 5.0, 6.0]
+2025-11-10 21:16:02.156 [main] DEBUG ArrayTabulatedFunction - Поиск интервала для x=0.5
+2025-11-10 21:16:02.156 [main] ERROR ArrayTabulatedFunction - ОШИБКА: x меньше левой границы
+2025-11-10 21:16:02.159 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.159 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [10.0, 20.0, 30.0]
+2025-11-10 21:16:02.163 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.163 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [10.0, 20.0, 30.0]
+2025-11-10 21:16:02.164 [main] DEBUG ArrayTabulatedFunction - Поиск интервала для x=2.5
+2025-11-10 21:16:02.410 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.410 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 3.7, 21.9], Y values: [8.0, 5.0, 6.3]
+2025-11-10 21:16:02.414 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.414 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 0.5, 1.0], Y values: [0.0, 0.25, 1.0]
+2025-11-10 21:16:02.423 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 3 точками
+2025-11-10 21:16:02.423 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 3
+2025-11-10 21:16:02.581 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:02.581 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0, 4.0], Y values: [10.0, 20.0, 30.0, 40.0]
+2025-11-10 21:16:02.582 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 4 точками
+2025-11-10 21:16:02.582 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 4
+2025-11-10 21:16:02.582 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=10.0)
+2025-11-10 21:16:02.582 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=10.0) для списка
+2025-11-10 21:16:02.582 [main] DEBUG LinkedListTabulatedFunction - Экстраполяция справа для x=10.0
+2025-11-10 21:16:02.583 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.584 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [10.0, 20.0, 30.0]
+2025-11-10 21:16:02.584 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.584 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [10.0, 20.0, 30.0], Y values: [100.0, 200.0, 300.0]
+2025-11-10 21:16:02.593 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 5 точками
+2025-11-10 21:16:02.593 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.5, 1.7, 2.9, 4.1, 5.3], Y values: [2.3, 4.1, 1.8, 5.6, 3.2]
+2025-11-10 21:16:02.593 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:02.593 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:02.593 [main] DEBUG ArrayTabulatedFunction - Поиск интервала для x=1.2
+2025-11-10 21:16:02.594 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=1.2)
+2025-11-10 21:16:02.595 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=1.2) для списка
+2025-11-10 21:16:02.595 [main] DEBUG ArrayTabulatedFunction - Поиск интервала для x=3.5
+2025-11-10 21:16:02.595 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=3.5)
+2025-11-10 21:16:02.596 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=3.5) для списка
+2025-11-10 21:16:02.596 [main] DEBUG ArrayTabulatedFunction - Поиск интервала для x=4.8
+2025-11-10 21:16:02.596 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=4.8)
+2025-11-10 21:16:02.598 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=4.8) для списка
+2025-11-10 21:16:02.600 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 5 точками
+2025-11-10 21:16:02.601 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.3, 2.7, 4.2, 5.8, 7.1], Y values: [2.1, 4.8, 1.3, 5.9, 3.4]
+2025-11-10 21:16:02.607 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 5 точками
+2025-11-10 21:16:02.608 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 5
+2025-11-10 21:16:02.608 [main] DEBUG ArrayTabulatedFunction - Поиск интервала для x=3.5
+2025-11-10 21:16:02.608 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=3.5)
+2025-11-10 21:16:02.609 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=3.5) для списка
+2025-11-10 21:16:02.609 [main] DEBUG ArrayTabulatedFunction - Поиск интервала для x=6.5
+2025-11-10 21:16:02.609 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=6.5)
+2025-11-10 21:16:02.610 [main] DEBUG LinkedListTabulatedFunction - Вычисление apply(x=6.5) для списка
+2025-11-10 21:16:02.614 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 1 точками
+2025-11-10 21:16:02.614 [main] ERROR ArrayTabulatedFunction - Попытка создания функции с 1 точками (минимум 2)
+2025-11-10 21:16:02.614 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 1 точками
+2025-11-10 21:16:02.615 [main] ERROR LinkedListTabulatedFunction - ОШИБКА: Недостаточно точек для создания списка - 1
+2025-11-10 21:16:02.627 [main] INFO  TabulatedFunctionOperationService - Создание TabulatedFunctionOperationService с фабрикой: ArrayTabulatedFunctionFactory
+2025-11-10 21:16:02.628 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:02.628 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 1.0, 2.0, 3.0], Y values: [1.0, 3.0, 5.0, 7.0]
+2025-11-10 21:16:02.628 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:02.628 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 1.0, 2.0, 3.0], Y values: [2.0, 4.0, 6.0, 8.0]
+2025-11-10 21:16:02.628 [main] INFO  TabulatedFunctionOperationService - Операция умножения функций с 4 и 4 точками
+2025-11-10 21:16:02.628 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:02.628 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 1.0, 2.0, 3.0], Y values: [2.0, 12.0, 30.0, 56.0]
+2025-11-10 21:16:02.630 [main] INFO  TabulatedFunctionOperationService - Создание TabulatedFunctionOperationService с фабрикой: ArrayTabulatedFunctionFactory
+2025-11-10 21:16:02.630 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:02.630 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 1.0, 2.0, 3.0], Y values: [1.0, 3.0, 5.0, 7.0]
+2025-11-10 21:16:02.630 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:02.630 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 1.0, 2.0, 3.0], Y values: [2.0, 4.0, 6.0, 8.0]
+2025-11-10 21:16:02.630 [main] INFO  TabulatedFunctionOperationService - Операция сложения функций с 4 и 4 точками
+2025-11-10 21:16:02.630 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:02.631 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 1.0, 2.0, 3.0], Y values: [3.0, 7.0, 11.0, 15.0]
+2025-11-10 21:16:02.634 [main] INFO  TabulatedFunctionOperationService - Создание TabulatedFunctionOperationService с фабрикой по умолчанию
+2025-11-10 21:16:02.634 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.634 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [10.0, 20.0, 30.0]
+2025-11-10 21:16:02.634 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 3 точками
+2025-11-10 21:16:02.635 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 3
+2025-11-10 21:16:02.635 [main] INFO  TabulatedFunctionOperationService - Операция сложения функций с 3 и 3 точками
+2025-11-10 21:16:02.635 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.635 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [15.0, 30.0, 45.0]
+2025-11-10 21:16:02.635 [main] DEBUG TabulatedFunctionOperationService - Выполнение операции над функциями
+2025-11-10 21:16:02.636 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.636 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [15.0, 30.0, 45.0]
+2025-11-10 21:16:02.636 [main] INFO  TabulatedFunctionOperationService - Операция вычитания функций с 3 и 3 точками
+2025-11-10 21:16:02.636 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.637 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [5.0, 10.0, 15.0]
+2025-11-10 21:16:02.637 [main] DEBUG TabulatedFunctionOperationService - Выполнение операции над функциями
+2025-11-10 21:16:02.637 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.637 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [5.0, 10.0, 15.0]
+2025-11-10 21:16:02.641 [main] INFO  TabulatedFunctionOperationService - Создание TabulatedFunctionOperationService с фабрикой по умолчанию
+2025-11-10 21:16:02.641 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.641 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [10.0, 20.0, 30.0]
+2025-11-10 21:16:02.641 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.641 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.5, 3.0], Y values: [5.0, 10.0, 15.0]
+2025-11-10 21:16:02.643 [main] INFO  TabulatedFunctionOperationService - Операция сложения функций с 3 и 3 точками
+2025-11-10 21:16:02.643 [main] DEBUG TabulatedFunctionOperationService - Выполнение операции над функциями
+2025-11-10 21:16:02.644 [main] ERROR TabulatedFunctionOperationService - ОШИБКА: Несовпадение X в точке 1
+2025-11-10 21:16:02.646 [main] INFO  TabulatedFunctionOperationService - Создание TabulatedFunctionOperationService с фабрикой: LinkedListTabulatedFunctionFactory
+2025-11-10 21:16:02.646 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 4 точками
+2025-11-10 21:16:02.646 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 4
+2025-11-10 21:16:02.646 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 4 точками
+2025-11-10 21:16:02.646 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 4
+2025-11-10 21:16:02.646 [main] INFO  TabulatedFunctionOperationService - Операция сложения функций с 4 и 4 точками
+2025-11-10 21:16:02.646 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 4 точками
+2025-11-10 21:16:02.647 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 4
+2025-11-10 21:16:02.648 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.648 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [10.0, 20.0, 30.0]
+2025-11-10 21:16:02.650 [main] INFO  TabulatedFunctionOperationService - Создание TabulatedFunctionOperationService с фабрикой по умолчанию
+2025-11-10 21:16:02.650 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:02.650 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 1.0, 2.0, 3.0], Y values: [1.0, 3.0, 5.0, 7.0]
+2025-11-10 21:16:02.650 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:02.650 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 1.5, 2.0, 3.0], Y values: [2.0, 4.0, 6.0, 8.0]
+2025-11-10 21:16:02.651 [main] INFO  TabulatedFunctionOperationService - Операция умножения функций с 4 и 4 точками
+2025-11-10 21:16:02.654 [main] INFO  TabulatedFunctionOperationService - Создание TabulatedFunctionOperationService с фабрикой: LinkedListTabulatedFunctionFactory
+2025-11-10 21:16:02.654 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 4 точками
+2025-11-10 21:16:02.654 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 4
+2025-11-10 21:16:02.654 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 4 точками
+2025-11-10 21:16:02.654 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 4
+2025-11-10 21:16:02.654 [main] INFO  TabulatedFunctionOperationService - Операция умножения функций с 4 и 4 точками
+2025-11-10 21:16:02.655 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 4 точками
+2025-11-10 21:16:02.655 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 4
+2025-11-10 21:16:02.656 [main] INFO  TabulatedFunctionOperationService - Создание TabulatedFunctionOperationService с фабрикой по умолчанию
+2025-11-10 21:16:02.656 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:02.656 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 1.0, 2.0, 3.0], Y values: [1.0, 3.0, 5.0, 7.0]
+2025-11-10 21:16:02.656 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:02.658 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 1.0, 2.0, 3.0], Y values: [2.0, 4.0, 6.0, 8.0]
+2025-11-10 21:16:02.658 [main] INFO  TabulatedFunctionOperationService - Операция сложения функций с 4 и 4 точками
+2025-11-10 21:16:02.658 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:02.658 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 1.0, 2.0, 3.0], Y values: [3.0, 7.0, 11.0, 15.0]
+2025-11-10 21:16:02.658 [main] DEBUG TabulatedFunctionOperationService - Выполнение операции над функциями
+2025-11-10 21:16:02.659 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:02.659 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 1.0, 2.0, 3.0], Y values: [3.0, 7.0, 11.0, 15.0]
+2025-11-10 21:16:02.661 [main] INFO  TabulatedFunctionOperationService - Создание TabulatedFunctionOperationService с фабрикой: LinkedListTabulatedFunctionFactory
+2025-11-10 21:16:02.662 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 4 точками
+2025-11-10 21:16:02.662 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 4
+2025-11-10 21:16:02.662 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 4 точками
+2025-11-10 21:16:02.662 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 4
+2025-11-10 21:16:02.663 [main] DEBUG TabulatedFunctionOperationService - Выполнение операции над функциями
+2025-11-10 21:16:02.663 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 4 точками
+2025-11-10 21:16:02.663 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 4
+2025-11-10 21:16:02.665 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 2 точками
+2025-11-10 21:16:02.665 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [5.0, 6.0], Y values: [25.0, 36.0]
+2025-11-10 21:16:02.666 [main] INFO  TabulatedFunctionOperationService - Создание TabulatedFunctionOperationService с фабрикой: ArrayTabulatedFunctionFactory
+2025-11-10 21:16:02.666 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:02.666 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 1.0, 2.0, 3.0], Y values: [1.0, 3.0, 5.0, 7.0]
+2025-11-10 21:16:02.666 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 4 точками
+2025-11-10 21:16:02.666 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 4
+2025-11-10 21:16:02.666 [main] INFO  TabulatedFunctionOperationService - Операция сложения функций с 4 и 4 точками
+2025-11-10 21:16:02.667 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:02.667 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 1.0, 2.0, 3.0], Y values: [3.0, 7.0, 11.0, 15.0]
+2025-11-10 21:16:02.669 [main] INFO  TabulatedFunctionOperationService - Создание TabulatedFunctionOperationService с фабрикой по умолчанию
+2025-11-10 21:16:02.669 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 2 точками
+2025-11-10 21:16:02.669 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0], Y values: [5.0, 10.0]
+2025-11-10 21:16:02.669 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 2 точками
+2025-11-10 21:16:02.669 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0], Y values: [2.0, 4.0]
+2025-11-10 21:16:02.669 [main] INFO  TabulatedFunctionOperationService - Операция сложения функций с 2 и 2 точками
+2025-11-10 21:16:02.669 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 2 точками
+2025-11-10 21:16:02.669 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0], Y values: [7.0, 14.0]
+2025-11-10 21:16:02.671 [main] INFO  TabulatedFunctionOperationService - Создание TabulatedFunctionOperationService с фабрикой: ArrayTabulatedFunctionFactory
+2025-11-10 21:16:02.671 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.671 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [10.0, 20.0, 30.0]
+2025-11-10 21:16:02.671 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.671 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [5.0, 10.0, 15.0]
+2025-11-10 21:16:02.671 [main] INFO  TabulatedFunctionOperationService - Операция сложения функций с 3 и 3 точками
+2025-11-10 21:16:02.671 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.671 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [15.0, 30.0, 45.0]
+2025-11-10 21:16:02.671 [main] DEBUG TabulatedFunctionOperationService - Выполнение операции над функциями
+2025-11-10 21:16:02.671 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.671 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [15.0, 30.0, 45.0]
+2025-11-10 21:16:02.680 [main] INFO  TabulatedFunctionOperationService - Создание TabulatedFunctionOperationService с фабрикой по умолчанию
+2025-11-10 21:16:02.681 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 2 точками
+2025-11-10 21:16:02.681 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0], Y values: [10.0, 20.0]
+2025-11-10 21:16:02.681 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 3 точками
+2025-11-10 21:16:02.681 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [1.0, 2.0, 3.0], Y values: [5.0, 10.0, 15.0]
+2025-11-10 21:16:02.682 [main] INFO  TabulatedFunctionOperationService - Операция сложения функций с 2 и 3 точками
+2025-11-10 21:16:02.682 [main] DEBUG TabulatedFunctionOperationService - Выполнение операции над функциями
+2025-11-10 21:16:02.683 [main] ERROR TabulatedFunctionOperationService - ОШИБКА: Разное количество точек - 2 и 3
+2025-11-10 21:16:02.683 [main] INFO  TabulatedFunctionOperationService - Операция вычитания функций с 2 и 3 точками
+2025-11-10 21:16:02.683 [main] DEBUG TabulatedFunctionOperationService - Выполнение операции над функциями
+2025-11-10 21:16:02.683 [main] ERROR TabulatedFunctionOperationService - ОШИБКА: Разное количество точек - 2 и 3
+2025-11-10 21:16:02.685 [main] INFO  TabulatedFunctionOperationService - Создание TabulatedFunctionOperationService с фабрикой по умолчанию
+2025-11-10 21:16:02.685 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:02.685 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 1.0, 2.0, 3.0], Y values: [1.0, 3.0, 5.0, 7.0]
+2025-11-10 21:16:02.685 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 2 точками
+2025-11-10 21:16:02.685 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 1.0], Y values: [1.0, 2.0]
+2025-11-10 21:16:02.686 [main] INFO  TabulatedFunctionOperationService - Операция сложения функций с 4 и 2 точками
+2025-11-10 21:16:02.690 [main] INFO  TabulatedFunctionOperationService - Создание TabulatedFunctionOperationService с фабрикой по умолчанию
+2025-11-10 21:16:02.690 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 4 точками
+2025-11-10 21:16:02.690 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 4
+2025-11-10 21:16:02.690 [main] INFO  LinkedListTabulatedFunction - Создание LinkedListTabulatedFunction с 4 точками
+2025-11-10 21:16:02.690 [main] DEBUG LinkedListTabulatedFunction - Список создан. Количество узлов: 4
+2025-11-10 21:16:02.690 [main] INFO  TabulatedFunctionOperationService - Операция умножения функций с 4 и 4 точками
+2025-11-10 21:16:02.690 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:02.690 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 1.0, 2.0, 3.0], Y values: [2.0, 12.0, 30.0, 56.0]
+2025-11-10 21:16:02.690 [main] DEBUG TabulatedFunctionOperationService - Выполнение операции над функциями
+2025-11-10 21:16:02.690 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:02.690 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 1.0, 2.0, 3.0], Y values: [2.0, 12.0, 30.0, 56.0]
+2025-11-10 21:16:02.691 [main] INFO  TabulatedFunctionOperationService - Создание TabulatedFunctionOperationService с фабрикой: ArrayTabulatedFunctionFactory
+2025-11-10 21:16:02.691 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:02.694 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 1.0, 2.0, 3.0], Y values: [1.0, 3.0, 5.0, 7.0]
+2025-11-10 21:16:02.694 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:02.694 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 1.0, 2.0, 3.0], Y values: [2.0, 4.0, 6.0, 8.0]
+2025-11-10 21:16:02.694 [main] DEBUG TabulatedFunctionOperationService - Выполнение операции над функциями
+2025-11-10 21:16:02.694 [main] INFO  ArrayTabulatedFunction - Создание ArrayTabulatedFunction с 4 точками
+2025-11-10 21:16:02.694 [main] DEBUG ArrayTabulatedFunction - ArrayTabulatedFunction успешно создана. X values: [0.0, 1.0, 2.0, 3.0], Y values: [3.0, 7.0, 11.0, 15.0]
+2025-11-10 21:16:45.948 [main] INFO  JdbcComputedPointDaoTest - Connection closed
+2025-11-10 21:22:27.755 [main] INFO  JdbcComputedPointDaoTest - Connection closed
+2025-11-10 21:33:07.884 [main] INFO  JdbcComputedPointDaoTest - Connection closed
+2025-11-10 22:05:01.990 [main] INFO  JdbcComputedPointDaoTest - Connection closed
+2025-11-10 22:54:47.274 [main] INFO  JdbcComputedPointDaoTest - Test DB initialized
+2025-11-10 22:54:47.286 [main] INFO  JdbcComputedPointDao - Inserted computed point with ID=3
+2025-11-10 22:54:47.287 [main] INFO  JdbcComputedPointDao - Updated computed point id=3
+2025-11-10 22:54:47.288 [main] INFO  JdbcComputedPointDao - Deleted computed point id=3
+2025-11-10 22:54:47.289 [main] INFO  JdbcComputedPointDaoTest - ComputedPoint CRUD test passed
+2025-11-10 22:54:47.290 [main] INFO  JdbcComputedPointDaoTest - Connection closed
+2025-11-10 22:57:06.206 [main] INFO  JdbcComputedPointDaoTest - Connection closed
+2025-11-10 22:58:44.678 [main] INFO  JdbcComputedPointDaoTest - Connection closed
+2025-11-10 22:59:30.871 [main] INFO  JdbcComputedPointDaoTest - Connection closed
+2025-11-10 23:02:10.084 [main] INFO  JdbcComputedPointDaoTest - Connection closed
+2025-11-10 23:10:51.895 [main] INFO  JdbcComputedPointDaoTest - Test DB initialized
+2025-11-10 23:10:51.907 [main] ERROR JdbcComputedPointDao - Error inserting computed point
+org.postgresql.util.PSQLException: ОШИБКА: отношение "computed_points" не существует
+  Позиция: 13
+	at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2713) ~[postgresql-42.6.0.jar:42.6.0]
+	at org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2401) ~[postgresql-42.6.0.jar:42.6.0]
+	at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:368) ~[postgresql-42.6.0.jar:42.6.0]
+	at org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:498) ~[postgresql-42.6.0.jar:42.6.0]
+	at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:415) ~[postgresql-42.6.0.jar:42.6.0]
+	at org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:190) ~[postgresql-42.6.0.jar:42.6.0]
+	at org.postgresql.jdbc.PgPreparedStatement.executeQuery(PgPreparedStatement.java:134) ~[postgresql-42.6.0.jar:42.6.0]
+	at ru.ssau.tk.pmi.repository.manual.JdbcComputedPointDao.insertComputedPoint(JdbcComputedPointDao.java:22) ~[classes/:?]
+	at ru.ssau.tk.pmi.repository.manual.JdbcComputedPointDaoTest.testComputedPointCRUD(JdbcComputedPointDaoTest.java:52) ~[test-classes/:?]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:?]
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77) ~[?:?]
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[?:?]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568) ~[?:?]
+	at org.junit.platform.commons.util.ReflectionUtils.invokeMethod(ReflectionUtils.java:728) ~[junit-platform-commons-1.10.1.jar:1.10.1]
+	at org.junit.jupiter.engine.execution.MethodInvocation.proceed(MethodInvocation.java:60) ~[junit-jupiter-engine-5.10.1.jar:5.10.1]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$ValidatingInvocation.proceed(InvocationInterceptorChain.java:131) ~[junit-jupiter-engine-5.10.1.jar:5.10.1]
+	at org.junit.jupiter.engine.extension.TimeoutExtension.intercept(TimeoutExtension.java:156) ~[junit-jupiter-engine-5.10.1.jar:5.10.1]
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestableMethod(TimeoutExtension.java:147) ~[junit-jupiter-engine-5.10.1.jar:5.10.1]
+	at org.junit.jupiter.engine.extension.TimeoutExtension.interceptTestMethod(TimeoutExtension.java:86) ~[junit-jupiter-engine-5.10.1.jar:5.10.1]
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker$ReflectiveInterceptorCall.lambda$ofVoidMethod$0(InterceptingExecutableInvoker.java:103) ~[junit-jupiter-engine-5.10.1.jar:5.10.1]
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.lambda$invoke$0(InterceptingExecutableInvoker.java:93) ~[junit-jupiter-engine-5.10.1.jar:5.10.1]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain$InterceptedInvocation.proceed(InvocationInterceptorChain.java:106) ~[junit-jupiter-engine-5.10.1.jar:5.10.1]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.proceed(InvocationInterceptorChain.java:64) ~[junit-jupiter-engine-5.10.1.jar:5.10.1]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.chainAndInvoke(InvocationInterceptorChain.java:45) ~[junit-jupiter-engine-5.10.1.jar:5.10.1]
+	at org.junit.jupiter.engine.execution.InvocationInterceptorChain.invoke(InvocationInterceptorChain.java:37) ~[junit-jupiter-engine-5.10.1.jar:5.10.1]
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:92) ~[junit-jupiter-engine-5.10.1.jar:5.10.1]
+	at org.junit.jupiter.engine.execution.InterceptingExecutableInvoker.invoke(InterceptingExecutableInvoker.java:86) ~[junit-jupiter-engine-5.10.1.jar:5.10.1]
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.lambda$invokeTestMethod$7(TestMethodTestDescriptor.java:218) ~[junit-jupiter-engine-5.10.1.jar:5.10.1]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.invokeTestMethod(TestMethodTestDescriptor.java:214) ~[junit-jupiter-engine-5.10.1.jar:5.10.1]
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:139) ~[junit-jupiter-engine-5.10.1.jar:5.10.1]
+	at org.junit.jupiter.engine.descriptor.TestMethodTestDescriptor.execute(TestMethodTestDescriptor.java:69) ~[junit-jupiter-engine-5.10.1.jar:5.10.1]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:151) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511) ~[?:?]
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511) ~[?:?]
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.invokeAll(SameThreadHierarchicalTestExecutorService.java:41) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$6(NodeTestTask.java:155) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$8(NodeTestTask.java:141) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at org.junit.platform.engine.support.hierarchical.Node.around(Node.java:137) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.lambda$executeRecursively$9(NodeTestTask.java:139) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at org.junit.platform.engine.support.hierarchical.ThrowableCollector.execute(ThrowableCollector.java:73) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.executeRecursively(NodeTestTask.java:138) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at org.junit.platform.engine.support.hierarchical.NodeTestTask.execute(NodeTestTask.java:95) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService.submit(SameThreadHierarchicalTestExecutorService.java:35) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutor.execute(HierarchicalTestExecutor.java:57) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at org.junit.platform.engine.support.hierarchical.HierarchicalTestEngine.execute(HierarchicalTestEngine.java:54) ~[junit-platform-engine-1.10.1.jar:1.10.1]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:198) ~[junit-platform-launcher-1.10.1.jar:1.10.1]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:169) ~[junit-platform-launcher-1.10.1.jar:1.10.1]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:93) ~[junit-platform-launcher-1.10.1.jar:1.10.1]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.lambda$execute$0(EngineExecutionOrchestrator.java:58) ~[junit-platform-launcher-1.10.1.jar:1.10.1]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.withInterceptedStreams(EngineExecutionOrchestrator.java:141) [junit-platform-launcher-1.10.1.jar:1.10.1]
+	at org.junit.platform.launcher.core.EngineExecutionOrchestrator.execute(EngineExecutionOrchestrator.java:57) [junit-platform-launcher-1.10.1.jar:1.10.1]
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:103) [junit-platform-launcher-1.10.1.jar:1.10.1]
+	at org.junit.platform.launcher.core.DefaultLauncher.execute(DefaultLauncher.java:85) [junit-platform-launcher-1.10.1.jar:1.10.1]
+	at org.junit.platform.launcher.core.DelegatingLauncher.execute(DelegatingLauncher.java:47) [junit-platform-launcher-1.10.1.jar:1.10.1]
+	at org.junit.platform.launcher.core.SessionPerRequestLauncher.execute(SessionPerRequestLauncher.java:63) [junit-platform-launcher-1.10.1.jar:1.10.1]
+	at com.intellij.junit5.JUnit5IdeaTestRunner.startRunnerWithArgs(JUnit5IdeaTestRunner.java:66) [junit5-rt.jar:?]
+	at com.intellij.rt.junit.IdeaTestRunner$Repeater$1.execute(IdeaTestRunner.java:38) [junit-rt.jar:?]
+	at com.intellij.rt.execution.junit.TestsRepeater.repeat(TestsRepeater.java:11) [idea_rt.jar:?]
+	at com.intellij.rt.junit.IdeaTestRunner$Repeater.startRunnerWithArgs(IdeaTestRunner.java:35) [junit-rt.jar:?]
+	at com.intellij.rt.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:231) [junit-rt.jar:?]
+	at com.intellij.rt.junit.JUnitStarter.main(JUnitStarter.java:55) [junit-rt.jar:?]
+2025-11-10 23:10:51.931 [main] INFO  JdbcComputedPointDaoTest - Connection closed
+2025-11-10 23:14:34.813 [main] INFO  JdbcComputedPointDaoTest - Connection closed
+2025-11-10 23:26:05.386 [main] INFO  JdbcComputedPointDaoTest - Connection closed
+2025-11-10 23:45:15.792 [main] INFO  JdbcComputedPointDaoTest - Connection closed
+2025-11-10 23:45:22.906 [main] INFO  JdbcComputedPointDaoTest - Connection closed
+2025-11-10 23:47:19.823 [main] INFO  JdbcComputedPointDaoTest - Connection closed
+2025-11-10 23:53:32.506 [main] INFO  JdbcComputedPointDaoTest - Connection closed
+2025-11-10 23:55:08.703 [main] INFO  JdbcComputedPointDaoTest - Connection closed
+2025-11-10 23:56:09.041 [main] INFO  JdbcComputedPointDaoTest - Connection closed
+2025-11-10 23:56:38.641 [main] INFO  JdbcComputedPointDaoTest - Connection closed
+2025-11-11 00:00:51.643 [main] INFO  JdbcComputedPointDaoTest - Database schema initialized
+2025-11-11 00:00:51.645 [main] INFO  JdbcComputedPointDaoTest - Test DB initialized
+2025-11-11 00:00:51.669 [main] INFO  JdbcComputedPointDaoTest - Connection closed
+2025-11-11 00:01:16.008 [main] INFO  JdbcComputedPointDaoTest - Database schema initialized
+2025-11-11 00:01:16.009 [main] INFO  JdbcComputedPointDaoTest - Test DB initialized
+2025-11-11 00:01:16.015 [main] INFO  JdbcComputedPointDaoTest - Connection closed
+2025-11-11 00:03:46.975 [main] INFO  JdbcComputedPointDaoTest - Database schema initialized
+2025-11-11 00:03:46.977 [main] INFO  JdbcComputedPointDaoTest - Test DB initialized
+2025-11-11 00:03:47.000 [main] INFO  JdbcComputedPointDao - Inserted computed point with ID=1
+2025-11-11 00:03:47.005 [main] INFO  JdbcComputedPointDao - Updated computed point id=1
+2025-11-11 00:03:47.006 [main] INFO  JdbcComputedPointDao - Deleted computed point id=1
+2025-11-11 00:03:47.007 [main] INFO  JdbcComputedPointDaoTest - ComputedPoint CRUD test passed
+2025-11-11 00:03:47.019 [main] INFO  JdbcComputedPointDaoTest - Connection closed
+2025-11-11 00:13:39.948 [main] INFO  JdbcFunctionAccessDaoTest - Database schema initialized
+2025-11-11 00:13:39.950 [main] INFO  JdbcFunctionAccessDaoTest - Test DB initialized for FunctionAccessDao
+2025-11-11 00:13:39.970 [main] INFO  JdbcFunctionAccessDaoTest - FunctionAccess CRUD test passed
+2025-11-11 00:13:39.985 [main] INFO  JdbcFunctionAccessDaoTest - Connection closed
