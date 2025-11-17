@@ -2,6 +2,8 @@ package ru.ssau.tk.pmi.entity;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "functions_access")
 public class FunctionAccess {
@@ -9,6 +11,9 @@ public class FunctionAccess {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "access_id")
     private Long accessId;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
     @Column(name = "access_type", nullable = false, length = 10)
     private String accessType;
@@ -28,9 +33,13 @@ public class FunctionAccess {
         this.accessType = accessType;
         this.function = function;
         this.user = user;
+        this.createdAt = LocalDateTime.now(); // автоматически устанавливаем текущее время
     }
 
     // Геттеры и сеттеры
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
     public Long getAccessId() { return accessId; }
     public void setAccessId(Long accessId) { this.accessId = accessId; }
 
