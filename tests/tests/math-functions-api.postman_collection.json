@@ -1,0 +1,602 @@
+{
+  "info": {
+    "name": "Math Functions API Tests - CORRECT",
+    "description": "Все тесты с правильными переменными"
+  },
+  "item": [
+    {
+      "name": "🎯 Setup Data",
+      "item": [
+        {
+          "name": "Create Test User",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser_{{ $timestamp }}\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": "{{base_url}}/users/register"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('user_id', pm.response.json().userId);",
+                  "  console.log('Создан пользователь ID:', pm.response.json().userId);",
+                  "} else if (pm.response.code === 409) {",
+                  "  // Если пользователь уже существует, используем существующего",
+                  "  pm.collectionVariables.set('user_id', 3);",
+                  "  console.log('Используем существующего пользователя ID: 3');",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Test User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser_{{ $timestamp }}\",\n  \"password\": \"password1235\"\n}"
+            },
+            "url": "{{base_url}}/users/register"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('user_id', pm.response.json().userId);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Function from Math Function",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Math Function\",\n  \"sourceFunctionName\": \"Квадратичная функция\",\n  \"leftX\": 0,\n  \"rightX\": 5,\n  \"pointsCount\": 6\n}"
+            },
+            "url": "{{base_url}}/functions/from-math-function"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('func_math_id', pm.response.json().functionId);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Function from Arrays",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Array Function\",\n  \"xValues\": [1.0, 2.0, 3.0, 4.0, 5.0],\n  \"yValues\": [1.0, 4.0, 9.0, 16.0, 25.0]\n}"
+            },
+            "url": "{{base_url}}/functions/from-arrays?factoryType=ARRAY"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('func_array_id', pm.response.json().functionId);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Composite Function",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Composite Function\",\n  \"outerFunctionName\": \"Квадратичная функция\",\n  \"innerFunctionName\": \"Тождественная функция\"\n}"
+            },
+            "url": "{{base_url}}/functions/composite"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('func_comp_id', pm.response.json().functionId);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "🔐 Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser2_{{ $timestamp }}\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": "{{base_url}}/users/register"
+          }
+        },
+        {
+          "name": "Login User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser2_{{ $timestamp }}\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": "{{base_url}}/users/login"
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/users/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👥 Users Management",
+      "item": [
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/users/{{user_id}}"
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"updated_user_{{ $timestamp }}\"\n}"
+            },
+            "url": "{{base_url}}/users/{{user_id}}"
+          }
+        },
+        {
+          "name": "Change User Role",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/users/{{user_id}}/role?role=ADMIN"
+          }
+        },
+        {
+          "name": "Search Users",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/users?search=test&role=USER"
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/users/{{user_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 Functions Management",
+      "item": [
+        {
+          "name": "Get All Functions",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/functions?search=Test&type=TABULATED&isPublic=true"
+          }
+        },
+        {
+          "name": "Get Function by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/functions/{{func_math_id}}"
+          }
+        },
+        {
+          "name": "Update Function",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"functionName\": \"Updated Function\",\n  \"isPublic\": false\n}"
+            },
+            "url": "{{base_url}}/functions/{{func_math_id}}"
+          }
+        },
+        {
+          "name": "Get Function Points",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/functions/{{func_array_id}}/points"
+          }
+        },
+        {
+          "name": "Compute Function Value",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"x\": 2.5\n}"
+            },
+            "url": "{{base_url}}/functions/{{func_array_id}}/compute"
+          }
+        },
+        {
+          "name": "Get Graph Data",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/functions/{{func_array_id}}/graph-data?pointsCount=100&xFrom=0&xTo=10"
+          }
+        },
+        {
+          "name": "Delete Function",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/functions/{{func_array_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📈 Points Management",
+      "item": [
+        {
+          "name": "Get Points in Range",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/points?functionId={{func_math_id}}&xFrom=0&xTo=5"
+          }
+        },
+        {
+          "name": "Add Point",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"functionId\": {{func_math_id}},\n  \"xValue\": 6,\n  \"yValue\": 36\n}"
+            },
+            "url": "{{base_url}}/points"
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const funcId = pm.collectionVariables.get('func_math_id');",
+                  "pm.request.body.raw = `{\"functionId\": ${funcId}, \"xValue\": 6, \"yValue\": 36}`;"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  pm.collectionVariables.set('created_point_id', pm.response.json().pointId);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Point by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/points/{{created_point_id}}"
+          }
+        },
+        {
+          "name": "Update Point",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"yValue\": 40\n}"
+            },
+            "url": "{{base_url}}/points/{{created_point_id}}"
+          }
+        },
+        {
+          "name": "Search Points",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/points/search?x=6&y=36&functionId={{func_math_id}}"
+          }
+        },
+        {
+          "name": "Delete Point",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/points/{{created_point_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔧 Mathematical Operations",
+      "item": [
+        {
+          "name": "Add Functions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"function1Id\": {{func_math_id}},\n  \"function2Id\": {{func_math_id}}\n}"
+            },
+            "url": "{{base_url}}/operations/add"
+
+          }
+        },
+        {
+          "name": "Subtract Functions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"function1Id\": {{func_comp_id}},\n  \"function2Id\": {{func_math_id}}\n}"
+            },
+            "url": "{{base_url}}/operations/subtract"
+          }
+        },
+        {
+          "name": "Multiply Functions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"function1Id\": {{func_comp_id}},\n  \"function2Id\": {{func_math_id}}\n}"
+            },
+            "url": "{{base_url}}/operations/multiply"
+          }
+        },
+        {
+          "name": "Divide Functions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"function1Id\": {{func_math_id}},\n  \"function2Id\": {{func_comp_id}}\n}"
+            },
+            "url": "{{base_url}}/operations/divide"
+          }
+        },
+        {
+          "name": "Differentiate Function",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"functionId\": {{func_math_id}}\n}"
+            },
+            "url": "{{base_url}}/operations/differentiate"
+          }
+        },
+        {
+          "name": "Integrate Function",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"functionId\": {{func_comp_id}},\n  \"threadsCount\": 4\n}"
+            },
+            "url": "{{base_url}}/operations/integrate"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👥 Access Management",
+      "item": [
+        {
+          "name": "Get Function Access",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/access?functionId={{func_math_id}}"
+          }
+        },
+        {
+          "name": "Grant Access",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"functionId\": {{func_math_id}},\n  \"userId\": {{user_id}},\n  \"accessType\": \"READ\"\n}"
+            },
+            "url": "{{base_url}}/access"
+          }
+        },
+        {
+          "name": "Revoke Access",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/access?functionId={{func_math_id}}&userId={{user_id}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📁 Export/Import",
+      "item": [
+        {
+          "name": "Export Function",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/functions/{{func_math_id}}/export?format=json"
+          }
+        },
+        {
+          "name": "Import Function",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "/path/to/function.json"
+                }
+              ]
+            },
+            "url": "{{base_url}}/functions/import?format=json"
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080/api",
+      "type": "string"
+    }
+  ]
+}
