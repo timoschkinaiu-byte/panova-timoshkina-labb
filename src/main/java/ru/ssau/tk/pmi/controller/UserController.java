@@ -4,8 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,9 +20,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import java.util.Date;
 
 @RestController
 @RequestMapping("/api/users")
@@ -32,27 +28,6 @@ public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
-
-    public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                          AuthenticationManager authenticationManager) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-
-    }
-
-    // РЕАЛЬНАЯ реализация получения текущего пользователя
-    private User getCurrentUserFromSecurityContext() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() ||
-                "anonymousUser".equals(authentication.getPrincipal())) {
-            throw new SecurityException("Пользователь не авторизован");
-        }
-
-        String username = authentication.getName();
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException("Пользователь не найден: " + username));
-    }
 
     public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
@@ -66,16 +41,16 @@ public class UserController {
         try {
             validateRegisterRequest(request);
 
-            // Проверяем, существует ли пользователь
             if (userRepository.findByUsername(request.getUsername()).isPresent()) {
                 throw new UserAlreadyExistsException("Пользователь с именем " + request.getUsername() + " уже существует");
             }
 
-            // Создаем нового пользователя
+            //  PasswordEncoder для хеширования пароля
             User user = new User();
             user.setUsername(request.getUsername());
             user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-            user.setRole("USER");
+            user.setRole("USER"); // По умолчанию роль USER
+            user.setEnabled(true);
             user.setCreatedAt(LocalDateTime.now());
             user.setUpdatedAt(LocalDateTime.now());
 
@@ -99,50 +74,34 @@ public class UserController {
 
 
 
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody UserDTO.LoginRequest request) {
-        logger.info("Попытка авторизации пользователя: {}", request.getUsername());
+    @GetMapping("/me")
+    public ResponseEntity<UserDTO.Response> getCurrentUser() {
+        logger.info("Запрос информации о текущем пользователе");
 
         try {
-            validateLoginRequest(request);
+            // получаем текущего аутентифицированного пользователя
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String currentUsername = authentication.getName();
 
-            Optional<User> userOptional = userRepository.findByUsername(request.getUsername());
-            if (userOptional.isEmpty()) {
-                throw new InvalidCredentialsException("Пользователь не найден");
-            }
+            User currentUser = userRepository.findByUsername(currentUsername)
+                    .orElseThrow(() -> new UserNotFoundException("Текущий пользователь не найден"));
 
-            User user = userOptional.get();
-            if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
-                throw new InvalidCredentialsException("Неверный пароль");
-            }
+            UserDTO.Response response = convertToResponse(currentUser);
+            logger.info("Текущий пользователь: {}", currentUsername);
+            return ResponseEntity.ok(response);
 
-            // Генерируем JWT токен
-            String token = Jwts.builder()
-                    .setSubject(user.getUsername())
-                    .claim("userId", user.getUserId())
-                    .claim("role", user.getRole())
-                    .setIssuedAt(new Date())
-                    .setExpiration(new Date(System.currentTimeMillis() + 86400000))
-                    .signWith(SignatureAlgorithm.HS256, "mySecretKeyForJWTGenerationInMathFunctionsApplication2024")
-                    .compact();
-
-            logger.info("Успешная авторизация: {}", request.getUsername());
-            return ResponseEntity.ok(token);
-
-        } catch (InvalidCredentialsException e) {
-            logger.warn("Неверные учетные данные для пользователя: {}", request.getUsername());
+        } catch (UserNotFoundException e) {
+            logger.warn("Текущий пользователь не найден в БД");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        } catch (IllegalArgumentException e) {
-            logger.warn("Неверные данные при авторизации: {}", e.getMessage());
-            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
-            logger.error("Ошибка авторизации: {}", e.getMessage());
+            logger.error("Ошибка получения текущего пользователя: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or @securityService.isCurrentUser(#id)")
     public ResponseEntity<UserDTO.Response> getUserById(@PathVariable Long id) {
         logger.info("Запрос пользователя по ID: {}", id);
 
@@ -162,7 +121,9 @@ public class UserController {
         }
     }
 
+
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.username")
     public ResponseEntity<UserDTO.Response> updateUser(@PathVariable Long id, @RequestBody UserDTO.UpdateRequest request) {
         logger.info("Обновление пользователя с ID: {}", id);
 
@@ -203,6 +164,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}/role")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserDTO.Response> updateUserRole(@PathVariable Long id, @RequestParam String role) {
         logger.info("Изменение роли пользователя с ID {} на: {}", id, role);
 
@@ -233,6 +195,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         logger.info("Удаление пользователя с ID: {}", id);
 
@@ -256,6 +219,7 @@ public class UserController {
 
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserDTO.ShortResponse>> searchUsers(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String role) {
@@ -265,7 +229,7 @@ public class UserController {
             List<User> users;
 
             if (search != null && role != null) {
-                // Фильтруем
+                // Фильтруем вручную, так как метода findByUsernameContainingIgnoreCaseAndRole нет
                 users = userRepository.findByUsernameContainingIgnoreCase(search).stream()
                         .filter(user -> role.equals(user.getRole()))
                         .collect(Collectors.toList());
@@ -291,6 +255,7 @@ public class UserController {
     }
 
 
+
     // Валидация методов
     private void validateRegisterRequest(UserDTO.RegisterRequest request) {
         if (request.getUsername() == null || request.getUsername().trim().isEmpty()) {
@@ -300,7 +265,7 @@ public class UserController {
             throw new IllegalArgumentException("Пароль должен содержать минимум 6 символов");
         }
     }
-
+/*
     private void validateLoginRequest(UserDTO.LoginRequest request) {
         if (request.getUsername() == null || request.getUsername().trim().isEmpty()) {
             throw new IllegalArgumentException("Имя пользователя не может быть пустым");
@@ -308,7 +273,7 @@ public class UserController {
         if (request.getPassword() == null || request.getPassword().isEmpty()) {
             throw new IllegalArgumentException("Пароль не может быть пустым");
         }
-    }
+    }*/
 
     private void validateUpdateRequest(UserDTO.UpdateRequest request) {
         if (request.getUsername() != null && request.getUsername().trim().isEmpty()) {

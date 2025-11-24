@@ -4,18 +4,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.ssau.tk.pmi.dto.PointDTO;
 import ru.ssau.tk.pmi.entity.ComputedPoint;
 import ru.ssau.tk.pmi.entity.MathFunction;
 import ru.ssau.tk.pmi.exceptions.FunctionNotFoundException;
 import ru.ssau.tk.pmi.exceptions.PointNotFoundException;
-import ru.ssau.tk.pmi.functions.Insertable;
-import ru.ssau.tk.pmi.functions.Removable;
 import ru.ssau.tk.pmi.functions.TabulatedFunction;
 import ru.ssau.tk.pmi.functions.ArrayTabulatedFunction;
 import ru.ssau.tk.pmi.repository.ComputedPointRepository;
 import ru.ssau.tk.pmi.repository.MathFunctionRepository;
+import ru.ssau.tk.pmi.service.SecurityService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,13 +28,18 @@ public class PointController {
     private static final Logger logger = LoggerFactory.getLogger(PointController.class);
     private final ComputedPointRepository pointRepository;
     private final MathFunctionRepository functionRepository;
+    private final SecurityService securityService;
 
-    public PointController(ComputedPointRepository pointRepository, MathFunctionRepository functionRepository) {
+    public PointController(ComputedPointRepository pointRepository,
+                           MathFunctionRepository functionRepository,
+                           SecurityService securityService) {
         this.pointRepository = pointRepository;
         this.functionRepository = functionRepository;
+        this.securityService = securityService;
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<List<PointDTO.Response>> getPoints(
             @RequestParam Long functionId,
             @RequestParam(required = false) Double xFrom,
@@ -42,6 +47,11 @@ public class PointController {
         logger.info("Получение точек функции {} в диапазоне [{}, {}]", functionId, xFrom, xTo);
 
         try {
+            if (!securityService.canViewFunction(functionId)) {
+                logger.warn("Отказано в доступе к точкам функции: {}", functionId);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
             MathFunction function = functionRepository.findById(functionId)
                     .orElseThrow(() -> new FunctionNotFoundException("Функция не найдена"));
 
@@ -50,7 +60,6 @@ public class PointController {
                 points = pointRepository.findByFunctionAndXValueBetween(function, xFrom, xTo);
             } else {
                 points = pointRepository.findByFunction(function);
-                // Фильтруем вручную если нужен диапазон
                 if (xFrom != null || xTo != null) {
                     points = points.stream()
                             .filter(point -> (xFrom == null || point.getXValue() >= xFrom) &&
@@ -76,6 +85,7 @@ public class PointController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<PointDTO.Response> createPoint(@RequestBody PointDTO.CreateRequest request) {
         logger.info("Добавление точки: функция={}, x={}, y={}",
                 request.getFunctionId(), request.getXValue(), request.getYValue());
@@ -83,10 +93,11 @@ public class PointController {
         try {
             validateCreateRequest(request);
 
+            securityService.checkFunctionOwnership(request.getFunctionId());
+
             MathFunction function = functionRepository.findById(request.getFunctionId())
                     .orElseThrow(() -> new FunctionNotFoundException("Функция не найдена"));
 
-            // Проверяем, существует ли уже точка с таким X (фильтруем вручную)
             boolean pointExists = pointRepository.findByFunction(function).stream()
                     .anyMatch(point -> point.getXValue().equals(request.getXValue()));
 
@@ -119,12 +130,18 @@ public class PointController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<PointDTO.Response> getPointById(@PathVariable Long id) {
         logger.info("Получение точки по ID: {}", id);
 
         try {
             ComputedPoint point = pointRepository.findById(id)
                     .orElseThrow(() -> new PointNotFoundException("Точка не найдена"));
+
+            if (!securityService.canViewFunction(point.getFunction().getFunctionId())) {
+                logger.warn("Отказано в доступе к точке: {}", id);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
 
             return ResponseEntity.ok(convertToResponse(point));
 
@@ -138,6 +155,7 @@ public class PointController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<PointDTO.Response> updatePoint(
             @PathVariable Long id,
             @RequestBody PointDTO.UpdateRequest request) {
@@ -148,6 +166,8 @@ public class PointController {
 
             ComputedPoint point = pointRepository.findById(id)
                     .orElseThrow(() -> new PointNotFoundException("Точка не найдена"));
+
+            securityService.checkFunctionOwnership(point.getFunction().getFunctionId());
 
             point.setYValue(request.getYValue());
             ComputedPoint updatedPoint = pointRepository.save(point);
@@ -168,13 +188,15 @@ public class PointController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Void> deletePoint(@PathVariable Long id) {
         logger.info("Удаление точки: {}", id);
 
         try {
-            if (!pointRepository.existsById(id)) {
-                throw new PointNotFoundException("Точка не найдена");
-            }
+            ComputedPoint point = pointRepository.findById(id)
+                    .orElseThrow(() -> new PointNotFoundException("Точка не найдена"));
+
+            securityService.checkFunctionOwnership(point.getFunction().getFunctionId());
 
             pointRepository.deleteById(id);
             logger.info("Точка {} удалена", id);
@@ -190,6 +212,7 @@ public class PointController {
     }
 
     @GetMapping("/search")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<List<PointDTO.Response>> searchPoints(
             @RequestParam(required = false) Double x,
             @RequestParam(required = false) Double y,
@@ -200,6 +223,11 @@ public class PointController {
             List<ComputedPoint> points;
 
             if (functionId != null) {
+                if (!securityService.canViewFunction(functionId)) {
+                    logger.warn("Отказано в доступе к функции: {}", functionId);
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+                }
+
                 MathFunction function = functionRepository.findById(functionId)
                         .orElseThrow(() -> new FunctionNotFoundException("Функция не найдена"));
 
@@ -220,12 +248,14 @@ public class PointController {
                 if (x != null && y != null) {
                     points = pointRepository.findByExactValues(x, y);
                 } else if (x != null) {
-                    points = pointRepository.findByxValueBetween(x, x); // Точечное значение
+                    points = pointRepository.findByxValueBetween(x, x);
                 } else if (y != null) {
-                    points = pointRepository.findByyValueBetween(y, y); // Точечное значение
+                    points = pointRepository.findByyValueBetween(y, y);
                 } else {
                     points = pointRepository.findAll();
                 }
+
+                points = filterPointsByAccess(points);
             }
 
             List<PointDTO.Response> response = points.stream()
@@ -244,7 +274,12 @@ public class PointController {
         }
     }
 
-    // Конвертация MathFunction в TabulatedFunction
+    private List<ComputedPoint> filterPointsByAccess(List<ComputedPoint> points) {
+        return points.stream()
+                .filter(point -> securityService.canViewFunction(point.getFunction().getFunctionId()))
+                .collect(Collectors.toList());
+    }
+
     private TabulatedFunction getTabulatedFunctionFromEntity(MathFunction function) {
         List<ComputedPoint> points = pointRepository.findByFunctionOrderByxValue(function);
 
@@ -260,7 +295,6 @@ public class PointController {
         return new ArrayTabulatedFunction(xValues, yValues);
     }
 
-    // Валидация
     private void validateCreateRequest(PointDTO.CreateRequest request) {
         if (request.getFunctionId() == null) {
             throw new IllegalArgumentException("ID функции не может быть пустым");
@@ -279,7 +313,6 @@ public class PointController {
         }
     }
 
-    // Конвертер
     private PointDTO.Response convertToResponse(ComputedPoint point) {
         PointDTO.Response response = new PointDTO.Response();
         response.setPointId(point.getPointId());

@@ -1,5 +1,6 @@
 package ru.ssau.tk.pmi.operations;
 
+import org.springframework.stereotype.Service;
 import ru.ssau.tk.pmi.exceptions.InconsistentFunctionsException;
 import ru.ssau.tk.pmi.functions.Point;
 import ru.ssau.tk.pmi.functions.TabulatedFunction;
@@ -8,6 +9,7 @@ import ru.ssau.tk.pmi.functions.factory.TabulatedFunctionFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+@Service
 public class TabulatedFunctionOperationService {
     private TabulatedFunctionFactory factory;
     private static final Logger logger = LogManager.getLogger(TabulatedFunctionOperationService.class);

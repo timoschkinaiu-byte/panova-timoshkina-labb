@@ -35,4 +35,30 @@ public interface MathFunctionRepository extends JpaRepository<MathFunction, Long
 
     @Query("SELECT f FROM MathFunction f WHERE f.owner.username = :username")
     List<MathFunction> findByOwnerUsername(@Param("username") String username);
+
+
+
+    // Поиск функций доступных пользователю (свои + публичные)
+    @Query("SELECT f FROM MathFunction f WHERE f.owner.userId = :userId OR f.isPublic = true")
+    List<MathFunction> findAccessibleFunctions(@Param("userId") Long userId);
+
+    // Поиск по имени с учетом доступности
+    @Query("SELECT f FROM MathFunction f WHERE (f.owner.userId = :userId OR f.isPublic = true) AND LOWER(f.functionName) LIKE LOWER(CONCAT('%', :name, '%'))")
+    List<MathFunction> findByFunctionNameContainingIgnoreCaseAndAccessible(@Param("name") String name, @Param("userId") Long userId);
+
+    // Поиск по типу с учетом доступности
+    @Query("SELECT f FROM MathFunction f WHERE (f.owner.userId = :userId OR f.isPublic = true) AND f.functionType = :type")
+    List<MathFunction> findByFunctionTypeAndAccessible(@Param("type") String type, @Param("userId") Long userId);
+
+    // Поиск по имени и типу с учетом доступности
+    @Query("SELECT f FROM MathFunction f WHERE (f.owner.userId = :userId OR f.isPublic = true) AND LOWER(f.functionName) LIKE LOWER(CONCAT('%', :name, '%')) AND f.functionType = :type")
+    List<MathFunction> findByNameAndTypeForUser(@Param("name") String name, @Param("type") String type, @Param("userId") Long userId);
+
+    // Поиск публичных функций по имени
+    @Query("SELECT f FROM MathFunction f WHERE f.isPublic = true AND LOWER(f.functionName) LIKE LOWER(CONCAT('%', :name, '%'))")
+    List<MathFunction> findPublicFunctionsByName(@Param("name") String name);
+
+    // Поиск функций пользователя по имени
+    @Query("SELECT f FROM MathFunction f WHERE f.owner.userId = :userId AND LOWER(f.functionName) LIKE LOWER(CONCAT('%', :name, '%'))")
+    List<MathFunction> findUserFunctionsByName(@Param("name") String name, @Param("userId") Long userId);
 }

@@ -1,10 +1,17 @@
 package ru.ssau.tk.pmi.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class PointDTO {
 
     public static class CreateRequest {
+        @JsonProperty("functionId")
         private Long functionId;
+
+        @JsonProperty("xValue")
         private Double xValue;
+
+        @JsonProperty("yValue")
         private Double yValue;
 
         // Getters and Setters
@@ -19,9 +26,9 @@ public class PointDTO {
     }
 
     public static class UpdateRequest {
+        @JsonProperty("yValue")
         private Double yValue;
 
-        // Getters and Setters
         public Double getYValue() { return yValue; }
         public void setYValue(Double yValue) { this.yValue = yValue; }
     }

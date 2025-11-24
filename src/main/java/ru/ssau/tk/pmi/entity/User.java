@@ -22,6 +22,9 @@ public class User {
     @Column(name = "role", nullable = false, length = 20)
     private String role;
 
+    @Column(name = "enabled", nullable = false)
+    private Boolean enabled = true;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -34,6 +37,8 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<FunctionAccess> functionAccesses = new ArrayList<>();
 
+
+
     // Конструкторы
     public User() {}
 
@@ -43,6 +48,7 @@ public class User {
         this.role = role;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+        this.enabled = true;
     }
 
     @PreUpdate
@@ -74,4 +80,7 @@ public class User {
 
     public List<FunctionAccess> getFunctionAccesses() { return functionAccesses; }
     public void setFunctionAccesses(List<FunctionAccess> functionAccesses) { this.functionAccesses = functionAccesses; }
+
+    public Boolean getEnabled() { return enabled; }
+    public void setEnabled(Boolean enabled) { this.enabled = enabled; }
 }

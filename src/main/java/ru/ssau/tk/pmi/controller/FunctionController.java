@@ -4,12 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.ssau.tk.pmi.dto.FunctionDTO;
 import ru.ssau.tk.pmi.dto.PointDTO;
 import ru.ssau.tk.pmi.entity.ComputedPoint;
 import ru.ssau.tk.pmi.entity.MathFunction;
 import ru.ssau.tk.pmi.entity.User;
+import ru.ssau.tk.pmi.exceptions.AccessDeniedException;
 import ru.ssau.tk.pmi.exceptions.FunctionNotFoundException;
 import ru.ssau.tk.pmi.exceptions.InvalidFunctionException;
 import ru.ssau.tk.pmi.functions.*;
@@ -18,6 +20,7 @@ import ru.ssau.tk.pmi.functions.factory.ArrayTabulatedFunctionFactory;
 import ru.ssau.tk.pmi.functions.factory.LinkedListTabulatedFunctionFactory;
 import ru.ssau.tk.pmi.repository.MathFunctionRepository;
 import ru.ssau.tk.pmi.repository.UserRepository;
+import ru.ssau.tk.pmi.service.SecurityService;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -32,46 +35,19 @@ public class FunctionController {
     private final UserRepository userRepository;
     private final Map<String, ru.ssau.tk.pmi.functions.MathFunction> mathFunctionsMap;
     private TabulatedFunctionFactory currentFactory = new ArrayTabulatedFunctionFactory();
+    private final SecurityService securityService;
 
 
-    public FunctionController(MathFunctionRepository functionRepository, UserRepository userRepository) {
+    public FunctionController(MathFunctionRepository functionRepository, UserRepository userRepository, SecurityService securityService) {
         this.functionRepository = functionRepository;
         this.userRepository = userRepository;
         this.mathFunctionsMap = createMathFunctionsMap();
-
+        this.securityService = securityService;
     }
 
-    @PostMapping("/from-arrays")
-    public ResponseEntity<FunctionDTO.Response> createFromArrays(
-            @RequestParam(defaultValue = "ARRAY") String factoryType,
-            @RequestBody FunctionDTO.CreateFromArraysRequest request) {
-        logger.info("Создание функции из массивов: {}, точек: {}", request.getName(),
-                request.getXValues() != null ? request.getXValues().size() : 0);
-
-        try {
-            validateCreateFromArraysRequest(request);
-            setFactoryByType(factoryType);
-
-            double[] xValues = request.getXValues().stream().mapToDouble(Double::doubleValue).toArray();
-            double[] yValues = request.getYValues().stream().mapToDouble(Double::doubleValue).toArray();
-
-            TabulatedFunction tabulatedFunction = currentFactory.create(xValues, yValues);
-            MathFunction savedFunction = saveTabulatedFunction(tabulatedFunction, request.getName());
-
-            FunctionDTO.Response response = convertToResponse(savedFunction);
-            logger.info("Функция создана из массивов. ID: {}", savedFunction.getFunctionId());
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-
-        } catch (IllegalArgumentException e) {
-            logger.warn("Неверные данные для создания из массивов: {}", e.getMessage());
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            logger.error("Ошибка создания функции из массивов: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
 
     @PostMapping("/from-math-function")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<FunctionDTO.Response> createFromMathFunction(
             @RequestParam(defaultValue = "ARRAY") String factoryType,
             @RequestBody FunctionDTO.CreateFromMathFunctionRequest request) {
@@ -108,7 +84,63 @@ public class FunctionController {
 
 
 
+    @PostMapping("/from-arrays")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<FunctionDTO.Response> createFromArrays(
+            @RequestParam(defaultValue = "ARRAY") String factoryType,
+            @RequestBody FunctionDTO.CreateFromArraysRequest request){
+
+        logger.info("RequestBody name={}, x={}, y={}",
+                request.getName(),
+                request.getXValues(),
+                request.getYValues()
+        );
+
+
+        logger.info("Создание функции из массивов: {}, точек: {}", request.getName(),
+                request.getXValues() != null ? request.getXValues().size() : 0);
+
+        logger.info("Request class: {}", request.getClass());
+        logger.info("Fields: name={}, xValues={}, yValues={}",
+                request.getName(), request.getXValues(), request.getYValues());
+
+        try {
+            validateCreateFromArraysRequest(request);
+            setFactoryByType(factoryType);
+
+            double[] xValues = request.getXValues().stream().mapToDouble(Double::doubleValue).toArray();
+            double[] yValues = request.getYValues().stream().mapToDouble(Double::doubleValue).toArray();
+
+
+
+            logger.info("Создание функции из массивов: {}", request.getName());
+            logger.info("xValues: {} (type: {})", request.getXValues(),
+                    request.getXValues() != null ? request.getXValues().getClass() : "null");
+            logger.info("yValues: {} (type: {})", request.getYValues(),
+                    request.getYValues() != null ? request.getYValues().getClass() : "null");
+
+
+            TabulatedFunction tabulatedFunction = currentFactory.create(xValues, yValues);
+            MathFunction savedFunction = saveTabulatedFunction(tabulatedFunction, request.getName());
+
+            FunctionDTO.Response response = convertToResponse(savedFunction);
+            logger.info("Функция создана из массивов. ID: {}", savedFunction.getFunctionId());
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+
+        } catch (IllegalArgumentException e) {
+            logger.warn("Неверные данные для создания из массивов: {}", e.getMessage());
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            logger.error("Ошибка создания функции из массивов: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
+
+
     @PostMapping("/composite")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<FunctionDTO.Response> createComposite(
             @RequestParam(defaultValue = "ARRAY") String factoryType,
             @RequestBody FunctionDTO.CreateCompositeRequest request) {
@@ -151,38 +183,66 @@ public class FunctionController {
         }
     }
 
+
     @GetMapping
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<List<FunctionDTO.Response>> getFunctions(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String type,
             @RequestParam(required = false) Long ownerId,
             @RequestParam(required = false) Boolean isPublic) {
-        logger.info("Поиск функций: search={}, type={}, ownerId={}, isPublic={}",
-                search, type, ownerId, isPublic);
+
+        logger.info("Поиск функций пользователем: {}", securityService.getCurrentUser().getUsername());
 
         try {
             List<MathFunction> functions;
+            User currentUser = securityService.getCurrentUser();
+            boolean isAdmin = "ADMIN".equals(currentUser.getRole());
 
-            if (search != null && type != null) {
-                functions = functionRepository.findByNameAndType(search, type);
-            } else if (search != null) {
-                functions = functionRepository.findByFunctionNameContainingIgnoreCase(search);
-            } else if (type != null) {
-                functions = functionRepository.findByFunctionType(type);
-            } else if (ownerId != null) {
-                User owner = userRepository.findById(ownerId).orElse(null);
-                functions = owner != null ? functionRepository.findByOwner(owner) : List.of();
-            } else if (isPublic != null) {
-                functions = isPublic ? functionRepository.findByIsPublicTrue() : functionRepository.findAll();
+            if (isAdmin) {
+                // Админ видит все функции
+                if (search != null && type != null) {
+                    functions = functionRepository.findByNameAndType(search, type);
+                } else if (search != null) {
+                    functions = functionRepository.findByFunctionNameContainingIgnoreCase(search);
+                } else if (type != null) {
+                    functions = functionRepository.findByFunctionType(type);
+                } else if (ownerId != null) {
+                    User owner = userRepository.findById(ownerId).orElse(null);
+                    functions = owner != null ? functionRepository.findByOwner(owner) : List.of();
+                } else if (isPublic != null) {
+                    functions = isPublic ? functionRepository.findByIsPublicTrue() : functionRepository.findAll();
+                } else {
+                    functions = functionRepository.findAll();
+                }
             } else {
-                functions = functionRepository.findAll();
+                // Пользователь видит только свои и публичные функции
+                Long currentUserId = currentUser.getUserId();
+
+                if (search != null && type != null) {
+                    functions = functionRepository.findByNameAndTypeForUser(search, type, currentUserId);
+                } else if (search != null) {
+                    functions = functionRepository.findByFunctionNameContainingIgnoreCaseAndAccessible(search, currentUserId);
+                } else if (type != null) {
+                    functions = functionRepository.findByFunctionTypeAndAccessible(type, currentUserId);
+                } else if (ownerId != null && ownerId.equals(currentUserId)) {
+                    functions = functionRepository.findByOwner(currentUser);
+                } else if (isPublic != null) {
+                    if (isPublic) {
+                        functions = functionRepository.findByIsPublicTrue();
+                    } else {
+                        functions = functionRepository.findByOwner(currentUser);
+                    }
+                } else {
+                    functions = functionRepository.findAccessibleFunctions(currentUserId);
+                }
             }
 
             List<FunctionDTO.Response> response = functions.stream()
                     .map(this::convertToResponse)
                     .collect(Collectors.toList());
 
-            logger.info("Найдено {} функций", response.size());
+            logger.info("Найдено {} функций для пользователя {}", response.size(), currentUser.getUsername());
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
@@ -191,82 +251,19 @@ public class FunctionController {
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<FunctionDTO.Response> getFunctionById(@PathVariable Long id) {
-        logger.info("Получение функции по ID: {}", id);
-
-        try {
-            MathFunction function = functionRepository.findById(id)
-                    .orElseThrow(() -> new FunctionNotFoundException("Функция не найдена"));
-
-            return ResponseEntity.ok(convertToResponse(function));
-
-        } catch (FunctionNotFoundException e) {
-            logger.warn("Функция не найдена: {}", id);
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            logger.error("Ошибка получения функции: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<FunctionDTO.Response> updateFunction(
-            @PathVariable Long id,
-            @RequestBody FunctionDTO.UpdateRequest request) {
-        logger.info("Обновление функции: {}", id);
-
-        try {
-            MathFunction function = functionRepository.findById(id)
-                    .orElseThrow(() -> new FunctionNotFoundException("Функция не найдена"));
-
-            if (request.getFunctionName() != null) {
-                function.setFunctionName(request.getFunctionName());
-            }
-            if (request.getIsPublic() != null) {
-                function.setIsPublic(request.getIsPublic());
-            }
-
-            function.setUpdatedAt(LocalDateTime.now());
-            MathFunction updatedFunction = functionRepository.save(function);
-
-            logger.info("Функция обновлена: {}", id);
-            return ResponseEntity.ok(convertToResponse(updatedFunction));
-
-        } catch (FunctionNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            logger.error("Ошибка обновления функции: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteFunction(@PathVariable Long id) {
-        logger.info("Удаление функции: {}", id);
-
-        try {
-            if (!functionRepository.existsById(id)) {
-                throw new FunctionNotFoundException("Функция не найдена");
-            }
-
-            functionRepository.deleteById(id);
-            logger.info("Функция удалена: {}", id);
-            return ResponseEntity.noContent().build();
-
-        } catch (FunctionNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            logger.error("Ошибка удаления функции: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
 
     @GetMapping("/{id}/points")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<List<PointDTO.Response>> getFunctionPoints(@PathVariable Long id) {
         logger.info("Получение точек функции: {}", id);
 
         try {
+            // ✅ ПРОВЕРКА ПРАВ ПРОСМОТРА
+            if (!securityService.canViewFunction(id)) {
+                logger.warn("Отказано в доступе к точкам функции: {}", id);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
             MathFunction function = functionRepository.findById(id)
                     .orElseThrow(() -> new FunctionNotFoundException("Функция не найдена"));
 
@@ -285,20 +282,125 @@ public class FunctionController {
 
         } catch (FunctionNotFoundException e) {
             return ResponseEntity.notFound().build();
+        } catch (AccessDeniedException e) {
+            logger.warn("Доступ запрещен к точкам функции: {}", id);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         } catch (Exception e) {
             logger.error("Ошибка получения точек функции: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<FunctionDTO.Response> getFunctionById(@PathVariable Long id) {
+        logger.info("Получение функции по ID: {}", id);
+
+        try {
+            //проверка прав доступа
+            if (!securityService.canViewFunction(id)) {
+                logger.warn("Отказано в доступе к функции: {}", id);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
+            MathFunction function = functionRepository.findById(id)
+                    .orElseThrow(() -> new FunctionNotFoundException("Функция не найдена"));
+
+            return ResponseEntity.ok(convertToResponse(function));
+
+        } catch (FunctionNotFoundException e) {
+            logger.warn("Функция не найдена: {}", id);
+            return ResponseEntity.notFound().build();
+        } catch (AccessDeniedException e) {
+            logger.warn("Доступ запрещен к функции: {}", id);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            logger.error("Ошибка получения функции: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<FunctionDTO.Response> updateFunction(
+            @PathVariable Long id,
+            @RequestBody FunctionDTO.UpdateRequest request) {
+        logger.info("Обновление функции: {}", id);
+
+        try {
+            // ПРОВЕРКА ПРАВ РЕДАКТИРОВАНИЯ
+            securityService.checkFunctionOwnership(id);
+
+            MathFunction function = functionRepository.findById(id)
+                    .orElseThrow(() -> new FunctionNotFoundException("Функция не найдена"));
+
+
+            if (request.getFunctionName() != null) {
+                function.setFunctionName(request.getFunctionName());
+            }
+            if (request.getIsPublic() != null) {
+                function.setIsPublic(request.getIsPublic());
+            }
+
+            function.setUpdatedAt(LocalDateTime.now());
+            MathFunction updatedFunction = functionRepository.save(function);
+
+            logger.info("Функция обновлена: {}", id);
+            return ResponseEntity.ok(convertToResponse(updatedFunction));
+
+        } catch (FunctionNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (AccessDeniedException e) {
+            logger.warn("Отказано в обновлении функции: {}", id);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            logger.error("Ошибка обновления функции: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteFunction(@PathVariable Long id) {
+        logger.info("Удаление функции: {}", id);
+
+        try {
+            securityService.checkFunctionOwnership(id);
+
+            if (!functionRepository.existsById(id)) {
+                throw new FunctionNotFoundException("Функция не найдена");
+            }
+
+            functionRepository.deleteById(id);
+            logger.info("Функция удалена: {}", id);
+            return ResponseEntity.noContent().build();
+
+        } catch (FunctionNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (AccessDeniedException e) {
+            logger.warn("Отказано в удалении функции: {}", id);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            logger.error("Ошибка удаления функции: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
 
     @PostMapping("/{id}/compute")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<FunctionDTO.ComputeResponse> computeFunctionValue(
             @PathVariable Long id,
             @RequestBody FunctionDTO.ComputeRequest request) {
         logger.info("Вычисление значения функции {} в точке: {}", id, request.getX());
 
         try {
+            if (!securityService.canViewFunction(id)) {
+                logger.warn("Отказано в вычислении значения функции: {}", id);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
             ru.ssau.tk.pmi.entity.MathFunction function = functionRepository.findById(id)
                     .orElseThrow(() -> new FunctionNotFoundException("Функция не найдена"));
 
@@ -323,6 +425,9 @@ public class FunctionController {
         } catch (FunctionNotFoundException e) {
             logger.warn("Функция не найдена: {}", id);
             return ResponseEntity.notFound().build();
+        } catch (AccessDeniedException e) {
+            logger.warn("Доступ запрещен: {}", id);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         } catch (Exception e) {
             logger.error("Ошибка вычисления значения функции: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -358,6 +463,7 @@ public class FunctionController {
 
 
     @GetMapping("/{id}/graph-data")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<FunctionDTO.GraphDataResponse> getGraphData(
             @PathVariable Long id,
             @RequestParam(defaultValue = "200") Integer pointsCount,
@@ -366,6 +472,12 @@ public class FunctionController {
         logger.info("Получение данных графика функции: {}, точек: {}", id, pointsCount);
 
         try {
+            //  ПРОВЕРКА ПРАВ ПРОСМОТРА
+            if (!securityService.canViewFunction(id)) {
+                logger.warn("Отказано в доступе к графику функции: {}", id);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
             MathFunction function = functionRepository.findById(id)
                     .orElseThrow(() -> new FunctionNotFoundException("Функция не найдена"));
 
@@ -384,6 +496,9 @@ public class FunctionController {
 
         } catch (FunctionNotFoundException e) {
             return ResponseEntity.notFound().build();
+        } catch (AccessDeniedException e) {
+            logger.warn("Доступ к графику функции запрещен: {}", id);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         } catch (Exception e) {
             logger.error("Ошибка получения данных графика: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -424,17 +539,16 @@ public class FunctionController {
 
 
     private MathFunction saveTabulatedFunction(TabulatedFunction tabulatedFunction, String name) {
-        User currentUser = userRepository.findAll().stream().findFirst()
-                .orElseThrow(() -> new RuntimeException("Нет пользователей в системе"));
+        User currentUser = securityService.getCurrentUser();
 
         MathFunction mathFunction = new MathFunction();
         mathFunction.setFunctionName(name);
         mathFunction.setFunctionDefinition("Табулированная функция");
         mathFunction.setFunctionType("TABULATED");
-        mathFunction.setOwner(currentUser);
         mathFunction.setIsPublic(false);
         mathFunction.setCreatedAt(LocalDateTime.now());
         mathFunction.setUpdatedAt(LocalDateTime.now());
+        mathFunction.setOwner(currentUser);
 
         // СОХРАНЯЕМ ТОЧКИ
         List<ComputedPoint> points = new ArrayList<>();

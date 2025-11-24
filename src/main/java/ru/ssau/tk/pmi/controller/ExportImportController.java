@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.ssau.tk.pmi.dto.ExportImportDTO;
@@ -16,6 +17,7 @@ import ru.ssau.tk.pmi.dto.FunctionDTO;
 import ru.ssau.tk.pmi.entity.ComputedPoint;
 import ru.ssau.tk.pmi.entity.MathFunction;
 import ru.ssau.tk.pmi.entity.User;
+import ru.ssau.tk.pmi.exceptions.AccessDeniedException;
 import ru.ssau.tk.pmi.exceptions.FunctionNotFoundException;
 import ru.ssau.tk.pmi.exceptions.InvalidFileFormatException;
 import ru.ssau.tk.pmi.functions.TabulatedFunction;
@@ -24,6 +26,7 @@ import ru.ssau.tk.pmi.functions.LinkedListTabulatedFunction;
 import ru.ssau.tk.pmi.io.FunctionsIO;
 import ru.ssau.tk.pmi.repository.MathFunctionRepository;
 import ru.ssau.tk.pmi.repository.UserRepository;
+import ru.ssau.tk.pmi.service.SecurityService;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -40,13 +43,17 @@ public class ExportImportController {
     private static final Logger logger = LoggerFactory.getLogger(ExportImportController.class);
     private final MathFunctionRepository functionRepository;
     private final UserRepository userRepository;
+    private final SecurityService securityService;
 
-    public ExportImportController(MathFunctionRepository functionRepository, UserRepository userRepository) {
+
+    public ExportImportController(MathFunctionRepository functionRepository, UserRepository userRepository, SecurityService securityService) {
         this.functionRepository = functionRepository;
         this.userRepository = userRepository;
+        this.securityService = securityService;
     }
 
     @PostMapping("/functions/{id}/export")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Resource> exportFunction(
             @PathVariable Long id,
             @RequestParam String format) {
@@ -55,8 +62,15 @@ public class ExportImportController {
         try {
             validateExportRequest(id, format);
 
+            //проверка доступа
+            if (!securityService.canViewFunction(id)) {
+                logger.warn("Отказано в экспорте функции: {}", id);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
             MathFunction function = functionRepository.findById(id)
                     .orElseThrow(() -> new FunctionNotFoundException("Функция не найдена"));
+
 
             TabulatedFunction tabulatedFunction = getTabulatedFunctionFromEntity(function);
 
@@ -97,6 +111,9 @@ public class ExportImportController {
         } catch (FunctionNotFoundException e) {
             logger.warn("Функция не найдена для экспорта: {}", id);
             return ResponseEntity.notFound().build();
+        } catch (AccessDeniedException e) {
+            logger.warn("Доступ запрещен для экспорта функции: {}", id);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         } catch (IllegalArgumentException e) {
             logger.warn("Неверный формат экспорта: {}", e.getMessage());
             return ResponseEntity.badRequest().build();
@@ -107,11 +124,14 @@ public class ExportImportController {
     }
 
     @PostMapping(value = "/functions/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<ExportImportDTO.ImportResponse> importFunction(
             @RequestParam(required = false) String format,
             @RequestParam("file") MultipartFile file) {
-        logger.info("Импорт функции из файла: {}, размер: {} байт, формат: {}",
-                file.getOriginalFilename(), file.getSize(), format);
+
+        logger.info("Импорт функции пользователем {} из файла: {}, размер: {} байт",
+                securityService.getCurrentUser().getUsername(),
+                file.getOriginalFilename(), file.getSize());
 
         try {
             validateImportRequest(file, format);
@@ -261,8 +281,7 @@ public class ExportImportController {
 
 
     private MathFunction saveTabulatedFunction(TabulatedFunction tabulatedFunction, String name) {
-        User currentUser = userRepository.findAll().stream().findFirst()
-                .orElseThrow(() -> new RuntimeException("Нет пользователей в системе"));
+        User currentUser = securityService.getCurrentUser();
 
         MathFunction mathFunction = new MathFunction();
         mathFunction.setFunctionName(name);

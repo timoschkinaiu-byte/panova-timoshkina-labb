@@ -8,12 +8,17 @@ servers:
   - url: http://localhost:8080/api
     description: Local server
 
+
+security:
+  - basicAuth: []
+
 paths:
   # ОПЕРАЦИИ С ПОЛЬЗОВАТЕЛЯМИ
   /users/register:
     post:
       summary: Регистрация нового пользователя
       tags: [Users]
+      security: []
       requestBody:
         required: true
         content:
@@ -35,26 +40,6 @@ paths:
         '409':
           description: Пользователь уже существует
 
-  /users/login:
-    post:
-      summary: Авторизация пользователя
-      tags: [Users]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                password:
-                  type: string
-      responses:
-        '200':
-          description: Успешная авторизация
-        '401':
-          description: Неверные credentials
 
   /users/me:
     get:
@@ -63,12 +48,16 @@ paths:
       responses:
         '200':
           description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
         '401':
           description: Не авторизован
 
   /users/{id}:
     get:
-      summary: Получение пользователя по ID (админ)
+      summary: Получение пользователя по ID
       tags: [Users]
       parameters:
         - name: id
@@ -79,6 +68,10 @@ paths:
       responses:
         '200':
           description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
         '404':
           description: Пользователь не найден
     put:
@@ -99,6 +92,10 @@ paths:
       responses:
         '200':
           description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
         '404':
           description: Пользователь не найден
     delete:
@@ -118,7 +115,7 @@ paths:
 
   /users/{id}/role:
     put:
-      summary: Изменение роли пользователя (админ)
+      summary: Изменение роли пользователя
       tags: [Users]
       parameters:
         - name: id
@@ -135,12 +132,16 @@ paths:
       responses:
         '200':
           description: Роль изменена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
         '404':
           description: Пользователь не найден
 
   /users:
     get:
-      summary: Поиск пользователей по username
+      summary: Поиск пользователей
       tags: [Users]
       parameters:
         - name: search
@@ -161,7 +162,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/UserResponse'
+                  $ref: '#/components/schemas/UserShortResponse'
 
   # ОПЕРАЦИИ С ФУНКЦИЯМИ
   /functions/from-arrays:
@@ -235,6 +236,10 @@ paths:
       responses:
         '201':
           description: Функция создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FunctionResponse'
         '400':
           description: Неверные данные
 
@@ -266,6 +271,10 @@ paths:
       responses:
         '201':
           description: Сложная функция создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FunctionResponse'
 
   /functions:
     get:
@@ -315,6 +324,10 @@ paths:
       responses:
         '200':
           description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FunctionResponse'
         '404':
           description: Функция не найдена
     put:
@@ -335,6 +348,10 @@ paths:
       responses:
         '200':
           description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FunctionResponse'
         '404':
           description: Функция не найдена
     delete:
@@ -397,14 +414,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  x:
-                    type: number
-                  y:
-                    type: number
-                  interpolated:
-                    type: boolean
+                $ref: '#/components/schemas/ComputeResponse'
 
   /functions/{id}/graph-data:
     get:
@@ -439,8 +449,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GraphDataResponse'
-
-
 
   # ОПЕРАЦИИ С ТОЧКАМИ
   /points:
@@ -491,6 +499,10 @@ paths:
       responses:
         '201':
           description: Точка добавлена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PointResponse'
 
   /points/{id}:
     get:
@@ -505,6 +517,10 @@ paths:
       responses:
         '200':
           description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PointResponse'
         '404':
           description: Точка не найдена
     put:
@@ -528,6 +544,10 @@ paths:
       responses:
         '200':
           description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PointResponse'
         '404':
           description: Точка не найдена
     delete:
@@ -615,6 +635,10 @@ paths:
       responses:
         '201':
           description: Доступ предоставлен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessResponse'
     delete:
       summary: Отозвать доступ
       tags: [Access]
@@ -675,6 +699,10 @@ paths:
       responses:
         '200':
           description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FunctionResponse'
 
   /operations/multiply:
     post:
@@ -694,6 +722,10 @@ paths:
       responses:
         '200':
           description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FunctionResponse'
 
   /operations/divide:
     post:
@@ -713,6 +745,10 @@ paths:
       responses:
         '200':
           description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FunctionResponse'
 
   /operations/differentiate:
     post:
@@ -730,6 +766,10 @@ paths:
       responses:
         '200':
           description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FunctionResponse'
 
   /operations/integrate:
     post:
@@ -752,14 +792,9 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  result:
-                    type: number
-                  computationTime:
-                    type: number
+                $ref: '#/components/schemas/IntegrateResponse'
 
-  # ЭКСПОРТ/ИМПОРТ  # =============================================
+  # ЭКСПОРТ/ИМПОРТ
   /functions/{id}/export:
     post:
       summary: Экспорт функции
@@ -823,8 +858,6 @@ components:
           type: integer
         username:
           type: string
-        email:
-          type: string
         role:
           type: string
         createdAt:
@@ -845,8 +878,6 @@ components:
       type: object
       properties:
         username:
-          type: string
-        email:
           type: string
 
     FunctionResponse:
@@ -934,11 +965,27 @@ components:
             max:
               type: number
 
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+    ComputeResponse:
+      type: object
+      properties:
+        x:
+          type: number
+        y:
+          type: number
+        interpolated:
+          type: boolean
 
-security:
-  - bearerAuth: []
+    IntegrateResponse:
+      type: object
+      properties:
+        result:
+          type: number
+        computationTime:
+          type: number
+
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: Basic authentication with username and password

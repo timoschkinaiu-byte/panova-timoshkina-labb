@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.ssau.tk.pmi.dto.FunctionDTO;
 import ru.ssau.tk.pmi.dto.OperationDTO;
@@ -14,15 +15,14 @@ import ru.ssau.tk.pmi.functions.TabulatedFunction;
 import ru.ssau.tk.pmi.functions.ArrayTabulatedFunction;
 import ru.ssau.tk.pmi.operations.TabulatedFunctionOperationService;
 import ru.ssau.tk.pmi.operations.DifferentialOperator;
-import ru.ssau.tk.pmi.operations.LeftSteppingDifferentialOperator;
 import ru.ssau.tk.pmi.integration.MultiThreadIntegralSolver;
 import ru.ssau.tk.pmi.repository.MathFunctionRepository;
 import ru.ssau.tk.pmi.repository.UserRepository;
+import ru.ssau.tk.pmi.service.SecurityService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/operations")
@@ -32,21 +32,28 @@ public class OperationController {
     private final MathFunctionRepository functionRepository;
     private final UserRepository userRepository;
     private final TabulatedFunctionOperationService tabulatedOperationService;
+    private final SecurityService securityService;
 
     public OperationController(MathFunctionRepository functionRepository,
                                UserRepository userRepository,
-                               TabulatedFunctionOperationService tabulatedOperationService) {
+                               TabulatedFunctionOperationService tabulatedOperationService,
+                               SecurityService securityService) {
         this.functionRepository = functionRepository;
         this.userRepository = userRepository;
         this.tabulatedOperationService = tabulatedOperationService;
+        this.securityService = securityService;
     }
 
     @PostMapping("/add")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<FunctionDTO.Response> addFunctions(@RequestBody OperationDTO.BinaryOperationRequest request) {
         logger.info("Сложение функций: {} + {}", request.getFunction1Id(), request.getFunction2Id());
 
         try {
             validateBinaryOperationRequest(request);
+
+            securityService.checkFunctionAccess(request.getFunction1Id());
+            securityService.checkFunctionAccess(request.getFunction2Id());
 
             TabulatedFunction function1 = getFunctionFromDb(request.getFunction1Id());
             TabulatedFunction function2 = getFunctionFromDb(request.getFunction2Id());
@@ -71,11 +78,15 @@ public class OperationController {
     }
 
     @PostMapping("/subtract")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<FunctionDTO.Response> subtractFunctions(@RequestBody OperationDTO.BinaryOperationRequest request) {
         logger.info("Вычитание функций: {} - {}", request.getFunction1Id(), request.getFunction2Id());
 
         try {
             validateBinaryOperationRequest(request);
+
+            securityService.checkFunctionAccess(request.getFunction1Id());
+            securityService.checkFunctionAccess(request.getFunction2Id());
 
             TabulatedFunction function1 = getFunctionFromDb(request.getFunction1Id());
             TabulatedFunction function2 = getFunctionFromDb(request.getFunction2Id());
@@ -94,11 +105,15 @@ public class OperationController {
     }
 
     @PostMapping("/multiply")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<FunctionDTO.Response> multiplyFunctions(@RequestBody OperationDTO.BinaryOperationRequest request) {
         logger.info("Умножение функций: {} * {}", request.getFunction1Id(), request.getFunction2Id());
 
         try {
             validateBinaryOperationRequest(request);
+
+            securityService.checkFunctionAccess(request.getFunction1Id());
+            securityService.checkFunctionAccess(request.getFunction2Id());
 
             TabulatedFunction function1 = getFunctionFromDb(request.getFunction1Id());
             TabulatedFunction function2 = getFunctionFromDb(request.getFunction2Id());
@@ -117,11 +132,15 @@ public class OperationController {
     }
 
     @PostMapping("/divide")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<FunctionDTO.Response> divideFunctions(@RequestBody OperationDTO.BinaryOperationRequest request) {
         logger.info("Деление функций: {} / {}", request.getFunction1Id(), request.getFunction2Id());
 
         try {
             validateBinaryOperationRequest(request);
+
+            securityService.checkFunctionAccess(request.getFunction1Id());
+            securityService.checkFunctionAccess(request.getFunction2Id());
 
             TabulatedFunction function1 = getFunctionFromDb(request.getFunction1Id());
             TabulatedFunction function2 = getFunctionFromDb(request.getFunction2Id());
@@ -143,11 +162,14 @@ public class OperationController {
     }
 
     @PostMapping("/differentiate")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<FunctionDTO.Response> differentiateFunction(@RequestBody OperationDTO.UnaryOperationRequest request) {
         logger.info("Дифференцирование функции: {}", request.getFunctionId());
 
         try {
             validateUnaryOperationRequest(request);
+
+            securityService.checkFunctionAccess(request.getFunctionId());
 
             TabulatedFunction function = getFunctionFromDb(request.getFunctionId());
             DifferentialOperator<TabulatedFunction> differentialOperator = createDifferentialOperator();
@@ -166,11 +188,14 @@ public class OperationController {
     }
 
     @PostMapping("/integrate")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<OperationDTO.IntegrateResponse> integrateFunction(@RequestBody OperationDTO.IntegrateRequest request) {
         logger.info("Интегрирование функции: {}, потоков: {}", request.getFunctionId(), request.getThreadsCount());
 
         try {
             validateIntegrateRequest(request);
+
+            securityService.checkFunctionAccess(request.getFunctionId());
 
             TabulatedFunction function = getFunctionFromDb(request.getFunctionId());
 
@@ -194,12 +219,10 @@ public class OperationController {
         }
     }
 
-    // РЕАЛИЗОВАННЫЕ МЕТОДЫ
     private TabulatedFunction getFunctionFromDb(Long functionId) {
         MathFunction mathFunction = functionRepository.findById(functionId)
                 .orElseThrow(() -> new FunctionNotFoundException("Функция с ID " + functionId + " не найдена"));
 
-        // Конвертируем из MathFunction в TabulatedFunction
         List<Double> xValues = new ArrayList<>();
         List<Double> yValues = new ArrayList<>();
 
@@ -214,29 +237,30 @@ public class OperationController {
         );
     }
 
-    private MathFunction saveResultToDb(TabulatedFunction result, String name) {
-        // Получаем текущего пользователя (заглушка - первого пользователя)
-        User currentUser = userRepository.findAll().stream().findFirst()
-                .orElseThrow(() -> new RuntimeException("Нет пользователей в системе"));
+    private MathFunction saveResultToDb(TabulatedFunction tabulatedFunction, String name) {
+        User currentUser = securityService.getCurrentUser();
 
-        // Создаем новую функцию
         MathFunction mathFunction = new MathFunction();
         mathFunction.setFunctionName(name);
-        mathFunction.setFunctionDefinition("Результат операции");
+        mathFunction.setFunctionDefinition("Табулированная функция");
         mathFunction.setFunctionType("TABULATED");
         mathFunction.setOwner(currentUser);
         mathFunction.setIsPublic(false);
         mathFunction.setCreatedAt(LocalDateTime.now());
         mathFunction.setUpdatedAt(LocalDateTime.now());
 
-        // Сохраняем точки
-        result.forEach(point -> {
-            // TODO: Создать ComputedPoint и добавить к mathFunction
-        });
+        List<ru.ssau.tk.pmi.entity.ComputedPoint> points = new ArrayList<>();
+        for (int i = 0; i < tabulatedFunction.getCount(); i++) {
+            ru.ssau.tk.pmi.entity.ComputedPoint point = new ru.ssau.tk.pmi.entity.ComputedPoint();
+            point.setXValue(tabulatedFunction.getX(i));
+            point.setYValue(tabulatedFunction.getY(i));
+            point.setFunction(mathFunction);
+            points.add(point);
+        }
+        mathFunction.setComputedPoints(points);
 
         return functionRepository.save(mathFunction);
     }
-
 
     private DifferentialOperator<TabulatedFunction> createDifferentialOperator() {
         return function -> {
@@ -255,8 +279,6 @@ public class OperationController {
         };
     }
 
-
-    // Валидация
     private void validateBinaryOperationRequest(OperationDTO.BinaryOperationRequest request) {
         if (request.getFunction1Id() == null || request.getFunction2Id() == null) {
             throw new IllegalArgumentException("ID функций не могут быть пустыми");

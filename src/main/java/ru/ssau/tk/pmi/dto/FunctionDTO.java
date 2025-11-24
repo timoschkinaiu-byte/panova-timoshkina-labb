@@ -1,14 +1,27 @@
 package ru.ssau.tk.pmi.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class FunctionDTO {
 
+
     public static class CreateFromArraysRequest {
+        public CreateFromArraysRequest() {}
+
+        @JsonProperty("name")
         private String name;
+
+        @JsonProperty("xValues")
         private List<Double> xValues;
+
+        @JsonProperty("yValues")
         private List<Double> yValues;
+
 
         // Getters and Setters
         public String getName() { return name; }
@@ -20,6 +33,8 @@ public class FunctionDTO {
         public List<Double> getYValues() { return yValues; }
         public void setYValues(List<Double> yValues) { this.yValues = yValues; }
     }
+
+
 
     public static class CreateFromMathFunctionRequest {
         private String name;
