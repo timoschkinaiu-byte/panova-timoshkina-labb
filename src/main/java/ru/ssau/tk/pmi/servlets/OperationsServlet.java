@@ -7,7 +7,6 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.Logger;
 
-// БЕЗ АННОТАЦИИ @WebServlet
 public class OperationsServlet extends BaseServlet {
     private static final Logger logger = Logger.getLogger(OperationsServlet.class.getName());
     private final ObjectMapper mapper = new ObjectMapper();
@@ -28,6 +27,13 @@ public class OperationsServlet extends BaseServlet {
         logger.info("=== OPERATIONS API POST REQUEST ===");
         logger.info("URL: " + request.getRequestURL());
         logger.info("Path: " + pathInfo);
+
+        Map<String, Object> currentUser = getAuthenticatedUser(request);
+        if (currentUser == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            mapper.writeValue(response.getWriter(), Map.of("error", "Authentication required"));
+            return;
+        }
 
         try {
             String requestBody = getRequestBody(request);
@@ -75,8 +81,8 @@ public class OperationsServlet extends BaseServlet {
         result.put("functionId", function1Id + 1000);
         result.put("functionName", "Sum Function");
         result.put("functionType", "TABULATED");
-        result.put("ownerId", 1);
-        result.put("isPublic", true);
+        result.put("ownerId", getAuthenticatedUser(request).get("user_id"));
+        result.put("isPublic", false);
         result.put("pointsCount", 10);
         result.put("createdAt", new java.util.Date().toString());
 
@@ -99,8 +105,8 @@ public class OperationsServlet extends BaseServlet {
         result.put("functionId", function1Id + 1001);
         result.put("functionName", "Difference Function");
         result.put("functionType", "TABULATED");
-        result.put("ownerId", 1);
-        result.put("isPublic", true);
+        result.put("ownerId", getAuthenticatedUser(request).get("user_id"));
+        result.put("isPublic", false);
         result.put("pointsCount", 10);
         result.put("createdAt", new java.util.Date().toString());
 
@@ -123,8 +129,8 @@ public class OperationsServlet extends BaseServlet {
         result.put("functionId", function1Id + 1002);
         result.put("functionName", "Product Function");
         result.put("functionType", "TABULATED");
-        result.put("ownerId", 1);
-        result.put("isPublic", true);
+        result.put("ownerId", getAuthenticatedUser(request).get("user_id"));
+        result.put("isPublic", false);
         result.put("pointsCount", 10);
         result.put("createdAt", new java.util.Date().toString());
 
@@ -147,8 +153,8 @@ public class OperationsServlet extends BaseServlet {
         result.put("functionId", function1Id + 1003);
         result.put("functionName", "Quotient Function");
         result.put("functionType", "TABULATED");
-        result.put("ownerId", 1);
-        result.put("isPublic", true);
+        result.put("ownerId", getAuthenticatedUser(request).get("user_id"));
+        result.put("isPublic", false);
         result.put("pointsCount", 10);
         result.put("createdAt", new java.util.Date().toString());
 
@@ -170,8 +176,8 @@ public class OperationsServlet extends BaseServlet {
         result.put("functionId", functionId + 1004);
         result.put("functionName", "Derivative Function");
         result.put("functionType", "TABULATED");
-        result.put("ownerId", 1);
-        result.put("isPublic", true);
+        result.put("ownerId", getAuthenticatedUser(request).get("user_id"));
+        result.put("isPublic", false);
         result.put("pointsCount", 10);
         result.put("createdAt", new java.util.Date().toString());
 

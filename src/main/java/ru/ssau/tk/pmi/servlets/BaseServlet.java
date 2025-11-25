@@ -5,6 +5,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.*;
 import java.sql.*;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public abstract class BaseServlet extends HttpServlet {
@@ -60,11 +61,34 @@ public abstract class BaseServlet extends HttpServlet {
         return null;
     }
 
-    // Новый метод для обработки CORS
     protected void setCorsHeaders(HttpServletResponse response) {
         response.setHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    }
+
+    protected Map<String, Object> getAuthenticatedUser(HttpServletRequest request) {
+        return (Map<String, Object>) request.getAttribute("authenticatedUser");
+    }
+
+    protected boolean hasRole(HttpServletRequest request, String requiredRole) {
+        Map<String, Object> user = getAuthenticatedUser(request);
+        if (user == null) return false;
+
+        String userRole = (String) user.get("role");
+        return requiredRole.equals(userRole);
+    }
+
+    protected boolean isResourceOwner(HttpServletRequest request, Long resourceOwnerId) {
+        Map<String, Object> user = getAuthenticatedUser(request);
+        if (user == null) return false;
+
+        Long userId = (Long) user.get("user_id");
+        return userId.equals(resourceOwnerId);
+    }
+
+    protected boolean hasAccess(HttpServletRequest request, Long resourceOwnerId) {
+        return hasRole(request, "ADMIN") || isResourceOwner(request, resourceOwnerId);
     }
 
     @Override

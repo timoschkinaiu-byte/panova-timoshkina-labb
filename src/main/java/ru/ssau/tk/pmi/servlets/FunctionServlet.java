@@ -34,7 +34,8 @@ public class FunctionServlet extends BaseServlet {
         logger.info("=== FUNCTION API GET REQUEST ===");
         logger.info("URL: " + request.getRequestURL());
         logger.info("Path: " + pathInfo);
-        logger.info("Query Params: " + request.getQueryString());
+
+        Map<String, Object> currentUser = getAuthenticatedUser(request);
 
         try (Connection connection = getConnection()) {
             FunctionDao functionDao = new JdbcFunctionDao(connection);
@@ -43,23 +44,26 @@ public class FunctionServlet extends BaseServlet {
             if (pathInfo == null || pathInfo.equals("/")) {
                 logger.info("API: GET /api/functions - Search functions");
 
-                // Получаем все функции из БД
                 List<Map<String, Object>> functionsData = functionDao.getAllFunctions();
                 List<Map<String, Object>> functionList = new ArrayList<>();
 
                 for (Map<String, Object> functionData : functionsData) {
-                    Map<String, Object> functionMap = new HashMap<>();
-                    functionMap.put("functionId", functionData.get("function_id"));
-                    functionMap.put("functionName", functionData.get("function_name"));
-                    functionMap.put("functionType", "TABULATED"); // По умолчанию
-                    functionMap.put("ownerId", functionData.get("owner_id"));
-                    functionMap.put("isPublic", functionData.get("is_public"));
-                    functionMap.put("pointsCount", pointDao.getComputedPointsByFunctionId((Long)functionData.get("function_id")).size());
-                    functionMap.put("createdAt", new java.util.Date().toString());
-                    functionList.add(functionMap);
+                    Long ownerId = (Long) functionData.get("owner_id");
+                    Boolean isPublic = (Boolean) functionData.get("is_public");
+
+                    if (isPublic || hasAccess(request, ownerId)) {
+                        Map<String, Object> functionMap = new HashMap<>();
+                        functionMap.put("functionId", functionData.get("function_id"));
+                        functionMap.put("functionName", functionData.get("function_name"));
+                        functionMap.put("functionType", "TABULATED");
+                        functionMap.put("ownerId", ownerId);
+                        functionMap.put("isPublic", isPublic);
+                        functionMap.put("pointsCount", pointDao.getComputedPointsByFunctionId((Long)functionData.get("function_id")).size());
+                        functionMap.put("createdAt", new java.util.Date().toString());
+                        functionList.add(functionMap);
+                    }
                 }
 
-                // Применяем фильтры
                 String search = request.getParameter("search");
                 String type = request.getParameter("type");
                 String ownerId = request.getParameter("ownerId");
@@ -68,24 +72,20 @@ public class FunctionServlet extends BaseServlet {
                 if (search != null && !search.isEmpty()) {
                     functionList.removeIf(func ->
                             !((String)func.get("functionName")).toLowerCase().contains(search.toLowerCase()));
-                    logger.info("Applied search filter: " + search);
                 }
 
                 if (type != null && !type.isEmpty()) {
                     functionList.removeIf(func -> !func.get("functionType").equals(type));
-                    logger.info("Applied type filter: " + type);
                 }
 
                 if (ownerId != null && !ownerId.isEmpty()) {
                     Long ownerIdLong = Long.parseLong(ownerId);
                     functionList.removeIf(func -> !func.get("ownerId").equals(ownerIdLong));
-                    logger.info("Applied owner filter: " + ownerId);
                 }
 
                 if (isPublic != null && !isPublic.isEmpty()) {
                     boolean isPublicBool = Boolean.parseBoolean(isPublic);
                     functionList.removeIf(func -> !func.get("isPublic").equals(isPublicBool));
-                    logger.info("Applied public filter: " + isPublic);
                 }
 
                 mapper.writeValue(response.getWriter(), functionList);
@@ -94,6 +94,22 @@ public class FunctionServlet extends BaseServlet {
             } else if (pathInfo.matches("/\\d+/points")) {
                 Long functionId = Long.parseLong(pathInfo.split("/")[1]);
                 logger.info("API: GET /api/functions/" + functionId + "/points - Get function points");
+
+                Map<String, Object> functionData = functionDao.getFunctionById(functionId);
+                if (functionData == null) {
+                    response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                    mapper.writeValue(response.getWriter(), Map.of("error", "Function not found"));
+                    return;
+                }
+
+                Long ownerId = (Long) functionData.get("owner_id");
+                Boolean isPublic = (Boolean) functionData.get("is_public");
+
+                if (!isPublic && !hasAccess(request, ownerId)) {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    mapper.writeValue(response.getWriter(), Map.of("error", "Access denied"));
+                    return;
+                }
 
                 List<Map<String, Object>> pointsData = pointDao.getComputedPointsByFunctionId(functionId);
                 List<Map<String, Object>> responsePoints = new ArrayList<>();
@@ -115,8 +131,22 @@ public class FunctionServlet extends BaseServlet {
                 logger.info("API: GET /api/functions/" + functionId + "/graph-data - Get graph data");
 
                 Map<String, Object> functionData = functionDao.getFunctionById(functionId);
-                List<Map<String, Object>> pointsData = pointDao.getComputedPointsByFunctionId(functionId);
+                if (functionData == null) {
+                    response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                    mapper.writeValue(response.getWriter(), Map.of("error", "Function not found"));
+                    return;
+                }
 
+                Long ownerId = (Long) functionData.get("owner_id");
+                Boolean isPublic = (Boolean) functionData.get("is_public");
+
+                if (!isPublic && !hasAccess(request, ownerId)) {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    mapper.writeValue(response.getWriter(), Map.of("error", "Access denied"));
+                    return;
+                }
+
+                List<Map<String, Object>> pointsData = pointDao.getComputedPointsByFunctionId(functionId);
                 Map<String, Object> graphData = generateGraphData(functionId, functionData, pointsData);
                 mapper.writeValue(response.getWriter(), graphData);
                 logger.info("SUCCESS: Generated graph data for function " + functionId);
@@ -127,12 +157,21 @@ public class FunctionServlet extends BaseServlet {
 
                 Map<String, Object> functionData = functionDao.getFunctionById(functionId);
                 if (functionData != null) {
+                    Long ownerId = (Long) functionData.get("owner_id");
+                    Boolean isPublic = (Boolean) functionData.get("is_public");
+
+                    if (!isPublic && !hasAccess(request, ownerId)) {
+                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        mapper.writeValue(response.getWriter(), Map.of("error", "Access denied"));
+                        return;
+                    }
+
                     Map<String, Object> responseData = new HashMap<>();
                     responseData.put("functionId", functionData.get("function_id"));
                     responseData.put("functionName", functionData.get("function_name"));
                     responseData.put("functionType", "TABULATED");
-                    responseData.put("ownerId", functionData.get("owner_id"));
-                    responseData.put("isPublic", functionData.get("is_public"));
+                    responseData.put("ownerId", ownerId);
+                    responseData.put("isPublic", isPublic);
                     responseData.put("pointsCount", pointDao.getComputedPointsByFunctionId(functionId).size());
                     responseData.put("createdAt", new java.util.Date().toString());
 
@@ -141,20 +180,16 @@ public class FunctionServlet extends BaseServlet {
                 } else {
                     response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                     mapper.writeValue(response.getWriter(), Map.of("error", "Function not found"));
-                    logger.warning("NOT FOUND: Function ID " + functionId + " not found");
                 }
             } else {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 mapper.writeValue(response.getWriter(), Map.of("error", "Endpoint not found"));
-                logger.warning("NOT FOUND: Invalid endpoint " + pathInfo);
             }
         } catch (Exception e) {
             logger.severe("ERROR in GET: " + e.getMessage());
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             mapper.writeValue(response.getWriter(), Map.of("error", "Invalid request"));
         }
-
-        logger.info("=== FUNCTION API GET COMPLETED ===\n");
     }
 
     @Override
@@ -166,6 +201,15 @@ public class FunctionServlet extends BaseServlet {
         logger.info("=== FUNCTION API POST REQUEST ===");
         logger.info("URL: " + request.getRequestURL());
         logger.info("Path: " + pathInfo);
+
+        Map<String, Object> currentUser = getAuthenticatedUser(request);
+        if (currentUser == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            mapper.writeValue(response.getWriter(), Map.of("error", "Authentication required"));
+            return;
+        }
+
+        Long currentUserId = (Long) currentUser.get("user_id");
 
         try (Connection connection = getConnection()) {
             FunctionDao functionDao = new JdbcFunctionDao(connection);
@@ -190,15 +234,22 @@ public class FunctionServlet extends BaseServlet {
                     return;
                 }
 
+                if (ownerId != null && !ownerId.equals(currentUserId) && !hasRole(request, "ADMIN")) {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    mapper.writeValue(response.getWriter(), Map.of("error", "Cannot create functions for other users"));
+                    return;
+                }
+
+                Long finalOwnerId = ownerId != null ? ownerId : currentUserId;
                 Long functionId = functionDao.insertFunction(functionName, functionDefinition,
-                        ownerId != null ? ownerId : 1L, isPublic != null ? isPublic : false);
+                        finalOwnerId, isPublic != null ? isPublic : false);
 
                 if (functionId != null) {
                     Map<String, Object> responseData = new HashMap<>();
                     responseData.put("functionId", functionId);
                     responseData.put("functionName", functionName);
                     responseData.put("functionType", "TABULATED");
-                    responseData.put("ownerId", ownerId != null ? ownerId : 1L);
+                    responseData.put("ownerId", finalOwnerId);
                     responseData.put("isPublic", isPublic != null ? isPublic : false);
                     responseData.put("pointsCount", 0);
                     responseData.put("createdAt", new java.util.Date().toString());
@@ -217,7 +268,6 @@ public class FunctionServlet extends BaseServlet {
                 String name = (String) body.get("name");
                 List<Double> xValues = (List<Double>) body.get("xValues");
                 List<Double> yValues = (List<Double>) body.get("yValues");
-                String factoryType = request.getParameter("factoryType");
 
                 if (name == null || xValues == null || yValues == null) {
                     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -225,11 +275,9 @@ public class FunctionServlet extends BaseServlet {
                     return;
                 }
 
-                // Создаем функцию
-                String definition = "Array function with " + xValues.size() + " points (factory: " + factoryType + ")";
-                Long functionId = functionDao.insertFunction(name, definition, 1L, true);
+                String definition = "Array function with " + xValues.size() + " points";
+                Long functionId = functionDao.insertFunction(name, definition, currentUserId, true);
 
-                // Сохраняем точки
                 if (functionId != null) {
                     for (int i = 0; i < xValues.size(); i++) {
                         pointDao.insertComputedPoint(functionId, xValues.get(i), yValues.get(i));
@@ -239,7 +287,7 @@ public class FunctionServlet extends BaseServlet {
                     responseData.put("functionId", functionId);
                     responseData.put("functionName", name);
                     responseData.put("functionType", "TABULATED");
-                    responseData.put("ownerId", 1L);
+                    responseData.put("ownerId", currentUserId);
                     responseData.put("isPublic", true);
                     responseData.put("pointsCount", xValues.size());
                     responseData.put("createdAt", new java.util.Date().toString());
@@ -257,7 +305,6 @@ public class FunctionServlet extends BaseServlet {
                 Double leftX = getDoubleFromObject(body.get("leftX"));
                 Double rightX = getDoubleFromObject(body.get("rightX"));
                 Integer pointsCount = (Integer) body.get("pointsCount");
-                String factoryType = request.getParameter("factoryType");
 
                 if (name == null || sourceFunctionName == null || leftX == null || rightX == null || pointsCount == null) {
                     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -265,11 +312,9 @@ public class FunctionServlet extends BaseServlet {
                     return;
                 }
 
-                // Создаем функцию
                 String definition = "Math function: " + sourceFunctionName + " from " + leftX + " to " + rightX;
-                Long functionId = functionDao.insertFunction(name, definition, 1L, true);
+                Long functionId = functionDao.insertFunction(name, definition, currentUserId, true);
 
-                // Генерируем точки для математической функции
                 if (functionId != null) {
                     double step = (rightX - leftX) / (pointsCount - 1);
                     for (int i = 0; i < pointsCount; i++) {
@@ -282,7 +327,7 @@ public class FunctionServlet extends BaseServlet {
                     responseData.put("functionId", functionId);
                     responseData.put("functionName", name);
                     responseData.put("functionType", "TABULATED");
-                    responseData.put("ownerId", 1L);
+                    responseData.put("ownerId", currentUserId);
                     responseData.put("isPublic", true);
                     responseData.put("pointsCount", pointsCount);
                     responseData.put("createdAt", new java.util.Date().toString());
@@ -298,7 +343,6 @@ public class FunctionServlet extends BaseServlet {
                 String name = (String) body.get("name");
                 String outerFunctionName = (String) body.get("outerFunctionName");
                 String innerFunctionName = (String) body.get("innerFunctionName");
-                String factoryType = request.getParameter("factoryType");
 
                 if (name == null || outerFunctionName == null || innerFunctionName == null) {
                     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -306,11 +350,9 @@ public class FunctionServlet extends BaseServlet {
                     return;
                 }
 
-                // Создаем композитную функцию
                 String definition = "Composite: " + outerFunctionName + "(" + innerFunctionName + "(x))";
-                Long functionId = functionDao.insertFunction(name, definition, 1L, true);
+                Long functionId = functionDao.insertFunction(name, definition, currentUserId, true);
 
-                // Генерируем точки для композитной функции
                 if (functionId != null) {
                     for (double x = -10; x <= 10; x += 0.5) {
                         double innerY = computeMathFunction(innerFunctionName, x);
@@ -322,9 +364,9 @@ public class FunctionServlet extends BaseServlet {
                     responseData.put("functionId", functionId);
                     responseData.put("functionName", name);
                     responseData.put("functionType", "TABULATED");
-                    responseData.put("ownerId", 1L);
+                    responseData.put("ownerId", currentUserId);
                     responseData.put("isPublic", true);
-                    responseData.put("pointsCount", 41); // от -10 до 10 с шагом 0.5
+                    responseData.put("pointsCount", 41);
                     responseData.put("createdAt", new java.util.Date().toString());
 
                     response.setStatus(HttpServletResponse.SC_CREATED);
@@ -336,15 +378,29 @@ public class FunctionServlet extends BaseServlet {
                 Long functionId = Long.parseLong(pathInfo.split("/")[1]);
                 logger.info("API: POST /api/functions/" + functionId + "/compute - Compute function value");
 
-                Double x = getDoubleFromObject(body.get("x"));
+                Map<String, Object> functionData = functionDao.getFunctionById(functionId);
+                if (functionData == null) {
+                    response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                    mapper.writeValue(response.getWriter(), Map.of("error", "Function not found"));
+                    return;
+                }
 
+                Long ownerId = (Long) functionData.get("owner_id");
+                Boolean isPublic = (Boolean) functionData.get("is_public");
+
+                if (!isPublic && !hasAccess(request, ownerId)) {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    mapper.writeValue(response.getWriter(), Map.of("error", "Access denied"));
+                    return;
+                }
+
+                Double x = getDoubleFromObject(body.get("x"));
                 if (x == null) {
                     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     mapper.writeValue(response.getWriter(), Map.of("error", "X coordinate required"));
                     return;
                 }
 
-                // Получаем точки функции и интерполируем
                 List<Map<String, Object>> points = pointDao.getComputedPointsByFunctionId(functionId);
                 double y = interpolateValue(points, x);
 
@@ -359,15 +415,12 @@ public class FunctionServlet extends BaseServlet {
             } else {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 mapper.writeValue(response.getWriter(), Map.of("error", "Endpoint not found"));
-                logger.warning("NOT FOUND: Invalid endpoint " + pathInfo);
             }
         } catch (Exception e) {
             logger.severe("ERROR in POST: " + e.getMessage());
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             mapper.writeValue(response.getWriter(), Map.of("error", "Invalid request"));
         }
-
-        logger.info("=== FUNCTION API POST COMPLETED ===\n");
     }
 
     @Override
@@ -379,6 +432,13 @@ public class FunctionServlet extends BaseServlet {
         logger.info("=== FUNCTION API PUT REQUEST ===");
         logger.info("URL: " + request.getRequestURL());
         logger.info("Path: " + pathInfo);
+
+        Map<String, Object> currentUser = getAuthenticatedUser(request);
+        if (currentUser == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            mapper.writeValue(response.getWriter(), Map.of("error", "Authentication required"));
+            return;
+        }
 
         try (Connection connection = getConnection()) {
             FunctionDao functionDao = new JdbcFunctionDao(connection);
@@ -395,6 +455,13 @@ public class FunctionServlet extends BaseServlet {
                 if (existingFunction == null) {
                     response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                     mapper.writeValue(response.getWriter(), Map.of("error", "Function not found"));
+                    return;
+                }
+
+                Long ownerId = (Long) existingFunction.get("owner_id");
+                if (!hasAccess(request, ownerId)) {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    mapper.writeValue(response.getWriter(), Map.of("error", "Access denied"));
                     return;
                 }
 
@@ -418,8 +485,6 @@ public class FunctionServlet extends BaseServlet {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             mapper.writeValue(response.getWriter(), Map.of("error", "Invalid request"));
         }
-
-        logger.info("=== FUNCTION API PUT COMPLETED ===\n");
     }
 
     @Override
@@ -431,6 +496,13 @@ public class FunctionServlet extends BaseServlet {
         logger.info("URL: " + request.getRequestURL());
         logger.info("Path: " + pathInfo);
 
+        Map<String, Object> currentUser = getAuthenticatedUser(request);
+        if (currentUser == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            mapper.writeValue(response.getWriter(), Map.of("error", "Authentication required"));
+            return;
+        }
+
         try (Connection connection = getConnection()) {
             FunctionDao functionDao = new JdbcFunctionDao(connection);
 
@@ -440,13 +512,19 @@ public class FunctionServlet extends BaseServlet {
 
                 Map<String, Object> existingFunction = functionDao.getFunctionById(functionId);
                 if (existingFunction != null) {
+                    Long ownerId = (Long) existingFunction.get("owner_id");
+                    if (!hasAccess(request, ownerId)) {
+                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        mapper.writeValue(response.getWriter(), Map.of("error", "Access denied"));
+                        return;
+                    }
+
                     functionDao.deleteFunction(functionId);
                     response.setStatus(HttpServletResponse.SC_NO_CONTENT);
                     logger.info("SUCCESS: Deleted function ID " + functionId);
                 } else {
                     response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                     mapper.writeValue(response.getWriter(), Map.of("error", "Function not found"));
-                    logger.warning("NOT FOUND: Function ID " + functionId + " not found for deletion");
                 }
             } else {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -457,8 +535,6 @@ public class FunctionServlet extends BaseServlet {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             mapper.writeValue(response.getWriter(), Map.of("error", "Invalid request"));
         }
-
-        logger.info("=== FUNCTION API DELETE COMPLETED ===\n");
     }
 
     private Map<String, Object> generateGraphData(Long functionId, Map<String, Object> functionData, List<Map<String, Object>> points) {
@@ -510,14 +586,13 @@ public class FunctionServlet extends BaseServlet {
             case "Косинус":
                 return Math.cos(x);
             default:
-                return x; // По умолчанию тождественная
+                return x;
         }
     }
 
     private double interpolateValue(List<Map<String, Object>> points, double x) {
         if (points.isEmpty()) return 0;
 
-        // Простая линейная интерполяция
         for (int i = 0; i < points.size() - 1; i++) {
             double x1 = (Double) points.get(i).get("x_value");
             double y1 = (Double) points.get(i).get("y_value");
@@ -529,7 +604,6 @@ public class FunctionServlet extends BaseServlet {
             }
         }
 
-        // Если x вне диапазона, возвращаем ближайшее значение
         if (x < (Double) points.get(0).get("x_value")) {
             return (Double) points.get(0).get("y_value");
         } else {

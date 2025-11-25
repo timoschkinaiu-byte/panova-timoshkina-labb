@@ -28,6 +28,13 @@ public class FunctionExportServlet extends BaseServlet {
         logger.info("URL: " + request.getRequestURL());
         logger.info("Path: " + pathInfo);
 
+        Map<String, Object> currentUser = getAuthenticatedUser(request);
+        if (currentUser == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            mapper.writeValue(response.getWriter(), Map.of("error", "Authentication required"));
+            return;
+        }
+
         if (pathInfo != null && pathInfo.matches("/\\d+/export")) {
             Long functionId = Long.parseLong(pathInfo.split("/")[1]);
             String format = request.getParameter("format");
@@ -60,7 +67,6 @@ public class FunctionExportServlet extends BaseServlet {
                 return;
             }
 
-            // Заглушка для импорта
             Map<String, Object> importResult = new HashMap<>();
             importResult.put("functionId", 9999L);
             importResult.put("functionName", "Imported Function");
@@ -76,3 +82,4 @@ public class FunctionExportServlet extends BaseServlet {
         }
     }
 }
+

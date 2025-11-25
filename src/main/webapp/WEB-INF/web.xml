@@ -7,19 +7,15 @@
 
     <display-name>Math Functions API</display-name>
 
-    <!-- Сервлет для экспорта/импорта функций - ДОЛЖЕН БЫТЬ ПЕРВЫМ -->
-    <servlet>
-        <servlet-name>FunctionExportServlet</servlet-name>
-        <servlet-class>ru.ssau.tk.pmi.servlets.FunctionExportServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>FunctionExportServlet</servlet-name>
-        <url-pattern>/api/functions/*/export</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>FunctionExportServlet</servlet-name>
-        <url-pattern>/api/functions/import</url-pattern>
-    </servlet-mapping>
+    <!-- Basic Auth Filter -->
+    <filter>
+        <filter-name>BasicAuthFilter</filter-name>
+        <filter-class>ru.ssau.tk.pmi.filters.BasicAuthFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>BasicAuthFilter</filter-name>
+        <url-pattern>/api/*</url-pattern>
+    </filter-mapping>
 
     <!-- User Servlet -->
     <servlet>
@@ -41,7 +37,6 @@
         <url-pattern>/api/functions/*</url-pattern>
     </servlet-mapping>
 
-    <!-- Остальные сервлеты без изменений -->
     <!-- Computed Point Servlet -->
     <servlet>
         <servlet-name>ComputedPointServlet</servlet-name>
@@ -70,6 +65,20 @@
     <servlet-mapping>
         <servlet-name>OperationsServlet</servlet-name>
         <url-pattern>/api/operations/*</url-pattern>
+    </servlet-mapping>
+
+    <!-- Function Export Servlet -->
+    <servlet>
+        <servlet-name>FunctionExportServlet</servlet-name>
+        <servlet-class>ru.ssau.tk.pmi.servlets.FunctionExportServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>FunctionExportServlet</servlet-name>
+        <url-pattern>/api/functions/*/export</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>FunctionExportServlet</servlet-name>
+        <url-pattern>/api/functions/import</url-pattern>
     </servlet-mapping>
 
     <!-- Welcome file -->

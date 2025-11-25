@@ -32,7 +32,8 @@ public class UserServlet extends BaseServlet {
         logger.info("=== USER API GET REQUEST ===");
         logger.info("URL: " + request.getRequestURL());
         logger.info("Path: " + pathInfo);
-        logger.info("Query Params: " + request.getQueryString());
+
+        Map<String, Object> currentUser = getAuthenticatedUser(request);
 
         try (Connection connection = getConnection()) {
             UserDao userDao = new JdbcUserDao(connection);
@@ -40,13 +41,16 @@ public class UserServlet extends BaseServlet {
             if (pathInfo == null || pathInfo.equals("/")) {
                 logger.info("API: GET /api/users - Search users");
 
+                if (!hasRole(request, "ADMIN")) {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    mapper.writeValue(response.getWriter(), Map.of("error", "Admin access required"));
+                    return;
+                }
+
                 String search = request.getParameter("search");
                 String role = request.getParameter("role");
 
-                // 🔥 ИСПРАВЛЕНИЕ: Получаем всех пользователей через существующие методы
                 List<Map<String, Object>> allUsersData = new ArrayList<>();
-
-                // Получаем пользователей по ID (в реальности нужно добавить метод getAllUsers в DAO)
                 for (long i = 1; i <= 10; i++) {
                     Map<String, Object> userData = userDao.getUserById(i);
                     if (userData != null) {
@@ -84,37 +88,46 @@ public class UserServlet extends BaseServlet {
             } else if (pathInfo.equals("/me")) {
                 logger.info("API: GET /api/users/me - Current user");
 
-                // Заглушка для текущего пользователя - в реальности из сессии/токена
-                Map<String, Object> currentUser = new HashMap<>();
-                currentUser.put("userId", 1);
-                currentUser.put("username", "current_user");
-                currentUser.put("email", "user@example.com");
-                currentUser.put("role", "USER");
-                currentUser.put("createdAt", new java.util.Date().toString());
+                if (currentUser == null) {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    mapper.writeValue(response.getWriter(), Map.of("error", "Authentication required"));
+                    return;
+                }
 
-                mapper.writeValue(response.getWriter(), currentUser);
+                Map<String, Object> userResponse = new HashMap<>();
+                userResponse.put("userId", currentUser.get("user_id"));
+                userResponse.put("username", currentUser.get("username"));
+                userResponse.put("email", "user@example.com");
+                userResponse.put("role", currentUser.get("role"));
+                userResponse.put("createdAt", new java.util.Date().toString());
+
+                mapper.writeValue(response.getWriter(), userResponse);
                 logger.info("SUCCESS: Returned current user info");
 
             } else {
                 Long userId = Long.parseLong(pathInfo.substring(1));
                 logger.info("API: GET /api/users/" + userId + " - User by ID");
 
+                if (!hasAccess(request, userId)) {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    mapper.writeValue(response.getWriter(), Map.of("error", "Access denied"));
+                    return;
+                }
+
                 Map<String, Object> userData = userDao.getUserById(userId);
                 if (userData != null) {
-                    // Форматируем ответ согласно схеме UserResponse
                     Map<String, Object> responseData = new HashMap<>();
                     responseData.put("userId", userData.get("user_id"));
                     responseData.put("username", userData.get("username"));
-                    responseData.put("email", "user@example.com"); // email нет в текущей схеме БД
+                    responseData.put("email", "user@example.com");
                     responseData.put("role", userData.get("role"));
-                    responseData.put("createdAt", new java.util.Date().toString()); // В реальности из БД
+                    responseData.put("createdAt", new java.util.Date().toString());
 
                     mapper.writeValue(response.getWriter(), responseData);
                     logger.info("SUCCESS: Returned user ID " + userId);
                 } else {
                     response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                     mapper.writeValue(response.getWriter(), Map.of("error", "User not found"));
-                    logger.warning("NOT FOUND: User ID " + userId + " not found");
                 }
             }
         } catch (Exception e) {
@@ -122,8 +135,6 @@ public class UserServlet extends BaseServlet {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             mapper.writeValue(response.getWriter(), Map.of("error", "Invalid request"));
         }
-
-        logger.info("=== USER API GET COMPLETED ===\n");
     }
 
     @Override
@@ -150,36 +161,30 @@ public class UserServlet extends BaseServlet {
                 String password = (String) body.get("password");
                 String email = (String) body.get("email");
 
-                logger.info("Registration data - username: " + username + ", email: " + email);
-
                 if (username == null || password == null) {
                     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     mapper.writeValue(response.getWriter(), Map.of("error", "Username and password required"));
-                    logger.warning("VALIDATION: Missing username or password");
                     return;
                 }
 
-                // Проверка существования пользователя
                 Map<String, Object> existingUser = userDao.getUserByUsername(username);
                 if (existingUser != null) {
                     response.setStatus(HttpServletResponse.SC_CONFLICT);
                     mapper.writeValue(response.getWriter(), Map.of("error", "User already exists"));
-                    logger.warning("CONFLICT: User '" + username + "' already exists");
                     return;
                 }
 
-                // Создание пользователя в БД - используем только 3 параметра, email игнорируем
                 String passwordHash = "hashed_" + password;
-                String userRole = "USER"; // По умолчанию
+                String userRole = "USER";
                 userDao.insertUser(username, passwordHash, userRole);
 
-                // Получаем созданного пользователя
                 Map<String, Object> newUserData = userDao.getUserByUsername(username);
 
                 response.setStatus(HttpServletResponse.SC_CREATED);
                 mapper.writeValue(response.getWriter(), Map.of(
                         "message", "User created successfully",
-                        "userId", newUserData.get("user_id")
+                        "userId", newUserData.get("user_id"),
+                        "role", userRole
                 ));
                 logger.info("SUCCESS: Created user '" + username + "' with ID " + newUserData.get("user_id"));
 
@@ -188,8 +193,6 @@ public class UserServlet extends BaseServlet {
 
                 String username = (String) body.get("username");
                 String password = (String) body.get("password");
-
-                logger.info("Login attempt for user: " + username);
 
                 Map<String, Object> userData = userDao.getUserByUsername(username);
                 if (userData != null) {
@@ -203,29 +206,24 @@ public class UserServlet extends BaseServlet {
                                 "role", userData.get("role")
                         ));
                         mapper.writeValue(response.getWriter(), responseData);
-                        logger.info("SUCCESS: User '" + username + "' logged in successfully");
+                        logger.info("SUCCESS: User '" + username + "' logged in");
                     } else {
                         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                         mapper.writeValue(response.getWriter(), Map.of("error", "Invalid credentials"));
-                        logger.warning("AUTH FAILED: Invalid password for user '" + username + "'");
                     }
                 } else {
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     mapper.writeValue(response.getWriter(), Map.of("error", "Invalid credentials"));
-                    logger.warning("AUTH FAILED: User '" + username + "' not found");
                 }
             } else {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 mapper.writeValue(response.getWriter(), Map.of("error", "Endpoint not found"));
-                logger.warning("NOT FOUND: Invalid endpoint " + pathInfo);
             }
         } catch (Exception e) {
             logger.severe("ERROR in POST: " + e.getMessage());
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             mapper.writeValue(response.getWriter(), Map.of("error", "Invalid request"));
         }
-
-        logger.info("=== USER API POST COMPLETED ===\n");
     }
 
     @Override
@@ -238,6 +236,13 @@ public class UserServlet extends BaseServlet {
         logger.info("URL: " + request.getRequestURL());
         logger.info("Path: " + pathInfo);
 
+        Map<String, Object> currentUser = getAuthenticatedUser(request);
+        if (currentUser == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            mapper.writeValue(response.getWriter(), Map.of("error", "Authentication required"));
+            return;
+        }
+
         try (Connection connection = getConnection()) {
             UserDao userDao = new JdbcUserDao(connection);
             String requestBody = getRequestBody(request);
@@ -246,26 +251,27 @@ public class UserServlet extends BaseServlet {
             Map<String, Object> updateData = mapper.readValue(requestBody, Map.class);
 
             if (pathInfo != null && pathInfo.matches("/\\d+")) {
-                // PUT /api/users/{id} - обновление пользователя
                 Long userId = Long.parseLong(pathInfo.substring(1));
                 logger.info("API: PUT /api/users/" + userId + " - Update user");
+
+                if (!hasAccess(request, userId)) {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    mapper.writeValue(response.getWriter(), Map.of("error", "Access denied"));
+                    return;
+                }
 
                 Map<String, Object> existingUserData = userDao.getUserById(userId);
                 if (existingUserData == null) {
                     response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                     mapper.writeValue(response.getWriter(), Map.of("error", "User not found"));
-                    logger.warning("NOT FOUND: User ID " + userId + " not found for update");
                     return;
                 }
 
                 String username = (String) updateData.get("username");
-                String email = (String) updateData.get("email"); // email игнорируем, так как нет в БД
-
                 String newUsername = username != null ? username : (String) existingUserData.get("username");
-                String passwordHash = (String) existingUserData.get("password_hash"); // Пароль не меняем
-                String role = (String) existingUserData.get("role"); // Роль не меняем
+                String passwordHash = (String) existingUserData.get("password_hash");
+                String role = (String) existingUserData.get("role");
 
-                // Используем существующий метод с 3 параметрами
                 userDao.updateUser(userId, newUsername, passwordHash, role);
 
                 Map<String, Object> responseData = new HashMap<>();
@@ -276,11 +282,16 @@ public class UserServlet extends BaseServlet {
                 logger.info("SUCCESS: Updated user ID " + userId);
 
             } else if (pathInfo != null && pathInfo.matches("/\\d+/role")) {
-                // PUT /api/users/{id}/role - изменение роли
                 Long userId = Long.parseLong(pathInfo.split("/")[1]);
                 String role = request.getParameter("role");
 
                 logger.info("API: PUT /api/users/" + userId + "/role - Change user role to " + role);
+
+                if (!hasRole(request, "ADMIN")) {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    mapper.writeValue(response.getWriter(), Map.of("error", "Admin access required"));
+                    return;
+                }
 
                 Map<String, Object> existingUserData = userDao.getUserById(userId);
                 if (existingUserData == null) {
@@ -295,7 +306,6 @@ public class UserServlet extends BaseServlet {
                     return;
                 }
 
-                // Обновляем роль пользователя через updateUser
                 String username = (String) existingUserData.get("username");
                 String passwordHash = (String) existingUserData.get("password_hash");
                 userDao.updateUser(userId, username, passwordHash, role);
@@ -306,15 +316,12 @@ public class UserServlet extends BaseServlet {
             } else {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 mapper.writeValue(response.getWriter(), Map.of("error", "Endpoint not found"));
-                logger.warning("NOT FOUND: Invalid endpoint " + pathInfo);
             }
         } catch (Exception e) {
             logger.severe("ERROR in PUT: " + e.getMessage());
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             mapper.writeValue(response.getWriter(), Map.of("error", "Invalid request"));
         }
-
-        logger.info("=== USER API PUT COMPLETED ===\n");
     }
 
     @Override
@@ -326,12 +333,25 @@ public class UserServlet extends BaseServlet {
         logger.info("URL: " + request.getRequestURL());
         logger.info("Path: " + pathInfo);
 
+        Map<String, Object> currentUser = getAuthenticatedUser(request);
+        if (currentUser == null) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            mapper.writeValue(response.getWriter(), Map.of("error", "Authentication required"));
+            return;
+        }
+
         try (Connection connection = getConnection()) {
             UserDao userDao = new JdbcUserDao(connection);
 
             if (pathInfo != null && pathInfo.matches("/\\d+")) {
                 Long userId = Long.parseLong(pathInfo.substring(1));
                 logger.info("API: DELETE /api/users/" + userId + " - Delete user");
+
+                if (!hasAccess(request, userId)) {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    mapper.writeValue(response.getWriter(), Map.of("error", "Access denied"));
+                    return;
+                }
 
                 Map<String, Object> existingUser = userDao.getUserById(userId);
                 if (existingUser != null) {
@@ -341,7 +361,6 @@ public class UserServlet extends BaseServlet {
                 } else {
                     response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                     mapper.writeValue(response.getWriter(), Map.of("error", "User not found"));
-                    logger.warning("NOT FOUND: User ID " + userId + " not found for deletion");
                 }
             } else {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -352,7 +371,5 @@ public class UserServlet extends BaseServlet {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             mapper.writeValue(response.getWriter(), Map.of("error", "Invalid request"));
         }
-
-        logger.info("=== USER API DELETE COMPLETED ===\n");
     }
 }

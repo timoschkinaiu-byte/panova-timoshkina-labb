@@ -1,0 +1,824 @@
+{
+  "info": {
+    "name": "Math Functions API - FINAL TESTS",
+    "description": "Финальные тесты "
+  },
+  "item": [
+    {
+      "name": "Setup & Auth",
+      "item": [
+        {
+          "name": "Register Admin User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": "{{base_url}}/users/register"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Admin registration status', function() {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([201, 409]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login as Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": "{{base_url}}/users/login"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Admin login successful', function() {",
+                  "  pm.expect(pm.response.code).to.equal(200);",
+                  "  pm.expect(pm.response.json()).to.have.property('message', 'Login successful');",
+                  "});",
+                  "const authHeader = 'Basic ' + btoa('admin:admin123');",
+                  "pm.collectionVariables.set('auth_header', authHeader);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register Test User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser123\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": "{{base_url}}/users/register"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Test user registration status', function() {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([201, 409]);",
+                  "});",
+                  "const userAuth = 'Basic ' + btoa('testuser123:password123');",
+                  "pm.collectionVariables.set('test_user_auth', userAuth);",
+                  "pm.collectionVariables.set('test_user_id', 2);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": " Users Management",
+      "item": [
+        {
+          "name": "Get Current User - Admin",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{auth_header}}"
+              }
+            ],
+            "url": "{{base_url}}/users/me"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Get current admin user', function() {",
+                  "  pm.expect(pm.response.code).to.equal(200);",
+                  "  pm.expect(pm.response.json()).to.have.property('userId');",
+                  "  pm.expect(pm.response.json()).to.have.property('username', 'admin');",
+                  "  pm.expect(pm.response.json()).to.have.property('role');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Functions Management",
+      "item": [
+        {
+          "name": "Create Math Function",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_header}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Quadratic Function\",\n  \"sourceFunctionName\": \"Квадратичная функция\",\n  \"leftX\": 0,\n  \"rightX\": 5,\n  \"pointsCount\": 6\n}"
+            },
+            "url": "{{base_url}}/functions/from-math-function"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Create math function successful', function() {",
+                  "  pm.expect(pm.response.code).to.equal(201);",
+                  "  pm.expect(pm.response.json()).to.have.property('functionId');",
+                  "  pm.expect(pm.response.json()).to.have.property('functionName', 'Quadratic Function');",
+                  "});",
+                  "pm.collectionVariables.set('func_math_id', pm.response.json().functionId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Array Function",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_header}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Array Function\",\n  \"xValues\": [1.0, 2.0, 3.0, 4.0, 5.0],\n  \"yValues\": [1.0, 4.0, 9.0, 16.0, 25.0]\n}"
+            },
+            "url": "{{base_url}}/functions/from-arrays?factoryType=ARRAY"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Create array function successful', function() {",
+                  "  pm.expect(pm.response.code).to.equal(201);",
+                  "  pm.expect(pm.response.json()).to.have.property('functionId');",
+                  "  pm.expect(pm.response.json()).to.have.property('pointsCount', 5);",
+                  "});",
+                  "pm.collectionVariables.set('func_array_id', pm.response.json().functionId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get All Functions - User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{test_user_auth}}"
+              }
+            ],
+            "url": "{{base_url}}/functions"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Get all functions successful', function() {",
+                  "  pm.expect(pm.response.code).to.equal(200);",
+                  "  pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Function by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{test_user_auth}}"
+              }
+            ],
+            "url": "{{base_url}}/functions/{{func_math_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Get function by ID successful', function() {",
+                  "  pm.expect(pm.response.code).to.equal(200);",
+                  "  pm.expect(pm.response.json()).to.have.property('functionId', pm.collectionVariables.get('func_math_id'));",
+                  "  pm.expect(pm.response.json()).to.have.property('functionName');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Function",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_header}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"functionName\": \"Updated Quadratic\",\n  \"isPublic\": false\n}"
+            },
+            "url": "{{base_url}}/functions/{{func_math_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Update function successful', function() {",
+                  "  pm.expect(pm.response.code).to.equal(200);",
+                  "  pm.expect(pm.response.json()).to.have.property('message', 'Function updated successfully');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Function Points",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{test_user_auth}}"
+              }
+            ],
+            "url": "{{base_url}}/functions/{{func_array_id}}/points"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Get function points successful', function() {",
+                  "  pm.expect(pm.response.code).to.equal(200);",
+                  "  pm.expect(pm.response.json()).to.be.an('array');",
+                  "  if (pm.response.json().length > 0) {",
+                  "    pm.expect(pm.response.json()[0]).to.have.property('xValue');",
+                  "    pm.expect(pm.response.json()[0]).to.have.property('yValue');",
+                  "  }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Compute Function Value",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{test_user_auth}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"x\": 2.5\n}"
+            },
+            "url": "{{base_url}}/functions/{{func_array_id}}/compute"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Compute function value successful', function() {",
+                  "  pm.expect(pm.response.code).to.equal(200);",
+                  "  pm.expect(pm.response.json()).to.have.property('x', 2.5);",
+                  "  pm.expect(pm.response.json()).to.have.property('y');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Graph Data",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{test_user_auth}}"
+              }
+            ],
+            "url": "{{base_url}}/functions/{{func_array_id}}/graph-data"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Get graph data successful', function() {",
+                  "  pm.expect(pm.response.code).to.equal(200);",
+                  "  pm.expect(pm.response.json()).to.have.property('points');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": " Points Management",
+      "item": [
+        {
+          "name": "Add Point to Function",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_header}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"functionId\": {{func_math_id}},\n  \"xValue\": 6,\n  \"yValue\": 36\n}"
+            },
+            "url": "{{base_url}}/points"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Add point successful', function() {",
+                  "  pm.expect(pm.response.code).to.equal(201);",
+                  "  pm.expect(pm.response.json()).to.have.property('pointId');",
+                  "  pm.expect(pm.response.json()).to.have.property('message', 'Point created successfully');",
+                  "});",
+                  "pm.collectionVariables.set('created_point_id', pm.response.json().pointId);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Point by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{test_user_auth}}"
+              }
+            ],
+            "url": "{{base_url}}/points/{{created_point_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Get point by ID successful', function() {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 403]);",
+                  "  if (pm.response.code === 200) {",
+                  "    pm.expect(pm.response.json()).to.have.property('pointId', pm.collectionVariables.get('created_point_id'));",
+                  "    pm.expect(pm.response.json()).to.have.property('xValue', 6);",
+                  "    pm.expect(pm.response.json()).to.have.property('yValue', 36);",
+                  "  }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Points in Range",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{test_user_auth}}"
+              }
+            ],
+            "url": "{{base_url}}/points?functionId={{func_math_id}}&xFrom=0&xTo=5"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Get points in range successful', function() {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 403]);",
+                  "  if (pm.response.code === 200) {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "  }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Search Points",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{test_user_auth}}"
+              }
+            ],
+            "url": "{{base_url}}/points/search?functionId={{func_math_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Search points successful', function() {",
+                  "  pm.expect(pm.response.code).to.equal(200);",
+                  "  pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Point",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_header}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"yValue\": 40\n}"
+            },
+            "url": "{{base_url}}/points/{{created_point_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Update point successful', function() {",
+                  "  pm.expect(pm.response.code).to.equal(200);",
+                  "  pm.expect(pm.response.json()).to.have.property('message', 'Point updated successfully');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Point",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{auth_header}}"
+              }
+            ],
+            "url": "{{base_url}}/points/{{created_point_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Delete point successful', function() {",
+                  "  pm.expect(pm.response.code).to.equal(204);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Mathematical Operations",
+      "item": [
+        {
+          "name": "Add Functions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_header}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"function1Id\": {{func_math_id}},\n  \"function2Id\": {{func_math_id}}\n}"
+            },
+            "url": "{{base_url}}/operations/add"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Add functions successful', function() {",
+                  "  pm.expect(pm.response.code).to.equal(200);",
+                  "  pm.expect(pm.response.json()).to.have.property('functionId');",
+                  "  pm.expect(pm.response.json()).to.have.property('functionName', 'Sum Function');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Multiply Functions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_header}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"function1Id\": {{func_math_id}},\n  \"function2Id\": {{func_math_id}}\n}"
+            },
+            "url": "{{base_url}}/operations/multiply"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Multiply functions successful', function() {",
+                  "  pm.expect(pm.response.code).to.equal(200);",
+                  "  pm.expect(pm.response.json()).to.have.property('functionId');",
+                  "  pm.expect(pm.response.json()).to.have.property('functionName', 'Product Function');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Differentiate Function",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_header}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"functionId\": {{func_math_id}}\n}"
+            },
+            "url": "{{base_url}}/operations/differentiate"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Differentiate function successful', function() {",
+                  "  pm.expect(pm.response.code).to.equal(200);",
+                  "  pm.expect(pm.response.json()).to.have.property('functionId');",
+                  "  pm.expect(pm.response.json()).to.have.property('functionName', 'Derivative Function');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Integrate Function",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_header}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"functionId\": {{func_math_id}},\n  \"threadsCount\": 4\n}"
+            },
+            "url": "{{base_url}}/operations/integrate"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Integrate function successful', function() {",
+                  "  pm.expect(pm.response.code).to.equal(200);",
+                  "  pm.expect(pm.response.json()).to.have.property('result');",
+                  "  pm.expect(pm.response.json()).to.have.property('computationTime');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Access Management",
+      "item": [
+        {
+          "name": "Grant Function Access",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{auth_header}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"functionId\": {{func_math_id}},\n  \"userId\": {{test_user_id}},\n  \"accessType\": \"READ\"\n}"
+            },
+            "url": "{{base_url}}/access"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Grant access successful', function() {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([201, 409, 200]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Function Access",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{auth_header}}"
+              }
+            ],
+            "url": "{{base_url}}/access?functionId={{func_math_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Get access records successful', function() {",
+                  "  pm.expect(pm.response.code).to.equal(200);",
+                  "  pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": " Cleanup",
+      "item": [
+        {
+          "name": "Delete Function",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{auth_header}}"
+              }
+            ],
+            "url": "{{base_url}}/functions/{{func_math_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Delete function successful', function() {",
+                  "  pm.expect(pm.response.code).to.equal(204);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080/api",
+      "type": "string"
+    }
+  ]
+}
