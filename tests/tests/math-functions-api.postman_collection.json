@@ -5,7 +5,7 @@
   },
   "item": [
     {
-      "name": "🎯 Setup Data",
+      "name": "Setup Data",
       "item": [
         {
           "name": "Create Test User",
@@ -155,7 +155,7 @@
       ]
     },
     {
-      "name": "🔐 Authentication",
+      "name": "Authentication",
       "item": [
         {
           "name": "Register User",
@@ -201,7 +201,7 @@
       ]
     },
     {
-      "name": "👥 Users Management",
+      "name": "Users Management",
       "item": [
         {
           "name": "Get User by ID",
@@ -251,7 +251,7 @@
       ]
     },
     {
-      "name": "📊 Functions Management",
+      "name": "Functions Management",
       "item": [
         {
           "name": "Get All Functions",
@@ -325,7 +325,7 @@
       ]
     },
     {
-      "name": "📈 Points Management",
+      "name": "Points Management",
       "item": [
         {
           "name": "Get Points in Range",
@@ -413,7 +413,7 @@
       ]
     },
     {
-      "name": "🔧 Mathematical Operations",
+      "name": "Mathematical Operations",
       "item": [
         {
           "name": "Add Functions",
@@ -521,7 +521,7 @@
       ]
     },
     {
-      "name": "👥 Access Management",
+      "name": "Access Management",
       "item": [
         {
           "name": "Get Function Access",
@@ -557,7 +557,7 @@
       ]
     },
     {
-      "name": "📁 Export/Import",
+      "name": "Export/Import",
       "item": [
         {
           "name": "Export Function",

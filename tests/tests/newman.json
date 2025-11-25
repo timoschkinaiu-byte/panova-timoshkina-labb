@@ -88,7 +88,7 @@
   ],
   "item": [
     {
-      "name": "🔐 Setup Authentication",
+      "name": "Setup Authentication",
       "item": [
         {
           "name": "Get Admin Auth Token",
@@ -251,7 +251,7 @@
       ]
     },
     {
-      "name": "👥 Users Operations",
+      "name": "Users Operations",
       "item": [
         {
           "name": "Get Current User",
@@ -358,7 +358,7 @@
       ]
     },
     {
-      "name": "📊 Functions Operations",
+      "name": "Functions Operations",
       "item": [
         {
           "name": "Create Function from Arrays",
@@ -655,7 +655,7 @@
       ]
     },
     {
-      "name": "📈 Points Operations",
+      "name": "Points Operations",
       "item": [
         {
           "name": "Get Points with Range",
@@ -828,7 +828,7 @@
       ]
     },
     {
-      "name": "🔐 Setup Access Test User",
+      "name": "Setup Access Test User",
       "event": [
         {
           "listen": "prerequest",
@@ -877,7 +877,7 @@
       "response": []
     },
     {
-      "name": "🔐 Access Operations",
+      "name": "Access Operations",
       "item": [
         {
           "name": "Get Function Access",
@@ -960,7 +960,7 @@
       ]
     },
     {
-      "name": "🧮 Math Operations",
+      "name": "Math Operations",
       "item": [
         {
           "name": "Add Functions",
@@ -1121,7 +1121,7 @@
       ]
     },
     {
-      "name": "📤 Export/Import Operations",
+      "name": "Export/Import Operations",
       "item": [
         {
           "name": "Export Function (JSON)",

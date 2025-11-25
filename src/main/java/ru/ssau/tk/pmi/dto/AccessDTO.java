@@ -9,7 +9,7 @@ public class AccessDTO {
         private Long userId;
         private String accessType;
 
-        // Getters and Setters
+
         public Long getFunctionId() { return functionId; }
         public void setFunctionId(Long functionId) { this.functionId = functionId; }
 
@@ -27,7 +27,7 @@ public class AccessDTO {
         private String accessType;
         private LocalDateTime grantedAt;
 
-        // Getters and Setters
+
         public Long getAccessId() { return accessId; }
         public void setAccessId(Long accessId) { this.accessId = accessId; }
 

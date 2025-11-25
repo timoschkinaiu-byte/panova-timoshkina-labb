@@ -258,7 +258,7 @@ public class FunctionController {
         logger.info("Получение точек функции: {}", id);
 
         try {
-            // ✅ ПРОВЕРКА ПРАВ ПРОСМОТРА
+            // ПРОВЕРКА ПРАВ ПРОСМОТРА
             if (!securityService.canViewFunction(id)) {
                 logger.warn("Отказано в доступе к точкам функции: {}", id);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();

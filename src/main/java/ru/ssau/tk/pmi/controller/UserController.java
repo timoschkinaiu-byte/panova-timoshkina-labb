@@ -136,7 +136,7 @@ public class UserController {
             // Проверяем, не занято ли новое имя пользователя
             if (request.getUsername() != null && !user.getUsername().equals(request.getUsername())) {
                 if (userRepository.findByUsername(request.getUsername()).isPresent()) {
-                    throw new UserAlreadyExistsException("Имя пользователя уже занято");
+                    throw new UserAlreadyExistsException("Имя пользователя уже занято(");
                 }
                 user.setUsername(request.getUsername());
             }
@@ -265,15 +265,7 @@ public class UserController {
             throw new IllegalArgumentException("Пароль должен содержать минимум 6 символов");
         }
     }
-/*
-    private void validateLoginRequest(UserDTO.LoginRequest request) {
-        if (request.getUsername() == null || request.getUsername().trim().isEmpty()) {
-            throw new IllegalArgumentException("Имя пользователя не может быть пустым");
-        }
-        if (request.getPassword() == null || request.getPassword().isEmpty()) {
-            throw new IllegalArgumentException("Пароль не может быть пустым");
-        }
-    }*/
+
 
     private void validateUpdateRequest(UserDTO.UpdateRequest request) {
         if (request.getUsername() != null && request.getUsername().trim().isEmpty()) {

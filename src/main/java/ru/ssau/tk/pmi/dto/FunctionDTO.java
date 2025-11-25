@@ -23,7 +23,6 @@ public class FunctionDTO {
         private List<Double> yValues;
 
 
-        // Getters and Setters
         public String getName() { return name; }
         public void setName(String name) { this.name = name; }
 
@@ -43,7 +42,7 @@ public class FunctionDTO {
         private Double rightX;
         private Integer pointsCount;
 
-        // Getters and Setters
+
         public String getName() { return name; }
         public void setName(String name) { this.name = name; }
 
@@ -65,7 +64,7 @@ public class FunctionDTO {
         private String outerFunctionName;
         private String innerFunctionName;
 
-        // Getters and Setters
+
         public String getName() { return name; }
         public void setName(String name) { this.name = name; }
 
@@ -80,7 +79,7 @@ public class FunctionDTO {
         private String functionName;
         private Boolean isPublic;
 
-        // Getters and Setters
+
         public String getFunctionName() { return functionName; }
         public void setFunctionName(String functionName) { this.functionName = functionName; }
 
@@ -97,7 +96,7 @@ public class FunctionDTO {
         private Integer pointsCount;
         private LocalDateTime createdAt;
 
-        // Getters and Setters
+
         public Long getFunctionId() { return functionId; }
         public void setFunctionId(Long functionId) { this.functionId = functionId; }
 
@@ -123,7 +122,7 @@ public class FunctionDTO {
     public static class ComputeRequest {
         private Double x;
 
-        // Getters and Setters
+
         public Double getX() { return x; }
         public void setX(Double x) { this.x = x; }
     }
@@ -133,7 +132,7 @@ public class FunctionDTO {
         private Double y;
         private Boolean interpolated;
 
-        // Getters and Setters
+
         public Double getX() { return x; }
         public void setX(Double x) { this.x = x; }
 
@@ -152,7 +151,7 @@ public class FunctionDTO {
         private ValueRange xRange;
         private ValueRange yRange;
 
-        // Getters and Setters
+
         public Long getFunctionId() { return functionId; }
         public void setFunctionId(Long functionId) { this.functionId = functionId; }
 
@@ -169,7 +168,7 @@ public class FunctionDTO {
         public void setYRange(ValueRange yRange) { this.yRange = yRange; }
     }
 
-    // Отдельные классы на одном уровне вложенности
+
     public static class GraphPoint {
         private Double x;
         private Double y;

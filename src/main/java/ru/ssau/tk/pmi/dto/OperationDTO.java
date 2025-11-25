@@ -6,7 +6,7 @@ public class OperationDTO {
         private Long function1Id;
         private Long function2Id;
 
-        // Getters and Setters
+
         public Long getFunction1Id() { return function1Id; }
         public void setFunction1Id(Long function1Id) { this.function1Id = function1Id; }
 
@@ -17,7 +17,7 @@ public class OperationDTO {
     public static class UnaryOperationRequest {
         private Long functionId;
 
-        // Getters and Setters
+
         public Long getFunctionId() { return functionId; }
         public void setFunctionId(Long functionId) { this.functionId = functionId; }
     }
@@ -26,7 +26,7 @@ public class OperationDTO {
         private Long functionId;
         private Integer threadsCount;
 
-        // Getters and Setters
+
         public Long getFunctionId() { return functionId; }
         public void setFunctionId(Long functionId) { this.functionId = functionId; }
 
@@ -38,7 +38,7 @@ public class OperationDTO {
         private Double result;
         private Long computationTime;
 
-        // Getters and Setters
+
         public Double getResult() { return result; }
         public void setResult(Double result) { this.result = result; }
 

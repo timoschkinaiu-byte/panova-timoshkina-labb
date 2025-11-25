@@ -14,7 +14,7 @@ public class PointDTO {
         @JsonProperty("yValue")
         private Double yValue;
 
-        // Getters and Setters
+
         public Long getFunctionId() { return functionId; }
         public void setFunctionId(Long functionId) { this.functionId = functionId; }
 
@@ -39,7 +39,7 @@ public class PointDTO {
         private Double xValue;
         private Double yValue;
 
-        // Getters and Setters
+
         public Long getPointId() { return pointId; }
         public void setPointId(Long pointId) { this.pointId = pointId; }
 

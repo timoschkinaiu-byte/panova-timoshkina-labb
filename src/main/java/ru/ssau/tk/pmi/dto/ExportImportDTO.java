@@ -14,7 +14,7 @@ public class ExportImportDTO {
         private Integer pointsCount;
         private String format;
 
-        // Getters and Setters
+
         public Long getFunctionId() { return functionId; }
         public void setFunctionId(Long functionId) { this.functionId = functionId; }
         public String getName() { return name; }
