@@ -1,0 +1,1180 @@
+{
+  "info": {
+    "name": "Math Functions API Tests with Basic Auth",
+    "description": "Тесты для API с Basic Auth аутентификацией",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api",
+      "type": "string"
+    },
+    {
+      "key": "adminUsername",
+      "value": "admin",
+      "type": "string"
+    },
+    {
+      "key": "adminPassword",
+      "value": "admin123",
+      "type": "string"
+    },
+    {
+      "key": "testUsername",
+      "value": "testuser_{{$timestamp}}",
+      "type": "string"
+    },
+    {
+      "key": "testPassword",
+      "value": "testpass123",
+      "type": "string"
+    },
+    {
+      "key": "adminAuth",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "testAuth",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "functionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "functionId2",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "pointId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "testUsername2",
+      "value": "testuser2_{{$timestamp}}",
+      "type": "string"
+    },
+    {
+      "key": "testPassword2",
+      "value": "testpass123",
+      "type": "string"
+    },
+    {
+      "key": "testAuth2",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId2",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "functionId3",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Setup Authentication",
+      "item": [
+        {
+          "name": "Get Admin Auth Token",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const base64Auth = btoa(pm.variables.get('adminUsername') + ':' + pm.variables.get('adminPassword'));",
+                  "pm.variables.set('adminAuth', 'Basic ' + base64Auth);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "me"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register Test User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('User registered successfully', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "    if (pm.response.code === 201) {",
+                  "        const jsonData = pm.response.json();",
+                  "        pm.variables.set('userId', jsonData.userId);",
+                  "        const base64Auth = btoa(pm.variables.get('testUsername') + ':' + pm.variables.get('testPassword'));",
+                  "        pm.variables.set('testAuth', 'Basic ' + base64Auth);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{testUsername}}\",\n  \"password\": \"{{testPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Register Second Test User",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const timestamp = new Date().getTime();",
+                  "pm.variables.set('testUsername2', 'testuser2_' + timestamp);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Second user registered successfully', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "    if (pm.response.code === 201) {",
+                  "        const jsonData = pm.response.json();",
+                  "        pm.variables.set('userId2', jsonData.userId);",
+                  "        const base64Auth = btoa(pm.variables.get('testUsername2') + ':' + pm.variables.get('testPassword2'));",
+                  "        pm.variables.set('testAuth2', 'Basic ' + base64Auth);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{testUsername2}}\",\n  \"password\": \"{{testPassword2}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "register"]
+            }
+          }
+        },
+        {
+          "name": "Create Third Function",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Third function created successfully', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "    if (pm.response.code === 201) {",
+                  "        const jsonData = pm.response.json();",
+                  "        pm.variables.set('functionId3', jsonData.functionId);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Third Test Function\",\n  \"sourceFunctionName\": \"Тождественная функция\",\n  \"leftX\": -5,\n  \"rightX\": 5,\n  \"pointsCount\": 50\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/functions/from-math-function",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions", "from-math-function"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users Operations",
+      "item": [
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "me"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User by ID (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update User Role (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/role?role=USER",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}", "role"],
+              "query": [
+                {
+                  "key": "role",
+                  "value": "USER"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Users by Username",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users?search=admin",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "admin"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Functions Operations",
+      "item": [
+        {
+          "name": "Create Function from Arrays",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Function created successfully', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "    if (pm.response.code === 201) {",
+                  "        const jsonData = pm.response.json();",
+                  "        pm.variables.set('functionId', jsonData.functionId);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Array Function\",\n  \"xValues\": [1, 2, 3, 4, 5],\n  \"yValues\": [1, 4, 9, 16, 25]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/functions/from-arrays?factoryType=ARRAY",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions", "from-arrays"],
+              "query": [
+                {
+                  "key": "factoryType",
+                  "value": "ARRAY"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Function from Math Function",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Math function created successfully', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "    if (pm.response.code === 201) {",
+                  "        const jsonData = pm.response.json();",
+                  "        pm.variables.set('functionId2', jsonData.functionId);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Math Function\",\n  \"sourceFunctionName\": \"Квадратичная функция\",\n  \"leftX\": -10,\n  \"rightX\": 10,\n  \"pointsCount\": 50\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/functions/from-math-function",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions", "from-math-function"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Composite Function",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Composite Function\",\n  \"outerFunctionName\": \"Квадратичная функция\",\n  \"innerFunctionName\": \"Тождественная функция\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/functions/composite",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions", "composite"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Functions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/functions",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Function by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/functions/{{functionId3}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions", "{{functionId3}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Function",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"functionName\": \"Updated Function Name\",\n  \"isPublic\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/functions/{{functionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions", "{{functionId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Function Points",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/functions/{{functionId}}/points",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions", "{{functionId}}", "points"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Compute Function Value",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"x\": 2.5\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/functions/{{functionId}}/compute",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions", "{{functionId}}", "compute"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Graph Data",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/functions/{{functionId}}/graph-data?pointsCount=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions", "{{functionId}}", "graph-data"],
+              "query": [
+                {
+                  "key": "pointsCount",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Functions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/functions?search=Test&type=TABULATED",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "Test"
+                },
+                {
+                  "key": "type",
+                  "value": "TABULATED"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Function",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/functions/{{functionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions", "{{functionId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Points Operations",
+      "item": [
+        {
+          "name": "Get Points with Range",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/points?functionId={{functionId2}}&xFrom=0&xTo=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["points"],
+              "query": [
+                {
+                  "key": "functionId",
+                  "value": "{{functionId2}}"
+                },
+                {
+                  "key": "xFrom",
+                  "value": "0"
+                },
+                {
+                  "key": "xTo",
+                  "value": "5"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Point",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Point added successfully', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "    if (pm.response.code === 201) {",
+                  "        const jsonData = pm.response.json();",
+                  "        pm.variables.set('pointId', jsonData.pointId);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"functionId\": \"{{functionId2}}\",\n  \"xValue\": 2.5,\n  \"yValue\": 6.25\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/points",
+              "host": ["{{baseUrl}}"],
+              "path": ["points"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Point by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/points/{{pointId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["points", "{{pointId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Point",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"yValue\": 7.0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/points/{{pointId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["points", "{{pointId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Points by Coordinates",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/points/search?x=2.5&y=6.25&functionId={{functionId2}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["points", "search"],
+              "query": [
+                {
+                  "key": "x",
+                  "value": "2.5"
+                },
+                {
+                  "key": "y",
+                  "value": "6.25"
+                },
+                {
+                  "key": "functionId",
+                  "value": "{{functionId2}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Point",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/points/{{pointId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["points", "{{pointId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Setup Access Test User",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const timestamp = new Date().getTime();",
+              "pm.variables.set('accessUsername', 'access_user_' + timestamp);",
+              "pm.variables.set('accessPassword', 'accesspass123');"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Access user created successfully', function() {",
+              "    pm.response.to.have.status(201);",
+              "    if (pm.response.code === 201) {",
+              "        const jsonData = pm.response.json();",
+              "        pm.variables.set('accessUserId', jsonData.userId);",
+              "        console.log('Access user ID:', jsonData.userId);",
+              "    }",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"{{accessUsername}}\",\n  \"password\": \"{{accessPassword}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/users/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["users", "register"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Access Operations",
+      "item": [
+        {
+          "name": "Get Function Access",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/access?functionId={{functionId2}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["access"],
+              "query": [
+                {
+                  "key": "functionId",
+                  "value": "{{functionId2}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Grant Access",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"functionId\": {{functionId2}},\n  \"userId\": {{accessUserId}},\n  \"accessType\": \"READ\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/access",
+              "host": ["{{baseUrl}}"],
+              "path": ["access"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Revoke Access",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/access?functionId={{functionId2}}&userId={{accessUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["access"],
+              "query": [
+                {
+                  "key": "functionId",
+                  "value": "{{functionId2}}"
+                },
+                {
+                  "key": "userId",
+                  "value": "{{accessUserId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Math Operations",
+      "item": [
+        {
+          "name": "Add Functions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"function1Id\": {{functionId2}},\n  \"function2Id\": {{functionId2}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/operations/add",
+              "host": ["{{baseUrl}}"],
+              "path": ["operations", "add"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Subtract Functions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"function1Id\": {{functionId2}},\n  \"function2Id\": {{functionId2}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/operations/subtract",
+              "host": ["{{baseUrl}}"],
+              "path": ["operations", "subtract"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Multiply Functions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"function1Id\": \"{{functionId2}}\",\n  \"function2Id\": \"{{functionId2}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/operations/multiply",
+              "host": ["{{baseUrl}}"],
+              "path": ["operations", "multiply"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Divide Functions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"function1Id\": \"{{functionId2}}\",\n  \"function2Id\": \"{{functionId2}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/operations/divide",
+              "host": ["{{baseUrl}}"],
+              "path": ["operations", "divide"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Differentiate Function",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"functionId\": \"{{functionId2}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/operations/differentiate",
+              "host": ["{{baseUrl}}"],
+              "path": ["operations", "differentiate"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Integrate Function",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"functionId\": \"{{functionId2}}\",\n  \"threadsCount\": 4\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/operations/integrate",
+              "host": ["{{baseUrl}}"],
+              "path": ["operations", "integrate"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Export/Import Operations",
+      "item": [
+        {
+          "name": "Export Function (JSON)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/functions/{{functionId2}}/export?format=json",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions", "{{functionId2}}", "export"],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global tests",
+          "pm.test('Status code is 2xx', function () {",
+          "    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+          "});",
+          "",
+          "pm.test('Response time is acceptable', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+          "});"
+        ]
+      }
+    }
+  ]
+}

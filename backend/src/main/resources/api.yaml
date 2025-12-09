@@ -1,0 +1,991 @@
+openapi: 3.0.0
+info:
+  title: Math Functions API
+  version: 1.0.0
+  description: API для работы с математическими функциями
+
+servers:
+  - url: http://localhost:8080/api
+    description: Local server
+
+
+security:
+  - basicAuth: []
+
+paths:
+  # ОПЕРАЦИИ С ПОЛЬЗОВАТЕЛЯМИ
+  /users/register:
+    post:
+      summary: Регистрация нового пользователя
+      tags: [Users]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                email:
+                  type: string
+      responses:
+        '201':
+          description: Пользователь создан
+        '400':
+          description: Неверные данные
+        '409':
+          description: Пользователь уже существует
+
+
+  /users/me:
+    get:
+      summary: Получение информации о текущем пользователе
+      tags: [Users]
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Не авторизован
+
+  /users/{id}:
+    get:
+      summary: Получение пользователя по ID
+      tags: [Users]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '404':
+          description: Пользователь не найден
+    put:
+      summary: Обновление пользователя
+      tags: [Users]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '404':
+          description: Пользователь не найден
+    delete:
+      summary: Удаление пользователя
+      tags: [Users]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Удалено
+        '404':
+          description: Пользователь не найден
+
+  /users/{id}/role:
+    put:
+      summary: Изменение роли пользователя
+      tags: [Users]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: role
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [USER, ADMIN]
+      responses:
+        '200':
+          description: Роль изменена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '404':
+          description: Пользователь не найден
+
+  /users:
+    get:
+      summary: Поиск пользователей
+      tags: [Users]
+      parameters:
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: role
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserShortResponse'
+
+  # ОПЕРАЦИИ С ФУНКЦИЯМИ
+  /functions/from-arrays:
+    post:
+      summary: Создать функцию из массивов x и y
+      tags: [Functions]
+      parameters:
+        - name: factoryType
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [ARRAY, LINKED_LIST]
+            default: ARRAY
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                xValues:
+                  type: array
+                  items:
+                    type: number
+                yValues:
+                  type: array
+                  items:
+                    type: number
+      responses:
+        '201':
+          description: Функция создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FunctionResponse'
+        '400':
+          description: Неверные данные
+
+  /functions/from-math-function:
+    post:
+      summary: Создать функцию из MathFunction
+      tags: [Functions]
+      parameters:
+        - name: factoryType
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [ARRAY, LINKED_LIST]
+            default: ARRAY
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                sourceFunctionName:
+                  type: string
+                leftX:
+                  type: number
+                rightX:
+                  type: number
+                pointsCount:
+                  type: integer
+      responses:
+        '201':
+          description: Функция создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FunctionResponse'
+        '400':
+          description: Неверные данные
+
+  /functions/composite:
+    post:
+      summary: Создать сложную функцию
+      tags: [Functions]
+      parameters:
+        - name: factoryType
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [ARRAY, LINKED_LIST]
+            default: ARRAY
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                outerFunctionName:
+                  type: string
+                innerFunctionName:
+                  type: string
+      responses:
+        '201':
+          description: Сложная функция создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FunctionResponse'
+
+  /functions:
+    get:
+      summary: Поиск функций с фильтрацией
+      tags: [Functions]
+      parameters:
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: ownerId
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: isPublic
+          in: query
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FunctionResponse'
+
+  /functions/{id}:
+    get:
+      summary: Получить функцию по ID
+      tags: [Functions]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FunctionResponse'
+        '404':
+          description: Функция не найдена
+    put:
+      summary: Обновить функцию
+      tags: [Functions]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FunctionUpdateRequest'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FunctionResponse'
+        '404':
+          description: Функция не найдена
+    delete:
+      summary: Удалить функцию
+      tags: [Functions]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Удалено
+        '404':
+          description: Функция не найдена
+
+  /functions/{id}/points:
+    get:
+      summary: Получить все точки функции
+      tags: [Functions]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PointResponse'
+
+  /functions/{id}/compute:
+    post:
+      summary: Вычислить значение функции в точке
+      tags: [Functions]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                x:
+                  type: number
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComputeResponse'
+
+  /functions/{id}/graph-data:
+    get:
+      summary: Получить данные для графика
+      tags: [Functions]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: pointsCount
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 200
+        - name: xFrom
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: xTo
+          in: query
+          required: false
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphDataResponse'
+
+  # ОПЕРАЦИИ С ТОЧКАМИ
+  /points:
+    get:
+      summary: Получить точки функции в диапазоне X
+      tags: [Points]
+      parameters:
+        - name: functionId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: xFrom
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: xTo
+          in: query
+          required: false
+          schema:
+            type: number
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PointResponse'
+    post:
+      summary: Добавить вычисленную точку
+      tags: [Points]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                functionId:
+                  type: integer
+                xValue:
+                  type: number
+                yValue:
+                  type: number
+      responses:
+        '201':
+          description: Точка добавлена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PointResponse'
+
+  /points/{id}:
+    get:
+      summary: Получить точку по ID
+      tags: [Points]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PointResponse'
+        '404':
+          description: Точка не найдена
+    put:
+      summary: Обновить точку
+      tags: [Points]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                yValue:
+                  type: number
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PointResponse'
+        '404':
+          description: Точка не найдена
+    delete:
+      summary: Удалить точку
+      tags: [Points]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Удалено
+        '404':
+          description: Точка не найдена
+
+  /points/search:
+    get:
+      summary: Найти точку по координатам
+      tags: [Points]
+      parameters:
+        - name: x
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: y
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: functionId
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PointResponse'
+
+  # ОПЕРАЦИИ С ДОСТУПОМ
+  /access:
+    get:
+      summary: Получить список пользователей с доступом к функции
+      tags: [Access]
+      parameters:
+        - name: functionId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccessResponse'
+    post:
+      summary: Предоставить доступ пользователю к функции
+      tags: [Access]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                functionId:
+                  type: integer
+                userId:
+                  type: integer
+                accessType:
+                  type: string
+                  enum: [READ, WRITE]
+      responses:
+        '201':
+          description: Доступ предоставлен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessResponse'
+    delete:
+      summary: Отозвать доступ
+      tags: [Access]
+      parameters:
+        - name: functionId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: userId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Доступ отозван
+
+  # МАТЕМАТИЧЕСКИЕ ОПЕРАЦИИ
+  /operations/add:
+    post:
+      summary: Сложение двух функций
+      tags: [Operations]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                function1Id:
+                  type: integer
+                function2Id:
+                  type: integer
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FunctionResponse'
+
+  /operations/subtract:
+    post:
+      summary: Вычитание функций
+      tags: [Operations]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                function1Id:
+                  type: integer
+                function2Id:
+                  type: integer
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FunctionResponse'
+
+  /operations/multiply:
+    post:
+      summary: Умножение функций
+      tags: [Operations]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                function1Id:
+                  type: integer
+                function2Id:
+                  type: integer
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FunctionResponse'
+
+  /operations/divide:
+    post:
+      summary: Деление функций
+      tags: [Operations]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                function1Id:
+                  type: integer
+                function2Id:
+                  type: integer
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FunctionResponse'
+
+  /operations/differentiate:
+    post:
+      summary: Продифференцировать функцию
+      tags: [Operations]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                functionId:
+                  type: integer
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FunctionResponse'
+
+  /operations/integrate:
+    post:
+      summary: Вычислить интеграл функции
+      tags: [Operations]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                functionId:
+                  type: integer
+                threadsCount:
+                  type: integer
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrateResponse'
+
+  # ЭКСПОРТ/ИМПОРТ
+  /functions/{id}/export:
+    post:
+      summary: Экспорт функции
+      tags: [ExportImport]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: format
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [json, xml, serialized]
+      responses:
+        '200':
+          description: Файл для скачивания
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+
+  /functions/import:
+    post:
+      summary: Импорт функции
+      tags: [ExportImport]
+      parameters:
+        - name: format
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [json, xml, serialized, auto]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Функция импортирована
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FunctionResponse'
+
+components:
+  schemas:
+    UserResponse:
+      type: object
+      properties:
+        userId:
+          type: integer
+        username:
+          type: string
+        role:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    UserShortResponse:
+      type: object
+      properties:
+        userId:
+          type: integer
+        username:
+          type: string
+        role:
+          type: string
+
+    UserUpdateRequest:
+      type: object
+      properties:
+        username:
+          type: string
+
+    FunctionResponse:
+      type: object
+      properties:
+        functionId:
+          type: integer
+        functionName:
+          type: string
+        functionType:
+          type: string
+        ownerId:
+          type: integer
+        isPublic:
+          type: boolean
+        pointsCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+
+    FunctionUpdateRequest:
+      type: object
+      properties:
+        functionName:
+          type: string
+        isPublic:
+          type: boolean
+
+    PointResponse:
+      type: object
+      properties:
+        pointId:
+          type: integer
+        functionId:
+          type: integer
+        xValue:
+          type: number
+        yValue:
+          type: number
+
+    AccessResponse:
+      type: object
+      properties:
+        accessId:
+          type: integer
+        userId:
+          type: integer
+        username:
+          type: string
+        accessType:
+          type: string
+        grantedAt:
+          type: string
+          format: date-time
+
+    GraphDataResponse:
+      type: object
+      properties:
+        functionId:
+          type: integer
+        functionName:
+          type: string
+        points:
+          type: array
+          items:
+            type: object
+            properties:
+              x:
+                type: number
+              y:
+                type: number
+        xRange:
+          type: object
+          properties:
+            min:
+              type: number
+            max:
+              type: number
+        yRange:
+          type: object
+          properties:
+            min:
+              type: number
+            max:
+              type: number
+
+    ComputeResponse:
+      type: object
+      properties:
+        x:
+          type: number
+        y:
+          type: number
+        interpolated:
+          type: boolean
+
+    IntegrateResponse:
+      type: object
+      properties:
+        result:
+          type: number
+        computationTime:
+          type: number
+
+
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: Basic authentication with username and password
