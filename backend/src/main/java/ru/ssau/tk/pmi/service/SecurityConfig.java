@@ -40,20 +40,31 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Отключаем CSRF для API
+                .csrf(csrf -> csrf.disable())
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless для REST API
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
-                        // Публичные endpoints
-                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                        // 1. Публичные endpoints
+                        .requestMatchers("/api/users/register").permitAll()  // Регистрация публичная
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/error").permitAll()
 
-                        // Admin endpoints
-                        .requestMatchers(ADMIN_ENDPOINTS).hasRole("ADMIN")
+                        // 2. /api/users/me для всех авторизованных
+                        .requestMatchers("/api/users/me").authenticated()
 
-                        // User endpoints
-                        .requestMatchers(USER_ENDPOINTS).hasAnyRole("USER", "ADMIN")
+                        // 3. Admin endpoints (операции над другими пользователями)
+                        .requestMatchers("/api/users/{id}/**").hasRole("ADMIN")
+                        .requestMatchers("/api/users/role/**").hasRole("ADMIN")
 
-                        // Все остальные запросы требуют аутентификации
+                        // 4. User endpoints
+                        .requestMatchers("/api/functions/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/api/points/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/api/operations/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/api/access/**").hasAnyRole("USER", "ADMIN")
+
+                        // 5. ВСЕ остальные /api/users/** - только ADMIN
+                        .requestMatchers("/api/users/**").hasRole("ADMIN")
+
+                        // 6. Все остальные запросы
                         .anyRequest().authenticated()
                 )
                 .httpBasic(httpBasic ->
@@ -62,6 +73,7 @@ public class SecurityConfig {
 
         return http.build();
     }
+
 
     @Bean
     public BasicAuthenticationEntryPoint basicAuthenticationEntryPoint() {

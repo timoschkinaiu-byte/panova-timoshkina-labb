@@ -1,42 +1,134 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+/* Сброс стилей */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Переменные для темной темы */
+:root {
+  /* Цвета для темной темы (по умолчанию) */
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #0a0a0a;
+  --card-bg: #000;
+  --text-primary: #ffffff;
+  --text-secondary: #cccccc;
+  --accent-color: #800000;
+  --accent-hover: #990000;
+  --accent-light: rgba(128, 0, 0, 0.1);
+  --border-color: #800000;
+  --input-bg: #111;
+  --input-border: #333;
+  --error-color: #ff2a2a;
+  --success-color: #00ff00;
+  --tab-inactive: #888;
+  --tab-bg: #111;
+}
+
+/* Цвета для светлой темы */
+.light-theme {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --card-bg: #ffffff;
+  --text-primary: #000000;
+  --text-secondary: #666666;
+  --accent-color: #FF97BB;
+  --accent-hover: #ff80b0;
+  --accent-light: rgba(255, 151, 187, 0.1);
+  --border-color: #FF97BB;
+  --input-bg: #f9f9f9;
+  --input-border: #e0e0e0;
+  --error-color: #ff2a2a;
+  --success-color: #00cc00;
+  --tab-inactive: #999;
+  --tab-bg: #f0f0f0;
+}
+
+/* Основные стили */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Основной контейнер */
+.app {
+  min-height: 100vh;
+}
+
+/* Убрать outline у кнопок при фокусе (но сохранить доступность) */
+button:focus {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+/* Скрыть стрелки у number input */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* Утилитные классы */
+.hidden {
+  display: none !important;
+}
+
+.text-accent {
+  color: var(--accent-color);
+}
+
+.text-center {
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* Кнопка переключения темы */
+.theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--accent-color);
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
-@keyframes logo-spin {
+.theme-toggle:hover {
+  transform: scale(1.1);
+}
+
+/* Анимации */
+@keyframes fadeIn {
   from {
-    transform: rotate(0deg);
+    opacity: 0;
+    transform: translateY(20px);
   }
   to {
-    transform: rotate(360deg);
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
 }
