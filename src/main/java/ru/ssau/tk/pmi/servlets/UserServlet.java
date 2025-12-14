@@ -5,16 +5,21 @@ import ru.ssau.tk.pmi.dto.DtoMapper;
 import ru.ssau.tk.pmi.repository.manual.UserDao;
 import ru.ssau.tk.pmi.repository.manual.JdbcUserDao;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.mindrot.jbcrypt.BCrypt;
+
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.*;
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.Logger;
 
 public class UserServlet extends BaseServlet {
     private static final Logger logger = Logger.getLogger(UserServlet.class.getName());
     private final ObjectMapper mapper = new ObjectMapper();
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response)
@@ -49,41 +54,57 @@ public class UserServlet extends BaseServlet {
 
                 String search = request.getParameter("search");
                 String role = request.getParameter("role");
+                String enabledParam = request.getParameter("enabled");
 
-                List<Map<String, Object>> allUsersData = new ArrayList<>();
-                for (long i = 1; i <= 10; i++) {
-                    Map<String, Object> userData = userDao.getUserById(i);
-                    if (userData != null) {
-                        allUsersData.add(userData);
-                    }
-                }
+                // Вместо getAllUsers() делаем запрос вручную
+                List<Map<String, Object>> allUsersData = getAllUsersFromDb(connection);
 
-                List<UserDto> userList = new ArrayList<>();
+                List<Map<String, Object>> filteredUsers = new ArrayList<>();
                 for (Map<String, Object> userData : allUsersData) {
-                    UserDto user = DtoMapper.mapToUserDto(userData);
-                    if (user != null) {
-                        boolean include = true;
+                    boolean include = true;
 
-                        if (search != null && !search.isEmpty()) {
-                            if (!user.getUsername().toLowerCase().contains(search.toLowerCase())) {
-                                include = false;
-                            }
+                    if (search != null && !search.isEmpty()) {
+                        String username = (String) userData.get("username");
+                        if (username == null || !username.toLowerCase().contains(search.toLowerCase())) {
+                            include = false;
+                        }
+                    }
+
+                    if (role != null && !role.isEmpty()) {
+                        String userRole = (String) userData.get("role");
+                        if (userRole == null || !userRole.equals(role)) {
+                            include = false;
+                        }
+                    }
+
+                    if (enabledParam != null && !enabledParam.isEmpty()) {
+                        Boolean enabled = (Boolean) userData.get("enabled");
+                        boolean enabledBool = Boolean.parseBoolean(enabledParam);
+                        if (enabled == null || enabled != enabledBool) {
+                            include = false;
+                        }
+                    }
+
+                    if (include) {
+                        Map<String, Object> userResponse = new HashMap<>();
+                        userResponse.put("userId", userData.get("user_id"));
+                        userResponse.put("username", userData.get("username"));
+                        userResponse.put("role", userData.get("role"));
+                        userResponse.put("enabled", userData.get("enabled"));
+
+                        Timestamp createdAt = (Timestamp) userData.get("created_at");
+                        if (createdAt != null) {
+                            userResponse.put("createdAt", createdAt.toLocalDateTime().format(DATE_FORMATTER));
+                        } else {
+                            userResponse.put("createdAt", LocalDateTime.now().format(DATE_FORMATTER));
                         }
 
-                        if (role != null && !role.isEmpty()) {
-                            if (!user.getRole().equals(role)) {
-                                include = false;
-                            }
-                        }
-
-                        if (include) {
-                            userList.add(user);
-                        }
+                        filteredUsers.add(userResponse);
                     }
                 }
 
-                mapper.writeValue(response.getWriter(), userList);
-                logger.info("SUCCESS: Returned " + userList.size() + " users");
+                mapper.writeValue(response.getWriter(), filteredUsers);
+                logger.info("SUCCESS: Returned " + filteredUsers.size() + " users");
 
             } else if (pathInfo.equals("/me")) {
                 logger.info("API: GET /api/users/me - Current user");
@@ -97,9 +118,15 @@ public class UserServlet extends BaseServlet {
                 Map<String, Object> userResponse = new HashMap<>();
                 userResponse.put("userId", currentUser.get("user_id"));
                 userResponse.put("username", currentUser.get("username"));
-                userResponse.put("email", "user@example.com");
                 userResponse.put("role", currentUser.get("role"));
-                userResponse.put("createdAt", new java.util.Date().toString());
+                userResponse.put("enabled", currentUser.get("enabled"));
+
+                Timestamp createdAt = (Timestamp) currentUser.get("created_at");
+                if (createdAt != null) {
+                    userResponse.put("createdAt", createdAt.toLocalDateTime().format(DATE_FORMATTER));
+                } else {
+                    userResponse.put("createdAt", LocalDateTime.now().format(DATE_FORMATTER));
+                }
 
                 mapper.writeValue(response.getWriter(), userResponse);
                 logger.info("SUCCESS: Returned current user info");
@@ -108,7 +135,7 @@ public class UserServlet extends BaseServlet {
                 Long userId = Long.parseLong(pathInfo.substring(1));
                 logger.info("API: GET /api/users/" + userId + " - User by ID");
 
-                if (!hasAccess(request, userId)) {
+                if (!hasAccess(request, userId) && !hasRole(request, "ADMIN")) {
                     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                     mapper.writeValue(response.getWriter(), Map.of("error", "Access denied"));
                     return;
@@ -119,9 +146,15 @@ public class UserServlet extends BaseServlet {
                     Map<String, Object> responseData = new HashMap<>();
                     responseData.put("userId", userData.get("user_id"));
                     responseData.put("username", userData.get("username"));
-                    responseData.put("email", "user@example.com");
                     responseData.put("role", userData.get("role"));
-                    responseData.put("createdAt", new java.util.Date().toString());
+                    responseData.put("enabled", userData.get("enabled"));
+
+                    Timestamp createdAt = (Timestamp) userData.get("created_at");
+                    if (createdAt != null) {
+                        responseData.put("createdAt", createdAt.toLocalDateTime().format(DATE_FORMATTER));
+                    } else {
+                        responseData.put("createdAt", LocalDateTime.now().format(DATE_FORMATTER));
+                    }
 
                     mapper.writeValue(response.getWriter(), responseData);
                     logger.info("SUCCESS: Returned user ID " + userId);
@@ -135,6 +168,28 @@ public class UserServlet extends BaseServlet {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             mapper.writeValue(response.getWriter(), Map.of("error", "Invalid request"));
         }
+    }
+
+    private List<Map<String, Object>> getAllUsersFromDb(Connection connection) {
+        List<Map<String, Object>> users = new ArrayList<>();
+        String sql = "SELECT user_id, username, role, enabled, created_at FROM users ORDER BY user_id";
+
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                Map<String, Object> user = new HashMap<>();
+                user.put("user_id", rs.getLong("user_id"));
+                user.put("username", rs.getString("username"));
+                user.put("role", rs.getString("role"));
+                user.put("enabled", rs.getBoolean("enabled"));
+                user.put("created_at", rs.getTimestamp("created_at"));
+                users.add(user);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching all users", e);
+        }
+        return users;
     }
 
     @Override
@@ -167,6 +222,12 @@ public class UserServlet extends BaseServlet {
                     return;
                 }
 
+                if (password.length() < 6) {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    mapper.writeValue(response.getWriter(), Map.of("error", "Password must be at least 6 characters"));
+                    return;
+                }
+
                 Map<String, Object> existingUser = userDao.getUserByUsername(username);
                 if (existingUser != null) {
                     response.setStatus(HttpServletResponse.SC_CONFLICT);
@@ -174,18 +235,22 @@ public class UserServlet extends BaseServlet {
                     return;
                 }
 
-                String passwordHash = "hashed_" + password;
+                String passwordHash = BCrypt.hashpw(password, BCrypt.gensalt());
                 String userRole = "USER";
-                userDao.insertUser(username, passwordHash, userRole);
+                Boolean enabled = true;
+                userDao.insertUser(username, passwordHash, userRole, enabled);
 
                 Map<String, Object> newUserData = userDao.getUserByUsername(username);
 
+                Map<String, Object> responseData = new HashMap<>();
+                responseData.put("message", "User created successfully");
+                responseData.put("userId", newUserData.get("user_id"));
+                responseData.put("username", newUserData.get("username"));
+                responseData.put("role", userRole);
+                responseData.put("enabled", enabled);
+
                 response.setStatus(HttpServletResponse.SC_CREATED);
-                mapper.writeValue(response.getWriter(), Map.of(
-                        "message", "User created successfully",
-                        "userId", newUserData.get("user_id"),
-                        "role", userRole
-                ));
+                mapper.writeValue(response.getWriter(), responseData);
                 logger.info("SUCCESS: Created user '" + username + "' with ID " + newUserData.get("user_id"));
 
             } else if (pathInfo != null && pathInfo.equals("/login")) {
@@ -197,14 +262,30 @@ public class UserServlet extends BaseServlet {
                 Map<String, Object> userData = userDao.getUserByUsername(username);
                 if (userData != null) {
                     String storedHash = (String) userData.get("password_hash");
-                    if (storedHash.equals("hashed_" + password)) {
+                    if (storedHash != null && BCrypt.checkpw(password, storedHash)) {
+                        Boolean enabled = (Boolean) userData.get("enabled");
+                        if (enabled == null || !enabled) {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            mapper.writeValue(response.getWriter(), Map.of("error", "User account is disabled"));
+                            logger.warning("Disabled user attempted login: " + username);
+                            return;
+                        }
+
+                        Map<String, Object> userResponse = new HashMap<>();
+                        userResponse.put("userId", userData.get("user_id"));
+                        userResponse.put("username", userData.get("username"));
+                        userResponse.put("role", userData.get("role"));
+                        userResponse.put("enabled", enabled);
+
+                        Timestamp createdAt = (Timestamp) userData.get("created_at");
+                        if (createdAt != null) {
+                            userResponse.put("createdAt", createdAt.toLocalDateTime().format(DATE_FORMATTER));
+                        }
+
                         Map<String, Object> responseData = new HashMap<>();
                         responseData.put("message", "Login successful");
-                        responseData.put("user", Map.of(
-                                "userId", userData.get("user_id"),
-                                "username", userData.get("username"),
-                                "role", userData.get("role")
-                        ));
+                        responseData.put("user", userResponse);
+
                         mapper.writeValue(response.getWriter(), responseData);
                         logger.info("SUCCESS: User '" + username + "' logged in");
                     } else {
@@ -254,7 +335,7 @@ public class UserServlet extends BaseServlet {
                 Long userId = Long.parseLong(pathInfo.substring(1));
                 logger.info("API: PUT /api/users/" + userId + " - Update user");
 
-                if (!hasAccess(request, userId)) {
+                if (!hasAccess(request, userId) && !hasRole(request, "ADMIN")) {
                     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                     mapper.writeValue(response.getWriter(), Map.of("error", "Access denied"));
                     return;
@@ -271,8 +352,18 @@ public class UserServlet extends BaseServlet {
                 String newUsername = username != null ? username : (String) existingUserData.get("username");
                 String passwordHash = (String) existingUserData.get("password_hash");
                 String role = (String) existingUserData.get("role");
+                Boolean enabled = (Boolean) existingUserData.get("enabled");
 
-                userDao.updateUser(userId, newUsername, passwordHash, role);
+                if (username != null && !username.equals(existingUserData.get("username"))) {
+                    Map<String, Object> userWithSameUsername = userDao.getUserByUsername(username);
+                    if (userWithSameUsername != null) {
+                        response.setStatus(HttpServletResponse.SC_CONFLICT);
+                        mapper.writeValue(response.getWriter(), Map.of("error", "Username already taken"));
+                        return;
+                    }
+                }
+
+                userDao.updateUser(userId, newUsername, passwordHash, role, enabled);
 
                 Map<String, Object> responseData = new HashMap<>();
                 responseData.put("message", "User updated successfully");
@@ -306,12 +397,41 @@ public class UserServlet extends BaseServlet {
                     return;
                 }
 
-                String username = (String) existingUserData.get("username");
-                String passwordHash = (String) existingUserData.get("password_hash");
-                userDao.updateUser(userId, username, passwordHash, role);
+                userDao.updateUserRole(userId, role);
 
-                mapper.writeValue(response.getWriter(), Map.of("message", "Role updated successfully"));
+                mapper.writeValue(response.getWriter(), Map.of(
+                        "message", "Role updated successfully",
+                        "userId", userId,
+                        "role", role
+                ));
                 logger.info("SUCCESS: Changed role for user " + userId + " to " + role);
+
+            } else if (pathInfo != null && pathInfo.matches("/\\d+/enabled")) {
+                Long userId = Long.parseLong(pathInfo.split("/")[1]);
+                Boolean enabled = getBooleanFromObject(updateData.get("enabled"));
+
+                logger.info("API: PUT /api/users/" + userId + "/enabled - Set enabled to " + enabled);
+
+                if (!hasRole(request, "ADMIN")) {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    mapper.writeValue(response.getWriter(), Map.of("error", "Admin access required"));
+                    return;
+                }
+
+                if (enabled == null) {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    mapper.writeValue(response.getWriter(), Map.of("error", "enabled parameter required"));
+                    return;
+                }
+
+                userDao.updateEnabledStatus(userId, enabled);
+
+                mapper.writeValue(response.getWriter(), Map.of(
+                        "message", "User enabled status updated",
+                        "userId", userId,
+                        "enabled", enabled
+                ));
+                logger.info("SUCCESS: Updated enabled status for user " + userId + " to " + enabled);
 
             } else {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -347,7 +467,7 @@ public class UserServlet extends BaseServlet {
                 Long userId = Long.parseLong(pathInfo.substring(1));
                 logger.info("API: DELETE /api/users/" + userId + " - Delete user");
 
-                if (!hasAccess(request, userId)) {
+                if (!hasAccess(request, userId) && !hasRole(request, "ADMIN")) {
                     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                     mapper.writeValue(response.getWriter(), Map.of("error", "Access denied"));
                     return;

@@ -1,0 +1,1892 @@
+{
+  "info": {
+    "name": "Lab 6 - Manual Branch API Tests",
+    "description": "Полные тесты для API на Java Servlet с Basic Auth и сравнением производительности",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "lab6-manual-api-tests"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/lab6-manual/api",
+      "type": "string"
+    },
+    {
+      "key": "adminUsername",
+      "value": "admin",
+      "type": "string"
+    },
+    {
+      "key": "adminPassword",
+      "value": "admin123",
+      "type": "string"
+    },
+    {
+      "key": "testUsername",
+      "value": "testuser_{{$timestamp}}",
+      "type": "string"
+    },
+    {
+      "key": "testPassword",
+      "value": "testpass123",
+      "type": "string"
+    },
+    {
+      "key": "testUsername2",
+      "value": "testuser2_{{$timestamp}}",
+      "type": "string"
+    },
+    {
+      "key": "testPassword2",
+      "value": "testpass123",
+      "type": "string"
+    },
+    {
+      "key": "adminAuth",
+      "value": "Basic YWRtaW46YWRtaW4xMjM=",
+      "type": "string"
+    },
+    {
+      "key": "testAuth",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "testAuth2",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId2",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "functionId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "functionId2",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "functionId3",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "pointId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "accessUserId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "responseTimes",
+      "value": "[]",
+      "type": "any"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. 🔐 Настройка аутентификации",
+      "item": [
+        {
+          "name": "Регистрация тестового пользователя",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const timestamp = new Date().getTime();",
+                  "pm.variables.set('testUsername', 'testuser_' + timestamp);",
+                  "console.log('Creating user:', pm.variables.get('testUsername'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Тестируем успешность регистрации",
+                  "pm.test('Статус код 201 - создан', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Ответ содержит ID пользователя', function() {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('userId');",
+                  "    pm.variables.set('userId', jsonData.userId);",
+                  "    console.log('User ID установлен:', jsonData.userId);",
+                  "});",
+                  "",
+                  "pm.test('Ответ содержит имя пользователя', function() {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('username');",
+                  "});",
+                  "",
+                  "// Сохраняем Basic Auth токен",
+                  "const username = pm.variables.get('testUsername');",
+                  "const password = pm.variables.get('testPassword');",
+                  "const base64Auth = btoa(username + ':' + password);",
+                  "pm.variables.set('testAuth', 'Basic ' + base64Auth);",
+                  "console.log('Auth token создан для:', username);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{testUsername}}\",\n  \"password\": \"{{testPassword}}\",\n  \"email\": \"{{testUsername}}@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Регистрация второго тестового пользователя",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const timestamp = new Date().getTime() + 1;",
+                  "pm.variables.set('testUsername2', 'testuser2_' + timestamp);",
+                  "console.log('Creating second user:', pm.variables.get('testUsername2'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Второй пользователь создан', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "// Сохраняем ID второго пользователя",
+                  "const jsonData = pm.response.json();",
+                  "if (pm.response.code === 201) {",
+                  "    pm.variables.set('userId2', jsonData.userId);",
+                  "    const base64Auth = btoa(pm.variables.get('testUsername2') + ':' + pm.variables.get('testPassword2'));",
+                  "    pm.variables.set('testAuth2', 'Basic ' + base64Auth);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{testUsername2}}\",\n  \"password\": \"{{testPassword2}}\",\n  \"email\": \"{{testUsername2}}@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "register"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. 👤 Операции с пользователями (UserServlet)",
+      "item": [
+        {
+          "name": "Вход пользователя",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Успешный вход', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.response.to.have.jsonBody('message', 'Login successful');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{testUsername}}\",\n  \"password\": \"{{testPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Получить текущего пользователя (требует Basic Auth)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Информация о пользователе получена', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('userId');",
+                  "    pm.expect(jsonData).to.have.property('username');",
+                  "    pm.expect(jsonData).to.have.property('role');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "me"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Получить пользователя по ID (только ADMIN)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Доступ ADMIN разрешен', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Замер времени ответа",
+                  "const responseTime = pm.response.responseTime;",
+                  "console.log('Время ответа:', responseTime, 'ms');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Поиск пользователей (только ADMIN)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Поиск пользователей работает', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users?search=test",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "test"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Изменение роли пользователя (ADMIN only)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Роль изменена', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.response.to.have.jsonBody('message');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/role?role=USER",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}", "role"],
+              "query": [
+                {
+                  "key": "role",
+                  "value": "USER"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. 📊 Операции с функциями (FunctionServlet)",
+      "item": [
+        {
+          "name": "Создание функции из массивов",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Функция создана успешно', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "    if (pm.response.code === 201) {",
+                  "        const jsonData = pm.response.json();",
+                  "        pm.variables.set('functionId', jsonData.functionId);",
+                  "        console.log('Function ID установлен:', jsonData.functionId);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Квадратичная функция (массив)\",\n  \"xValues\": [1, 2, 3, 4, 5],\n  \"yValues\": [1, 4, 9, 16, 25]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/functions/from-arrays",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions", "from-arrays"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Создание функции из математической функции",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Математическая функция создана', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "    if (pm.response.code === 201) {",
+                  "        const jsonData = pm.response.json();",
+                  "        pm.variables.set('functionId2', jsonData.functionId);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Синусоида\",\n  \"sourceFunctionName\": \"Синус\",\n  \"leftX\": 0,\n  \"rightX\": 6.28,\n  \"pointsCount\": 50\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/functions/from-math-function",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions", "from-math-function"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Создание композитной функции",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Композитная функция создана', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "    if (pm.response.code === 201) {",
+                  "        const jsonData = pm.response.json();",
+                  "        pm.variables.set('functionId3', jsonData.functionId);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{adminAuth}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Композитная функция\",\n  \"outerFunctionName\": \"Квадратичная функция\",\n  \"innerFunctionName\": \"Тождественная функция\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/functions/composite",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions", "composite"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Получение всех функций (публичных)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Список функций получен', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "    console.log('Найдено функций:', jsonData.length);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/functions?isPublic=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions"],
+              "query": [
+                {
+                  "key": "isPublic",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Получение функции по ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Функция найдена', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('functionId');",
+                  "    pm.expect(jsonData).to.have.property('functionName');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/functions/{{functionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions", "{{functionId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Поиск функций",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Поиск функций работает', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/functions?search=квадрат&type=TABULATED",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "квадрат"
+                },
+                {
+                  "key": "type",
+                  "value": "TABULATED"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Получение точек функции",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Точки функции получены', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "    console.log('Точек найдено:', jsonData.length);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/functions/{{functionId}}/points",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions", "{{functionId}}", "points"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Вычисление значения функции в точке",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Значение вычислено', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('x');",
+                  "    pm.expect(jsonData).to.have.property('y');",
+                  "    console.log('f(' + jsonData.x + ') = ' + jsonData.y);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"x\": 2.5\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/functions/{{functionId}}/compute",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions", "{{functionId}}", "compute"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Получение данных для графика",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Данные графика получены', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('points');",
+                  "    pm.expect(jsonData).to.have.property('xRange');",
+                  "    pm.expect(jsonData).to.have.property('yRange');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/functions/{{functionId}}/graph-data",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions", "{{functionId}}", "graph-data"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Обновление функции",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Функция обновлена', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.response.to.have.jsonBody('message');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"functionName\": \"Обновленная функция\",\n  \"isPublic\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/functions/{{functionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions", "{{functionId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4. 📍 Операции с точками (ComputedPointServlet)",
+      "item": [
+        {
+          "name": "Создание вычисленной точки",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Точка создана успешно', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "    if (pm.response.code === 201) {",
+                  "        const jsonData = pm.response.json();",
+                  "        pm.variables.set('pointId', jsonData.pointId);",
+                  "        console.log('Point ID установлен:', jsonData.pointId);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"functionId\": {{functionId}},\n  \"xValue\": 6.0,\n  \"yValue\": 36.0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/points",
+              "host": ["{{baseUrl}}"],
+              "path": ["points"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Получение точек с фильтрацией по X",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Точки с фильтрацией получены', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "    console.log('Отфильтровано точек:', jsonData.length);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/points?functionId={{functionId}}&xFrom=0&xTo=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["points"],
+              "query": [
+                {
+                  "key": "functionId",
+                  "value": "{{functionId}}"
+                },
+                {
+                  "key": "xFrom",
+                  "value": "0"
+                },
+                {
+                  "key": "xTo",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Поиск точек по координатам",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Поиск точек работает', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/points/search?x=1&y=1&functionId={{functionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["points", "search"],
+              "query": [
+                {
+                  "key": "x",
+                  "value": "1"
+                },
+                {
+                  "key": "y",
+                  "value": "1"
+                },
+                {
+                  "key": "functionId",
+                  "value": "{{functionId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Получение точки по ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Точка найдена по ID', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('pointId');",
+                  "    pm.expect(jsonData).to.have.property('xValue');",
+                  "    pm.expect(jsonData).to.have.property('yValue');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/points/{{pointId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["points", "{{pointId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Обновление точки",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Точка обновлена', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('pointId');",
+                  "    pm.expect(jsonData.yValue).to.equal(40.0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"yValue\": 40.0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/points/{{pointId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["points", "{{pointId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5. 🔐 Управление доступом (FunctionAccessServlet)",
+      "item": [
+        {
+          "name": "Предоставление доступа к функции",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Доступ предоставлен', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('accessId');",
+                  "    pm.expect(jsonData.accessType).to.equal('READ');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"functionId\": {{functionId}},\n  \"userId\": {{userId2}},\n  \"accessType\": \"READ\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/access",
+              "host": ["{{baseUrl}}"],
+              "path": ["access"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Получение списка доступа к функции",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Список доступа получен', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "    console.log('Пользователей с доступом:', jsonData.length);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/access?functionId={{functionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["access"],
+              "query": [
+                {
+                  "key": "functionId",
+                  "value": "{{functionId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Отзыв доступа к функции",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Доступ отозван', function() {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/access?functionId={{functionId}}&userId={{userId2}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["access"],
+              "query": [
+                {
+                  "key": "functionId",
+                  "value": "{{functionId}}"
+                },
+                {
+                  "key": "userId",
+                  "value": "{{userId2}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "6. ➕ Математические операции (OperationsServlet)",
+      "item": [
+        {
+          "name": "Сложение функций",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Функции сложены', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('functionId');",
+                  "    pm.expect(jsonData).to.have.property('functionName');",
+                  "    console.log('Результирующая функция ID:', jsonData.functionId);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"function1Id\": {{functionId}},\n  \"function2Id\": {{functionId2}},\n  \"factoryType\": \"ARRAY\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/operations/add",
+              "host": ["{{baseUrl}}"],
+              "path": ["operations", "add"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Вычитание функций",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Функции вычтены', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('functionId');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"function1Id\": {{functionId}},\n  \"function2Id\": {{functionId2}},\n  \"factoryType\": \"LINKED_LIST\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/operations/subtract",
+              "host": ["{{baseUrl}}"],
+              "path": ["operations", "subtract"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Умножение функций",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"function1Id\": {{functionId}},\n  \"function2Id\": {{functionId2}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/operations/multiply",
+              "host": ["{{baseUrl}}"],
+              "path": ["operations", "multiply"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Деление функций",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"function1Id\": {{functionId}},\n  \"function2Id\": {{functionId2}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/operations/divide",
+              "host": ["{{baseUrl}}"],
+              "path": ["operations", "divide"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Дифференцирование функции",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"functionId\": {{functionId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/operations/differentiate",
+              "host": ["{{baseUrl}}"],
+              "path": ["operations", "differentiate"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Интегрирование функции (многопоточное)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Интеграл вычислен', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('result');",
+                  "    pm.expect(jsonData).to.have.property('computationTime');",
+                  "    pm.expect(jsonData).to.have.property('threadsCount');",
+                  "    console.log('Результат интегрирования:', jsonData.result);",
+                  "    console.log('Время вычисления:', jsonData.computationTime, 'ms');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"functionId\": {{functionId}},\n  \"threadsCount\": 4\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/operations/integrate",
+              "host": ["{{baseUrl}}"],
+              "path": ["operations", "integrate"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "7. 📁 Импорт/Экспорт (FunctionExportServlet)",
+      "item": [
+        {
+          "name": "Экспорт функции в JSON",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Функция экспортирована', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('functionId');",
+                  "    pm.expect(jsonData).to.have.property('format');",
+                  "    pm.expect(jsonData).to.have.property('pointsCount');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/functions/{{functionId}}/export?format=json",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions", "{{functionId}}", "export"],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Экспорт функции в JSON с сжатием",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/functions/{{functionId}}/export?format=json&compress=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions", "{{functionId}}", "export"],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json"
+                },
+                {
+                  "key": "compress",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Импорт функции из JSON",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Функция импортирована', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('functionId');",
+                  "    pm.expect(jsonData).to.have.property('functionName');",
+                  "    pm.expect(jsonData).to.have.property('format');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"functionName\": \"Импортированная функция\",\n  \"pointsCount\": 10,\n  \"format\": \"json\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/functions/import?format=json",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions", "import"],
+              "query": [
+                {
+                  "key": "format",
+                  "value": "json"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "8. 🔍 Поиск и аналитика (SearchService)",
+      "item": [
+        {
+          "name": "Поиск функций по владельцу",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Поиск по владельцу работает', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an('array');",
+                  "    console.log('Найдено функций пользователя:', jsonData.length);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/search/functions?ownerId={{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["search", "functions"],
+              "query": [
+                {
+                  "key": "ownerId",
+                  "value": "{{userId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Поиск точек по значению X",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/search/points?xValue=2.5",
+              "host": ["{{baseUrl}}"],
+              "path": ["search", "points"],
+              "query": [
+                {
+                  "key": "xValue",
+                  "value": "2.5"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "9. ⚡ Тесты производительности и сравнение",
+      "item": [
+        {
+          "name": "Тест 1: Публичный запрос (без аутентификации)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Сохраняем время ответа для сравнения",
+                  "const responseTime = pm.response.responseTime;",
+                  "console.log('PUBLIC REQUEST - Время:', responseTime, 'ms');",
+                  "",
+                  "// Сохраняем в переменную для отчета",
+                  "let times = [];",
+                  "try {",
+                  "    times = JSON.parse(pm.variables.get('responseTimes'));",
+                  "} catch (e) {",
+                  "    times = [];",
+                  "}",
+                  "times.push({",
+                  "    test: 'Публичный запрос',",
+                  "    time: responseTime,",
+                  "    endpoint: '/api/functions?isPublic=true'",
+                  "});",
+                  "pm.variables.set('responseTimes', JSON.stringify(times));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/functions?isPublic=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Тест 2: Аутентифицированный запрос",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseTime = pm.response.responseTime;",
+                  "console.log('AUTH REQUEST - Время:', responseTime, 'ms');",
+                  "",
+                  "let times = JSON.parse(pm.variables.get('responseTimes'));",
+                  "times.push({",
+                  "    test: 'Аутентифицированный запрос',",
+                  "    time: responseTime,",
+                  "    endpoint: '/api/users/me'",
+                  "});",
+                  "pm.variables.set('responseTimes', JSON.stringify(times));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "me"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Тест 3: Создание функции",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseTime = pm.response.responseTime;",
+                  "console.log('CREATE FUNCTION - Время:', responseTime, 'ms');",
+                  "",
+                  "let times = JSON.parse(pm.variables.get('responseTimes'));",
+                  "times.push({",
+                  "    test: 'Создание функции',",
+                  "    time: responseTime,",
+                  "    endpoint: '/api/functions/from-arrays'",
+                  "});",
+                  "pm.variables.set('responseTimes', JSON.stringify(times));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Перф тест функция\",\n  \"xValues\": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],\n  \"yValues\": [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/functions/from-arrays",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions", "from-arrays"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Тест 4: Математическая операция (сложение)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseTime = pm.response.responseTime;",
+                  "console.log('MATH OPERATION - Время:', responseTime, 'ms');",
+                  "",
+                  "let times = JSON.parse(pm.variables.get('responseTimes'));",
+                  "times.push({",
+                  "    test: 'Сложение функций',",
+                  "    time: responseTime,",
+                  "    endpoint: '/api/operations/add'",
+                  "});",
+                  "pm.variables.set('responseTimes', JSON.stringify(times));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"function1Id\": {{functionId}},\n  \"function2Id\": {{functionId2}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/operations/add",
+              "host": ["{{baseUrl}}"],
+              "path": ["operations", "add"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Тест 5: Комплексный запрос (график + точки)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const responseTime = pm.response.responseTime;",
+                  "console.log('COMPLEX QUERY - Время:', responseTime, 'ms');",
+                  "",
+                  "let times = JSON.parse(pm.variables.get('responseTimes'));",
+                  "times.push({",
+                  "    test: 'Данные графика',",
+                  "    time: responseTime,",
+                  "    endpoint: '/api/functions/{{functionId}}/graph-data'",
+                  "});",
+                  "pm.variables.set('responseTimes', JSON.stringify(times));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/functions/{{functionId}}/graph-data",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions", "{{functionId}}", "graph-data"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Генерация отчета о производительности",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Генерация отчета о производительности",
+                  "try {",
+                  "    const times = JSON.parse(pm.variables.get('responseTimes'));",
+                  "    console.log('\\n📊 ОТЧЕТ О ПРОИЗВОДИТЕЛЬНОСТИ');",
+                  "    console.log('================================');",
+                  "    ",
+                  "    let totalTime = 0;",
+                  "    let minTime = Number.MAX_SAFE_INTEGER;",
+                  "    let maxTime = 0;",
+                  "    ",
+                  "    times.forEach(item => {",
+                  "        console.log(`${item.test}: ${item.time} ms`);",
+                  "        totalTime += item.time;",
+                  "        if (item.time < minTime) minTime = item.time;",
+                  "        if (item.time > maxTime) maxTime = item.time;",
+                  "    });",
+                  "    ",
+                  "    const avgTime = totalTime / times.length;",
+                  "    console.log('\\n📈 СТАТИСТИКА:');",
+                  "    console.log(`Всего тестов: ${times.length}`);",
+                  "    console.log(`Среднее время: ${avgTime.toFixed(2)} ms`);",
+                  "    console.log(`Минимальное время: ${minTime} ms`);",
+                  "    console.log(`Максимальное время: ${maxTime} ms`);",
+                  "    console.log(`Общее время: ${totalTime.toFixed(2)} ms`);",
+                  "    ",
+                  "    // Сохраняем отчет в переменную для экспорта",
+                  "    const report = {",
+                  "        timestamp: new Date().toISOString(),",
+                  "        tests: times,",
+                  "        statistics: {",
+                  "            totalTests: times.length,",
+                  "            averageTime: avgTime,",
+                  "            minTime: minTime,",
+                  "            maxTime: maxTime,",
+                  "            totalTime: totalTime",
+                  "        }",
+                  "    };",
+                  "    ",
+                  "    pm.variables.set('performanceReport', JSON.stringify(report, null, 2));",
+                  "    console.log('\\n✅ Отчет сохранен в переменной performanceReport');",
+                  "    ",
+                  "} catch (e) {",
+                  "    console.log('Ошибка при генерации отчета:', e.message);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "me"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "10. 🧹 Очистка тестовых данных",
+      "item": [
+        {
+          "name": "Удаление тестовой точки",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/points/{{pointId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["points", "{{pointId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Удаление тестовой функции",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "{{testAuth}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/functions/{{functionId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["functions", "{{functionId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Глобальный pre-request скрипт",
+          "console.log('Запуск теста: ' + pm.info.requestName);"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Глобальные тесты для всех запросов",
+          "pm.test('Время ответа приемлемое', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(10000);",
+          "});",
+          "",
+          "// Проверка заголовков CORS",
+          "pm.test('CORS заголовки присутствуют', function () {",
+          "    pm.response.to.have.header('Access-Control-Allow-Origin');",
+          "    pm.response.to.have.header('Access-Control-Allow-Methods');",
+          "});",
+          "",
+          "// Проверка формата ответа для успешных запросов",
+          "if (pm.response.code === 200 || pm.response.code === 201) {",
+          "    pm.test('Ответ в формате JSON', function () {",
+          "        pm.response.to.be.json;",
+          "    });",
+          "}"
+        ]
+      }
+    }
+  ],
+  "auth": null
+}

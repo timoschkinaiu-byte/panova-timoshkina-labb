@@ -55,11 +55,15 @@ public class FunctionServlet extends BaseServlet {
                         Map<String, Object> functionMap = new HashMap<>();
                         functionMap.put("functionId", functionData.get("function_id"));
                         functionMap.put("functionName", functionData.get("function_name"));
-                        functionMap.put("functionType", "TABULATED");
+                        // ИСПРАВЛЕНО: Используем function_type из БД
+                        functionMap.put("functionType", functionData.get("function_type"));
                         functionMap.put("ownerId", ownerId);
                         functionMap.put("isPublic", isPublic);
                         functionMap.put("pointsCount", pointDao.getComputedPointsByFunctionId((Long)functionData.get("function_id")).size());
-                        functionMap.put("createdAt", new java.util.Date().toString());
+                        // ИСПРАВЛЕНО: Используем created_at из БД
+                        Timestamp createdAt = (Timestamp) functionData.get("created_at");
+                        functionMap.put("createdAt", createdAt != null ?
+                                createdAt.toInstant().toString() : new java.util.Date().toString());
                         functionList.add(functionMap);
                     }
                 }
@@ -169,11 +173,15 @@ public class FunctionServlet extends BaseServlet {
                     Map<String, Object> responseData = new HashMap<>();
                     responseData.put("functionId", functionData.get("function_id"));
                     responseData.put("functionName", functionData.get("function_name"));
-                    responseData.put("functionType", "TABULATED");
+                    // ИСПРАВЛЕНО: Используем function_type из БД
+                    responseData.put("functionType", functionData.get("function_type"));
                     responseData.put("ownerId", ownerId);
                     responseData.put("isPublic", isPublic);
                     responseData.put("pointsCount", pointDao.getComputedPointsByFunctionId(functionId).size());
-                    responseData.put("createdAt", new java.util.Date().toString());
+                    // ИСПРАВЛЕНО: Используем created_at из БД
+                    Timestamp createdAt = (Timestamp) functionData.get("created_at");
+                    responseData.put("createdAt", createdAt != null ?
+                            createdAt.toInstant().toString() : new java.util.Date().toString());
 
                     mapper.writeValue(response.getWriter(), responseData);
                     logger.info("SUCCESS: Returned function ID " + functionId);
@@ -245,14 +253,22 @@ public class FunctionServlet extends BaseServlet {
                         finalOwnerId, isPublic != null ? isPublic : false);
 
                 if (functionId != null) {
+                    // Получаем созданную функцию, чтобы получить все поля из БД
+                    Map<String, Object> createdFunction = functionDao.getFunctionById(functionId);
+
                     Map<String, Object> responseData = new HashMap<>();
                     responseData.put("functionId", functionId);
                     responseData.put("functionName", functionName);
-                    responseData.put("functionType", "TABULATED");
+                    responseData.put("functionType", createdFunction != null ?
+                            createdFunction.get("function_type") : "TABULATED");
                     responseData.put("ownerId", finalOwnerId);
                     responseData.put("isPublic", isPublic != null ? isPublic : false);
                     responseData.put("pointsCount", 0);
-                    responseData.put("createdAt", new java.util.Date().toString());
+                    // Используем created_at из БД
+                    Timestamp createdAt = createdFunction != null ?
+                            (Timestamp) createdFunction.get("created_at") : null;
+                    responseData.put("createdAt", createdAt != null ?
+                            createdAt.toInstant().toString() : new java.util.Date().toString());
 
                     response.setStatus(HttpServletResponse.SC_CREATED);
                     mapper.writeValue(response.getWriter(), responseData);
@@ -283,14 +299,21 @@ public class FunctionServlet extends BaseServlet {
                         pointDao.insertComputedPoint(functionId, xValues.get(i), yValues.get(i));
                     }
 
+                    // Получаем созданную функцию для всех полей
+                    Map<String, Object> createdFunction = functionDao.getFunctionById(functionId);
+
                     Map<String, Object> responseData = new HashMap<>();
                     responseData.put("functionId", functionId);
                     responseData.put("functionName", name);
-                    responseData.put("functionType", "TABULATED");
+                    responseData.put("functionType", createdFunction != null ?
+                            createdFunction.get("function_type") : "TABULATED");
                     responseData.put("ownerId", currentUserId);
                     responseData.put("isPublic", true);
                     responseData.put("pointsCount", xValues.size());
-                    responseData.put("createdAt", new java.util.Date().toString());
+                    Timestamp createdAt = createdFunction != null ?
+                            (Timestamp) createdFunction.get("created_at") : null;
+                    responseData.put("createdAt", createdAt != null ?
+                            createdAt.toInstant().toString() : new java.util.Date().toString());
 
                     response.setStatus(HttpServletResponse.SC_CREATED);
                     mapper.writeValue(response.getWriter(), responseData);
@@ -323,14 +346,20 @@ public class FunctionServlet extends BaseServlet {
                         pointDao.insertComputedPoint(functionId, x, y);
                     }
 
+                    Map<String, Object> createdFunction = functionDao.getFunctionById(functionId);
+
                     Map<String, Object> responseData = new HashMap<>();
                     responseData.put("functionId", functionId);
                     responseData.put("functionName", name);
-                    responseData.put("functionType", "TABULATED");
+                    responseData.put("functionType", createdFunction != null ?
+                            createdFunction.get("function_type") : "TABULATED");
                     responseData.put("ownerId", currentUserId);
                     responseData.put("isPublic", true);
                     responseData.put("pointsCount", pointsCount);
-                    responseData.put("createdAt", new java.util.Date().toString());
+                    Timestamp createdAt = createdFunction != null ?
+                            (Timestamp) createdFunction.get("created_at") : null;
+                    responseData.put("createdAt", createdAt != null ?
+                            createdAt.toInstant().toString() : new java.util.Date().toString());
 
                     response.setStatus(HttpServletResponse.SC_CREATED);
                     mapper.writeValue(response.getWriter(), responseData);
@@ -360,14 +389,20 @@ public class FunctionServlet extends BaseServlet {
                         pointDao.insertComputedPoint(functionId, x, y);
                     }
 
+                    Map<String, Object> createdFunction = functionDao.getFunctionById(functionId);
+
                     Map<String, Object> responseData = new HashMap<>();
                     responseData.put("functionId", functionId);
                     responseData.put("functionName", name);
-                    responseData.put("functionType", "TABULATED");
+                    responseData.put("functionType", createdFunction != null ?
+                            createdFunction.get("function_type") : "TABULATED");
                     responseData.put("ownerId", currentUserId);
                     responseData.put("isPublic", true);
                     responseData.put("pointsCount", 41);
-                    responseData.put("createdAt", new java.util.Date().toString());
+                    Timestamp createdAt = createdFunction != null ?
+                            (Timestamp) createdFunction.get("created_at") : null;
+                    responseData.put("createdAt", createdAt != null ?
+                            createdAt.toInstant().toString() : new java.util.Date().toString());
 
                     response.setStatus(HttpServletResponse.SC_CREATED);
                     mapper.writeValue(response.getWriter(), responseData);

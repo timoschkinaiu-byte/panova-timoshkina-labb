@@ -43,125 +43,111 @@ public class ComputedPointServlet extends BaseServlet {
             FunctionDao functionDao = new JdbcFunctionDao(connection);
 
             if (pathInfo == null || pathInfo.equals("/")) {
-                logger.info("API: GET /api/points - Search points with filters");
+                logger.info("API: GET /api/points - Get points with filters");
 
-                String functionIdParam = request.getParameter("functionId");
-                String xFrom = request.getParameter("xFrom");
-                String xTo = request.getParameter("xTo");
+                Long functionId = getLongFromObject(request.getParameter("functionId"));
+                Double xFrom = getDoubleFromObject(request.getParameter("xFrom"));
+                Double xTo = getDoubleFromObject(request.getParameter("xTo"));
 
-                List<Map<String, Object>> pointsData;
-
-                if (functionIdParam != null && !functionIdParam.isEmpty()) {
-                    Long funcId = Long.parseLong(functionIdParam);
-
-                    // Проверка доступа к функции
-                    Map<String, Object> functionData = functionDao.getFunctionById(funcId);
-                    if (functionData != null) {
-                        Long ownerId = (Long) functionData.get("owner_id");
-                        Boolean isPublic = (Boolean) functionData.get("is_public");
-
-                        if (!isPublic && !hasAccess(request, ownerId)) {
-                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                            mapper.writeValue(response.getWriter(), Map.of("error", "Access denied to function"));
-                            return;
-                        }
-                    }
-
-                    pointsData = pointDao.getComputedPointsByFunctionId(funcId);
-                    logger.info("Filtered by functionId: " + funcId);
-                } else {
-                    // Получаем все точки, но фильтруем по доступным функциям
-                    pointsData = pointDao.getAllComputedPoints();
-                    List<Map<String, Object>> accessiblePoints = new ArrayList<>();
-
-                    for (Map<String, Object> point : pointsData) {
-                        Long currentFuncId = (Long) point.get("function_id");
-                        Map<String, Object> functionData = functionDao.getFunctionById(currentFuncId);
-                        if (functionData != null) {
-                            Long ownerId = (Long) functionData.get("owner_id");
-                            Boolean isPublic = (Boolean) functionData.get("is_public");
-
-                            if (isPublic || hasAccess(request, ownerId)) {
-                                accessiblePoints.add(point);
-                            }
-                        }
-                    }
-                    pointsData = accessiblePoints;
+                if (functionId == null) {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    mapper.writeValue(response.getWriter(), Map.of("error", "functionId parameter is required"));
+                    return;
                 }
 
-                // Фильтрация по диапазону X
+                // Проверка доступа к функции
+                Map<String, Object> functionData = functionDao.getFunctionById(functionId);
+                if (functionData == null) {
+                    response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                    mapper.writeValue(response.getWriter(), Map.of("error", "Function not found"));
+                    return;
+                }
+
+                Long ownerId = (Long) functionData.get("owner_id");
+                Boolean isPublic = (Boolean) functionData.get("is_public");
+
+                if (!isPublic && !hasAccess(request, ownerId)) {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    mapper.writeValue(response.getWriter(), Map.of("error", "Access denied to function"));
+                    return;
+                }
+
+                List<Map<String, Object>> pointsData = pointDao.getComputedPointsByFunctionId(functionId);
                 List<Map<String, Object>> filteredPoints = new ArrayList<>();
+
+                // Фильтрация по диапазону X
                 for (Map<String, Object> pointData : pointsData) {
                     double xValue = (Double) pointData.get("x_value");
 
                     boolean include = true;
-                    if (xFrom != null && !xFrom.isEmpty()) {
-                        double xFromVal = Double.parseDouble(xFrom);
-                        if (xValue < xFromVal) include = false;
-                    }
-                    if (xTo != null && !xTo.isEmpty()) {
-                        double xToVal = Double.parseDouble(xTo);
-                        if (xValue > xToVal) include = false;
-                    }
+                    if (xFrom != null && xValue < xFrom) include = false;
+                    if (xTo != null && xValue > xTo) include = false;
 
                     if (include) {
-                        filteredPoints.add(pointData);
+                        Map<String, Object> pointMap = new HashMap<>();
+                        pointMap.put("pointId", pointData.get("point_id"));
+                        pointMap.put("functionId", pointData.get("function_id"));
+                        pointMap.put("xValue", pointData.get("x_value"));
+                        pointMap.put("yValue", pointData.get("y_value"));
+                        filteredPoints.add(pointMap);
                     }
                 }
 
                 mapper.writeValue(response.getWriter(), filteredPoints);
-                logger.info("SUCCESS: Returned " + filteredPoints.size() + " points after filtering");
+                logger.info("SUCCESS: Returned " + filteredPoints.size() + " points for function " + functionId);
 
             } else if (pathInfo.equals("/search")) {
-                logger.info("API: GET /api/points/search - Search points by coordinates");
+                logger.info("API: GET /api/points/search - Search points");
 
-                String x = request.getParameter("x");
-                String y = request.getParameter("y");
-                String functionIdParam = request.getParameter("functionId");
+                Double x = getDoubleFromObject(request.getParameter("x"));
+                Double y = getDoubleFromObject(request.getParameter("y"));
+                Long functionId = getLongFromObject(request.getParameter("functionId"));
 
                 List<Map<String, Object>> allPoints = pointDao.getAllComputedPoints();
                 List<Map<String, Object>> searchResults = new ArrayList<>();
 
                 for (Map<String, Object> point : allPoints) {
-                    // Проверка доступа к точке
                     Long currentFuncId = (Long) point.get("function_id");
+
+                    // Проверка доступа
                     Map<String, Object> functionData = functionDao.getFunctionById(currentFuncId);
                     if (functionData != null) {
                         Long ownerId = (Long) functionData.get("owner_id");
                         Boolean isPublic = (Boolean) functionData.get("is_public");
 
                         if (!isPublic && !hasAccess(request, ownerId)) {
-                            continue; // Пропускаем точки без доступа
+                            continue;
                         }
                     }
 
                     boolean match = true;
 
-                    if (x != null && !x.isEmpty()) {
-                        double xVal = Double.parseDouble(x);
+                    if (functionId != null && !functionId.equals(currentFuncId)) {
+                        match = false;
+                    }
+
+                    if (x != null) {
                         double pointX = (Double) point.get("x_value");
-                        if (Math.abs(pointX - xVal) > 0.001) match = false;
+                        if (Math.abs(pointX - x) > 0.0001) match = false;
                     }
 
-                    if (y != null && !y.isEmpty()) {
-                        double yVal = Double.parseDouble(y);
+                    if (y != null) {
                         double pointY = (Double) point.get("y_value");
-                        if (Math.abs(pointY - yVal) > 0.001) match = false;
-                    }
-
-                    if (functionIdParam != null && !functionIdParam.isEmpty()) {
-                        Long searchFuncId = Long.parseLong(functionIdParam);
-                        Long pointFunctionId = (Long) point.get("function_id");
-                        if (!pointFunctionId.equals(searchFuncId)) match = false;
+                        if (Math.abs(pointY - y) > 0.0001) match = false;
                     }
 
                     if (match) {
-                        searchResults.add(point);
+                        Map<String, Object> pointMap = new HashMap<>();
+                        pointMap.put("pointId", point.get("point_id"));
+                        pointMap.put("functionId", point.get("function_id"));
+                        pointMap.put("xValue", point.get("x_value"));
+                        pointMap.put("yValue", point.get("y_value"));
+                        searchResults.add(pointMap);
                     }
                 }
 
                 mapper.writeValue(response.getWriter(), searchResults);
-                logger.info("SUCCESS: Found " + searchResults.size() + " points by search");
+                logger.info("SUCCESS: Found " + searchResults.size() + " points");
 
             } else {
                 Long pointId = Long.parseLong(pathInfo.substring(1));
@@ -169,9 +155,9 @@ public class ComputedPointServlet extends BaseServlet {
 
                 Map<String, Object> pointData = pointDao.getComputedPointById(pointId);
                 if (pointData != null) {
-                    // Проверка доступа к точке через функцию
-                    Long currentFuncId = (Long) pointData.get("function_id");
-                    Map<String, Object> functionData = functionDao.getFunctionById(currentFuncId);
+                    Long functionId = (Long) pointData.get("function_id");
+                    Map<String, Object> functionData = functionDao.getFunctionById(functionId);
+
                     if (functionData != null) {
                         Long ownerId = (Long) functionData.get("owner_id");
                         Boolean isPublic = (Boolean) functionData.get("is_public");
@@ -183,8 +169,13 @@ public class ComputedPointServlet extends BaseServlet {
                         }
                     }
 
-                    ComputedPointDto point = DtoMapper.mapToComputedPointDto(pointData);
-                    mapper.writeValue(response.getWriter(), point);
+                    Map<String, Object> responseData = new HashMap<>();
+                    responseData.put("pointId", pointData.get("point_id"));
+                    responseData.put("functionId", pointData.get("function_id"));
+                    responseData.put("xValue", pointData.get("x_value"));
+                    responseData.put("yValue", pointData.get("y_value"));
+
+                    mapper.writeValue(response.getWriter(), responseData);
                     logger.info("SUCCESS: Returned point: " + pointId);
                 } else {
                     response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -193,8 +184,8 @@ public class ComputedPointServlet extends BaseServlet {
             }
         } catch (Exception e) {
             logger.severe("ERROR in GET: " + e.getMessage());
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            mapper.writeValue(response.getWriter(), Map.of("error", "Invalid request"));
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            mapper.writeValue(response.getWriter(), Map.of("error", "Server error"));
         }
     }
 
@@ -218,8 +209,6 @@ public class ComputedPointServlet extends BaseServlet {
             FunctionDao functionDao = new JdbcFunctionDao(connection);
 
             String requestBody = getRequestBody(request);
-            logger.info("Request Body: " + requestBody);
-
             Map<String, Object> body = mapper.readValue(requestBody, Map.class);
 
             logger.info("API: POST /api/points - Create computed point");
@@ -230,11 +219,11 @@ public class ComputedPointServlet extends BaseServlet {
 
             if (functionId == null || xValue == null || yValue == null) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                mapper.writeValue(response.getWriter(), Map.of("error", "functionId, xValue and yValue required"));
+                mapper.writeValue(response.getWriter(), Map.of("error", "functionId, xValue and yValue are required"));
                 return;
             }
 
-            // Проверка доступа к функции
+            // Проверка доступа
             Map<String, Object> functionData = functionDao.getFunctionById(functionId);
             if (functionData == null) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -249,15 +238,34 @@ public class ComputedPointServlet extends BaseServlet {
                 return;
             }
 
+// ========== ДОБАВЛЕННЫЙ КОД ==========
+// Проверка на дубликат X
+            List<Map<String, Object>> existingPoints = pointDao.getComputedPointsByFunctionId(functionId);
+            for (Map<String, Object> existingPoint : existingPoints) {
+                double existingX = (Double) existingPoint.get("x_value");
+                if (Math.abs(existingX - xValue) < 0.000001) {
+                    response.setStatus(HttpServletResponse.SC_CONFLICT);
+                    mapper.writeValue(response.getWriter(), Map.of(
+                            "error", "Point with X=" + xValue + " already exists for this function"
+                    ));
+                    logger.warning("Duplicate point creation attempt: function=" + functionId + ", x=" + xValue);
+                    return;
+                }
+            }
+// =====================================
+
             Long pointId = pointDao.insertComputedPoint(functionId, xValue, yValue);
 
             if (pointId != null) {
+                Map<String, Object> responseData = new HashMap<>();
+                responseData.put("pointId", pointId);
+                responseData.put("functionId", functionId);
+                responseData.put("xValue", xValue);
+                responseData.put("yValue", yValue);
+
                 response.setStatus(HttpServletResponse.SC_CREATED);
-                mapper.writeValue(response.getWriter(), Map.of(
-                        "message", "Point created successfully",
-                        "pointId", pointId
-                ));
-                logger.info("SUCCESS: Created point ID " + pointId + " for function " + functionId);
+                mapper.writeValue(response.getWriter(), responseData);
+                logger.info("SUCCESS: Created point ID " + pointId);
             } else {
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 mapper.writeValue(response.getWriter(), Map.of("error", "Failed to create point"));
@@ -265,8 +273,8 @@ public class ComputedPointServlet extends BaseServlet {
 
         } catch (Exception e) {
             logger.severe("ERROR in POST: " + e.getMessage());
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            mapper.writeValue(response.getWriter(), Map.of("error", "Invalid request"));
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            mapper.writeValue(response.getWriter(), Map.of("error", "Server error"));
         }
     }
 
@@ -292,8 +300,6 @@ public class ComputedPointServlet extends BaseServlet {
             FunctionDao functionDao = new JdbcFunctionDao(connection);
 
             String requestBody = getRequestBody(request);
-            logger.info("Request Body: " + requestBody);
-
             Map<String, Object> body = mapper.readValue(requestBody, Map.class);
 
             if (pathInfo != null && !pathInfo.equals("/")) {
@@ -307,9 +313,9 @@ public class ComputedPointServlet extends BaseServlet {
                     return;
                 }
 
-                // Проверка доступа через функцию
-                Long currentFuncId = (Long) existingPoint.get("function_id");
-                Map<String, Object> functionData = functionDao.getFunctionById(currentFuncId);
+                // Проверка доступа
+                Long functionId = (Long) existingPoint.get("function_id");
+                Map<String, Object> functionData = functionDao.getFunctionById(functionId);
                 if (functionData != null) {
                     Long ownerId = (Long) functionData.get("owner_id");
                     if (!hasAccess(request, ownerId)) {
@@ -329,14 +335,23 @@ public class ComputedPointServlet extends BaseServlet {
                 Double xValue = (Double) existingPoint.get("x_value");
                 pointDao.updateComputedPoint(pointId, xValue, yValue);
 
-                mapper.writeValue(response.getWriter(), Map.of("message", "Point updated successfully"));
+                Map<String, Object> responseData = new HashMap<>();
+                responseData.put("pointId", pointId);
+                responseData.put("functionId", functionId);
+                responseData.put("xValue", xValue);
+                responseData.put("yValue", yValue);
+
+                mapper.writeValue(response.getWriter(), responseData);
                 logger.info("SUCCESS: Updated point ID " + pointId);
 
+            } else {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                mapper.writeValue(response.getWriter(), Map.of("error", "Point ID required"));
             }
         } catch (Exception e) {
             logger.severe("ERROR in PUT: " + e.getMessage());
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            mapper.writeValue(response.getWriter(), Map.of("error", "Invalid request"));
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            mapper.writeValue(response.getWriter(), Map.of("error", "Server error"));
         }
     }
 
@@ -366,9 +381,9 @@ public class ComputedPointServlet extends BaseServlet {
 
                 Map<String, Object> existingPoint = pointDao.getComputedPointById(pointId);
                 if (existingPoint != null) {
-                    // Проверка доступа через функцию
-                    Long currentFuncId = (Long) existingPoint.get("function_id");
-                    Map<String, Object> functionData = functionDao.getFunctionById(currentFuncId);
+                    // Проверка доступа
+                    Long functionId = (Long) existingPoint.get("function_id");
+                    Map<String, Object> functionData = functionDao.getFunctionById(functionId);
                     if (functionData != null) {
                         Long ownerId = (Long) functionData.get("owner_id");
                         if (!hasAccess(request, ownerId)) {
@@ -385,11 +400,14 @@ public class ComputedPointServlet extends BaseServlet {
                     response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                     mapper.writeValue(response.getWriter(), Map.of("error", "Point not found"));
                 }
+            } else {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                mapper.writeValue(response.getWriter(), Map.of("error", "Point ID required"));
             }
         } catch (Exception e) {
             logger.severe("ERROR in DELETE: " + e.getMessage());
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            mapper.writeValue(response.getWriter(), Map.of("error", "Invalid request"));
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            mapper.writeValue(response.getWriter(), Map.of("error", "Server error"));
         }
     }
 }
