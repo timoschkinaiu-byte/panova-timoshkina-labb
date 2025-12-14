@@ -4,70 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6eafdb01-f201-4252-9709-8fc58ee160e7" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_29_09_2025_1_06_[Changes]/shelved.patch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_29_09_2025_1_06__Changes_.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_30_09_2025_23_19_[Changes]/shelved.patch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_30_09_2025_23_19__Changes_.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/input/function.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/Main.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/exceptions/ArrayIsNotSortedException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/exceptions/DifferentLengthOfArraysException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/exceptions/InconsistentFunctionsException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/exceptions/InterpolationException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/AbstractTabulatedFunction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/ArrayTabulatedFunction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/BSplineFunction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/CompositeFunction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/ConstantFunction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/IdentityFunction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/Insertable.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/LinkedListTabulatedFunction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/MathFunction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/Point.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/Removable.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/SimpleIterationMethod.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/SqrFunction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/TabulatedFunction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/UnitFunction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/ZeroFunction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/factory/ArrayTabulatedFunctionFactory.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/factory/LinkedListTabulatedFunctionFactory.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/functions/factory/TabulatedFunctionFactory.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/io/ArrayTabulatedFunctionSerialization.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/io/FunctionsIO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/io/LinkedListTabulatedFunctionSerialization.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/io/TabulatedFunctionFileInputStream.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/io/TabulatedFunctionFileOutputStream.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/io/TabulatedFunctionFileReader.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/io/TabulatedFunctionFileWriter.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/operations/DifferentialOperator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/operations/LeftSteppingDifferentialOperator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/operations/RightSteppingDifferentialOperator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/operations/SteppingDifferentialOperator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/operations/TabulatedDifferentialOperator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/ssau/tk/pmi/operations/TabulatedFunctionOperationService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/ru/ssau/tk/pmi/functions/AbstractTabulatedFunctionTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/ru/ssau/tk/pmi/functions/ArrayTabulatedFunctionTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/ru/ssau/tk/pmi/functions/BSplineFunctionTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/ru/ssau/tk/pmi/functions/CompositeFunctionTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/ru/ssau/tk/pmi/functions/ConstantFunctionTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/ru/ssau/tk/pmi/functions/IdentityFunctionTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/ru/ssau/tk/pmi/functions/LinkedListTabulatedFunctionTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/ru/ssau/tk/pmi/functions/SimpleIterationMethodTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/ru/ssau/tk/pmi/functions/SqrFunctionTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/ru/ssau/tk/pmi/functions/factory/ArrayTabulatedFunctionFactoryTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/ru/ssau/tk/pmi/functions/factory/LinkedListTabulatedFunctionFactoryTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/ru/ssau/tk/pmi/operations/LeftSteppingDifferentialOperatorTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/ru/ssau/tk/pmi/operations/RightSteppingDifferentialOperatorTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/ru/ssau/tk/pmi/operations/TabulatedDifferentialOperatorTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/ru/ssau/tk/pmi/operations/TabulatedFunctionOperationServiceTest.java" afterDir="false" />
+    <list default="true" id="6eafdb01-f201-4252-9709-8fc58ee160e7" name="Changes" comment="добавлен Basic Auth и упакован в докер контейнер">
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_29_09_2025_1_06_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_29_09_2025_1_06__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_30_09_2025_23_19_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_30_09_2025_23_19__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/ru/ssau/tk/pmi/entity/ComputedPointTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/ru/ssau/tk/pmi/entity/FunctionTest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/ru/ssau/tk/pmi/entity/UserTest.java" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -100,7 +45,7 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/timoschkinaiu-byte/panova-timoshkina-labb.git&quot;,
-    &quot;accountId&quot;: &quot;0a0ff53f-d769-4f3e-8b89-2e59c29f006a&quot;
+    &quot;accountId&quot;: &quot;0db1e3d4-4c3d-4322-aea3-109f58c8bdd6&quot;
   }
 }</component>
   <component name="ProblemsViewState">
@@ -114,54 +59,58 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "JUnit.ArrayTabulatedFunctionTest.insertTest.executor": "Run",
-    "JUnit.ArrayTabulatedFunctionTest.insertTest2.executor": "Run",
-    "JUnit.ArrayTabulatedFunctionTest.insertTestBagging.executor": "Run",
-    "JUnit.ArrayTabulatedFunctionTest.testInsertMultipleValues.executor": "Run",
-    "JUnit.BSplineFunctionTest.executor": "Run",
-    "JUnit.BSplineFunctionTest.testEdgeCases.executor": "Run",
-    "JUnit.BSplineFunctionTest.testInvalidArguments.executor": "Run",
-    "JUnit.BSplineFunctionTest.testNodesOrderVerification.executor": "Run",
-    "JUnit.BSplineFunctionTest.testSingleSegment.executor": "Run",
-    "JUnit.CompositeFunctionTest.testIndexSearchConsistency.executor": "Run",
-    "JUnit.CompositeFunctionTest.testInterpolationConsistencyBetweenImplementations.executor": "Run",
-    "JUnit.CompositeFunctionTest.testSinglePointFunctionHandling.executor": "Run",
-    "JUnit.IdentityFunctionTest.executor": "Run",
-    "JUnit.LinkedListTabulatedFunctionTest.executor": "Run",
-    "JUnit.LinkedListTabulatedFunctionTest.getCount.executor": "Run",
-    "JUnit.LinkedListTabulatedFunctionTest.removeTest.executor": "Run",
-    "JUnit.LinkedListTabulatedFunctionTest.removeTestMiddle.executor": "Run",
-    "JUnit.LinkedListTabulatedFunctionTest.testApply_BetweenNodes_ReturnsInterpolatedValue.executor": "Run",
-    "JUnit.LinkedListTabulatedFunctionTest.testApply_ExactMatch_ReturnsNodeValueWithoutInterpolation.executor": "Run",
-    "JUnit.LinkedListTabulatedFunctionTest.testApply_WithOptimizedSearch_ReturnsCorrectValues.executor": "Run",
-    "JUnit.LinkedListTabulatedFunctionTest.testConstructorFromArrays_ValidData_CreatesCorrectList.executor": "Run",
-    "JUnit.LinkedListTabulatedFunctionTest.testConstructorFromFunction_ReversedBounds_CorrectsOrder.executor": "Run",
-    "JUnit.LinkedListTabulatedFunctionTest.testConstructorFromFunction_SinglePoint_AllValuesEqual.executor": "Run",
-    "JUnit.LinkedListTabulatedFunctionTest.testConstructorFromFunction_UniformSampling_CreatesCorrectList.executor": "Run",
-    "JUnit.LinkedListTabulatedFunctionTest.testFloorIndexOfX_BetweenNodes_ReturnsLeftIndex.executor": "Run",
-    "JUnit.LinkedListTabulatedFunctionTest.testFloorNodeOfX_VariousCases_ReturnsCorrectNode.executor": "Run",
-    "JUnit.LinkedListTabulatedFunctionTest.testIndexOfX_ExistingValue_ReturnsCorrectIndex.executor": "Run",
-    "JUnit.LinkedListTabulatedFunctionTest.testIndexOfX_NonExistingValue_ReturnsMinusOne.executor": "Run",
-    "JUnit.LinkedListTabulatedFunctionTest.testIndexOfY_ExistingValue_ReturnsCorrectIndex.executor": "Run",
-    "JUnit.LinkedListTabulatedFunctionTest.testIndexOfY_NonExistingValue_ReturnsMinusOne.executor": "Run",
-    "JUnit.LinkedListTabulatedFunctionTest.testRemoveFromBeginning.executor": "Run",
-    "JUnit.LinkedListTabulatedFunctionTest.testRemoveFromEnd.executor": "Run",
-    "JUnit.LinkedListTabulatedFunctionTest.testRemoveSingleElement.executor": "Run",
-    "JUnit.LinkedListTabulatedFunctionTest.testTwoNodeList_AllMethodsWork.executor": "Run",
-    "Maven.labb_2 [compile].executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
-    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
-    "git-widget-placeholder": "lab4",
-    "kotlin-language-version-configured": "true",
-    "settings.editor.selected.configurable": "vcs.Git"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;JUnit.ArrayTabulatedFunctionTest.insertTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ArrayTabulatedFunctionTest.insertTest2.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ArrayTabulatedFunctionTest.insertTestBagging.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.ArrayTabulatedFunctionTest.testInsertMultipleValues.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.BSplineFunctionTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.BSplineFunctionTest.testEdgeCases.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.BSplineFunctionTest.testInvalidArguments.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.BSplineFunctionTest.testNodesOrderVerification.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.BSplineFunctionTest.testSingleSegment.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CompositeFunctionTest.testIndexSearchConsistency.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CompositeFunctionTest.testInterpolationConsistencyBetweenImplementations.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CompositeFunctionTest.testSinglePointFunctionHandling.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.IdentityFunctionTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LinkedListTabulatedFunctionTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LinkedListTabulatedFunctionTest.getCount.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LinkedListTabulatedFunctionTest.removeTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LinkedListTabulatedFunctionTest.removeTestMiddle.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LinkedListTabulatedFunctionTest.testApply_BetweenNodes_ReturnsInterpolatedValue.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LinkedListTabulatedFunctionTest.testApply_ExactMatch_ReturnsNodeValueWithoutInterpolation.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LinkedListTabulatedFunctionTest.testApply_WithOptimizedSearch_ReturnsCorrectValues.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LinkedListTabulatedFunctionTest.testConstructorFromArrays_ValidData_CreatesCorrectList.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LinkedListTabulatedFunctionTest.testConstructorFromFunction_ReversedBounds_CorrectsOrder.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LinkedListTabulatedFunctionTest.testConstructorFromFunction_SinglePoint_AllValuesEqual.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LinkedListTabulatedFunctionTest.testConstructorFromFunction_UniformSampling_CreatesCorrectList.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LinkedListTabulatedFunctionTest.testFloorIndexOfX_BetweenNodes_ReturnsLeftIndex.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LinkedListTabulatedFunctionTest.testFloorNodeOfX_VariousCases_ReturnsCorrectNode.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LinkedListTabulatedFunctionTest.testIndexOfX_ExistingValue_ReturnsCorrectIndex.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LinkedListTabulatedFunctionTest.testIndexOfX_NonExistingValue_ReturnsMinusOne.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LinkedListTabulatedFunctionTest.testIndexOfY_ExistingValue_ReturnsCorrectIndex.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LinkedListTabulatedFunctionTest.testIndexOfY_NonExistingValue_ReturnsMinusOne.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LinkedListTabulatedFunctionTest.testRemoveFromBeginning.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LinkedListTabulatedFunctionTest.testRemoveFromEnd.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LinkedListTabulatedFunctionTest.testRemoveSingleElement.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.LinkedListTabulatedFunctionTest.testTwoNodeList_AllMethodsWork.executor&quot;: &quot;Run&quot;,
+    &quot;Maven.Tomcat 9.executor&quot;: &quot;Run&quot;,
+    &quot;Maven.labb_2 [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.labb_2 [compile].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.labb_2 [org.opoo.maven:tomcat9-maven-plugin:3.0.0:run].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.labb_2 [package].executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary&quot;: &quot;JUnit5&quot;,
+    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5&quot;: &quot;&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;lab6__manual&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;vcs.Git&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CreateTestDialog.Recents.Supers">
       <recent name="" />
@@ -171,7 +120,7 @@
       <recent name="functions" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.LinkedListTabulatedFunctionTest.testRemoveSingleElement">
+  <component name="RunManager" selected="Maven.Tomcat 9">
     <configuration name="LinkedListTabulatedFunctionTest.removeTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="labb_2" />
       <extension name="coverage">
@@ -252,6 +201,44 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="Tomcat 9" type="MavenRunConfiguration" factoryName="Maven">
+      <MavenSettings>
+        <option name="myGeneralSettings" />
+        <option name="myRunnerSettings" />
+        <option name="myRunnerParameters">
+          <MavenRunnerParameters>
+            <option name="cmdOptions" />
+            <option name="profiles">
+              <set />
+            </option>
+            <option name="goals">
+              <list>
+                <option value="tomcat9:run" />
+              </list>
+            </option>
+            <option name="multimoduleDir" />
+            <option name="pomFileName" />
+            <option name="profilesMap">
+              <map />
+            </option>
+            <option name="projectsCmdOptionValues">
+              <list />
+            </option>
+            <option name="resolveToWorkspace" value="false" />
+            <option name="workingDirPath" value="$PROJECT_DIR$" />
+          </MavenRunnerParameters>
+        </option>
+      </MavenSettings>
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="JUnit.LinkedListTabulatedFunctionTest.removeTest" />
+      <item itemvalue="JUnit.LinkedListTabulatedFunctionTest.removeTestMiddle" />
+      <item itemvalue="JUnit.LinkedListTabulatedFunctionTest.testRemoveFromBeginning" />
+      <item itemvalue="JUnit.LinkedListTabulatedFunctionTest.testRemoveFromEnd" />
+      <item itemvalue="JUnit.LinkedListTabulatedFunctionTest.testRemoveSingleElement" />
+      <item itemvalue="Maven.Tomcat 9" />
+    </list>
     <recent_temporary>
       <list>
         <item itemvalue="JUnit.LinkedListTabulatedFunctionTest.testRemoveSingleElement" />
@@ -366,7 +353,15 @@
       <option name="project" value="LOCAL" />
       <updated>1759177594106</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="добавлен Basic Auth и упакован в докер контейнер">
+      <option name="closed" value="true" />
+      <created>1764078772570</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1764078772570</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -445,6 +440,7 @@
     <MESSAGE value="добавлены тесты в CompositeFunctionTest" />
     <MESSAGE value="в класс ArrayTabulatedFunction добавлен метод insert и покрыт тестами" />
     <MESSAGE value="в класс LinkedListTabulatedFunction добавлен метод remove и покрыт тестами" />
-    <option name="LAST_COMMIT_MESSAGE" value="в класс LinkedListTabulatedFunction добавлен метод remove и покрыт тестами" />
+    <MESSAGE value="добавлен Basic Auth и упакован в докер контейнер" />
+    <option name="LAST_COMMIT_MESSAGE" value="добавлен Basic Auth и упакован в докер контейнер" />
   </component>
 </project>
