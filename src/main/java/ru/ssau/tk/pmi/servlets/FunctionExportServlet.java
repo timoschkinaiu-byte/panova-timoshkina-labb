@@ -16,14 +16,6 @@ public class FunctionExportServlet extends BaseServlet {
     private static final Logger logger = Logger.getLogger(FunctionExportServlet.class.getName());
     private final ObjectMapper mapper = new ObjectMapper();
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-
-    @Override
-    protected void service(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        setCorsHeaders(response);
-        super.service(request, response);
-    }
-
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

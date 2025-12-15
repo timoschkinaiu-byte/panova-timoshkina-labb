@@ -60,13 +60,6 @@ public abstract class BaseServlet extends HttpServlet {
         if (obj instanceof String) return Boolean.parseBoolean((String) obj);
         return null;
     }
-
-    protected void setCorsHeaders(HttpServletResponse response) {
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    }
-
     protected Map<String, Object> getAuthenticatedUser(HttpServletRequest request) {
         return (Map<String, Object>) request.getAttribute("authenticatedUser");
     }
@@ -91,10 +84,4 @@ public abstract class BaseServlet extends HttpServlet {
         return hasRole(request, "ADMIN") || isResourceOwner(request, resourceOwnerId);
     }
 
-    @Override
-    protected void doOptions(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        setCorsHeaders(response);
-        response.setStatus(HttpServletResponse.SC_OK);
-    }
 }
