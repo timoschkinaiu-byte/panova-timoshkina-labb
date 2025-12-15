@@ -15,7 +15,7 @@ import org.apache.logging.log4j.Logger;
 
 public class ArrayTabulatedFunction extends AbstractTabulatedFunction implements Insertable, Removable, Iterable<Point>, Serializable {
     @Serial
-    private static final long serialVersionUID = 3369212386005378596L;
+    private static final long serialVersionUID = 1L; //3369212386005378596L;
     private double[] xValues;
     private double[] yValues;
     private int count;

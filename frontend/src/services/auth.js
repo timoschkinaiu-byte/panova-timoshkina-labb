@@ -166,6 +166,20 @@ const authService = {
       username: user.username,
       password: user.password
     };
+  },
+
+  getCurrentUser() {
+    const userStr = localStorage.getItem('user');
+    if (!userStr) return null;
+
+    try {
+      const user = JSON.parse(userStr);
+      const { password, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    } catch (error) {
+      console.error('Error parsing user data:', error);
+      return null;
+    }
   }
 };
 

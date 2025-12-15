@@ -1,7 +1,5 @@
 package ru.ssau.tk.pmi.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -13,7 +11,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.ssau.tk.pmi.dto.ExportImportDTO;
-import ru.ssau.tk.pmi.dto.FunctionDTO;
 import ru.ssau.tk.pmi.entity.ComputedPoint;
 import ru.ssau.tk.pmi.entity.MathFunction;
 import ru.ssau.tk.pmi.entity.User;
@@ -22,7 +19,7 @@ import ru.ssau.tk.pmi.exceptions.FunctionNotFoundException;
 import ru.ssau.tk.pmi.exceptions.InvalidFileFormatException;
 import ru.ssau.tk.pmi.functions.TabulatedFunction;
 import ru.ssau.tk.pmi.functions.ArrayTabulatedFunction;
-import ru.ssau.tk.pmi.functions.LinkedListTabulatedFunction;
+import ru.ssau.tk.pmi.functions.factory.ArrayTabulatedFunctionFactory;
 import ru.ssau.tk.pmi.io.FunctionsIO;
 import ru.ssau.tk.pmi.repository.MathFunctionRepository;
 import ru.ssau.tk.pmi.repository.UserRepository;
@@ -34,7 +31,6 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
@@ -44,7 +40,6 @@ public class ExportImportController {
     private final MathFunctionRepository functionRepository;
     private final UserRepository userRepository;
     private final SecurityService securityService;
-
 
     public ExportImportController(MathFunctionRepository functionRepository, UserRepository userRepository, SecurityService securityService) {
         this.functionRepository = functionRepository;
@@ -62,7 +57,7 @@ public class ExportImportController {
         try {
             validateExportRequest(id, format);
 
-            //проверка доступа
+            // проверка доступа
             if (!securityService.canViewFunction(id)) {
                 logger.warn("Отказано в экспорте функции: {}", id);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -70,7 +65,6 @@ public class ExportImportController {
 
             MathFunction function = functionRepository.findById(id)
                     .orElseThrow(() -> new FunctionNotFoundException("Функция не найдена"));
-
 
             TabulatedFunction tabulatedFunction = getTabulatedFunctionFromEntity(function);
 
@@ -84,11 +78,13 @@ public class ExportImportController {
                     case "serialized":
                         FunctionsIO.serialize(outputStream, tabulatedFunction);
                         break;
-                    case "json":
-                        exportToJson(tabulatedFunction, outputStream);
+                    case "text":
+                        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream))) {
+                            FunctionsIO.writeTabulatedFunction(writer, tabulatedFunction);
+                        }
                         break;
-                    case "xml":
-                        exportToXml(tabulatedFunction, outputStream);
+                    case "binary":
+                        FunctionsIO.writeTabulatedFunction(outputStream, tabulatedFunction);
                         break;
                     default:
                         throw new IllegalArgumentException("Неподдерживаемый формат: " + format);
@@ -139,16 +135,20 @@ public class ExportImportController {
             TabulatedFunction tabulatedFunction;
             String detectedFormat = format != null ? format : detectFileFormat(file.getOriginalFilename());
 
+            ArrayTabulatedFunctionFactory factory = new ArrayTabulatedFunctionFactory();
+
             try (BufferedInputStream inputStream = new BufferedInputStream(file.getInputStream())) {
                 switch (detectedFormat.toLowerCase()) {
                     case "serialized":
                         tabulatedFunction = FunctionsIO.deserialize(inputStream);
                         break;
-                    case "json":
-                        tabulatedFunction = importFromJson(inputStream);
+                    case "text":
+                        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+                            tabulatedFunction = FunctionsIO.readTabulatedFunction(reader, factory);
+                        }
                         break;
-                    case "xml":
-                        tabulatedFunction = importFromXml(inputStream);
+                    case "binary":
+                        tabulatedFunction = FunctionsIO.readTabulatedFunction(inputStream, factory);
                         break;
                     default:
                         throw new InvalidFileFormatException("Неподдерживаемый формат: " + detectedFormat);
@@ -187,10 +187,10 @@ public class ExportImportController {
         if (functionId == null) {
             throw new IllegalArgumentException("ID функции не может быть пустым");
         }
-        if (format == null || (!"json".equalsIgnoreCase(format) &&
-                !"xml".equalsIgnoreCase(format) &&
+        if (format == null || (!"text".equalsIgnoreCase(format) &&
+                !"binary".equalsIgnoreCase(format) &&
                 !"serialized".equalsIgnoreCase(format))) {
-            throw new IllegalArgumentException("Формат должен быть: json, xml или serialized");
+            throw new IllegalArgumentException("Формат должен быть: text, binary или serialized");
         }
     }
 
@@ -198,26 +198,39 @@ public class ExportImportController {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("Файл не может быть пустым");
         }
-        if (format != null && (!"json".equalsIgnoreCase(format) &&
-                !"xml".equalsIgnoreCase(format) &&
+        if (format != null && (!"text".equalsIgnoreCase(format) &&
+                !"binary".equalsIgnoreCase(format) &&
                 !"serialized".equalsIgnoreCase(format) &&
                 !"auto".equalsIgnoreCase(format))) {
-            throw new IllegalArgumentException("Формат должен быть: json, xml, serialized или auto");
+            throw new IllegalArgumentException("Формат должен быть: text, binary, serialized или auto");
         }
     }
 
     // Вспомогательные методы
     private String generateFilename(String functionName, String format) {
         String safeName = functionName.replaceAll("[^a-zA-Z0-9_-]", "_");
-        return safeName + "." + format.toLowerCase();
+        String extension = getExtension(format);
+        return safeName + extension;
+    }
+
+    private String getExtension(String format) {
+        switch (format.toLowerCase()) {
+            case "text":
+                return ".txt";
+            case "binary":
+                return ".bin";
+            case "serialized":
+                return ".ser";
+            default:
+                return ".dat";
+        }
     }
 
     private String getContentType(String format) {
         switch (format.toLowerCase()) {
-            case "json":
-                return "application/json";
-            case "xml":
-                return "application/xml";
+            case "text":
+                return "text/plain";
+            case "binary":
             case "serialized":
             default:
                 return "application/octet-stream";
@@ -225,14 +238,14 @@ public class ExportImportController {
     }
 
     private String detectFileFormat(String filename) {
-        if (filename == null) return "serialized";
+        if (filename == null) return "text"; // по умолчанию текстовый
 
         String lowerName = filename.toLowerCase();
-        if (lowerName.endsWith(".json")) return "json";
-        if (lowerName.endsWith(".xml")) return "xml";
-        if (lowerName.endsWith(".ser") || lowerName.endsWith(".bin")) return "serialized";
+        if (lowerName.endsWith(".txt")) return "text";
+        if (lowerName.endsWith(".bin")) return "binary";
+        if (lowerName.endsWith(".ser")) return "serialized";
 
-        return "serialized"; // по умолчанию
+        return "text"; // по умолчанию текстовый
     }
 
     private String generateFunctionNameFromFile(String filename) {
@@ -240,28 +253,6 @@ public class ExportImportController {
 
         String name = filename.replaceAll("\\.[^.]+$", ""); // убираем расширение
         return name.isEmpty() ? "Импортированная_функция" : name;
-    }
-
-
-
-    private void exportToJson(TabulatedFunction function, OutputStream outputStream) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.writerWithDefaultPrettyPrinter().writeValue(outputStream, function);
-    }
-
-    private TabulatedFunction importFromJson(InputStream inputStream) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(inputStream, ArrayTabulatedFunction.class);
-    }
-
-    private void exportToXml(TabulatedFunction function, OutputStream outputStream) throws IOException {
-        XmlMapper mapper = new XmlMapper();
-        mapper.writerWithDefaultPrettyPrinter().writeValue(outputStream, function);
-    }
-
-    private TabulatedFunction importFromXml(InputStream inputStream) throws IOException {
-        XmlMapper mapper = new XmlMapper();
-        return mapper.readValue(inputStream, ArrayTabulatedFunction.class);
     }
 
     private TabulatedFunction getTabulatedFunctionFromEntity(MathFunction function) {
@@ -278,7 +269,6 @@ public class ExportImportController {
 
         return new ArrayTabulatedFunction(xArray, yArray);
     }
-
 
     private MathFunction saveTabulatedFunction(TabulatedFunction tabulatedFunction, String name) {
         User currentUser = securityService.getCurrentUser();

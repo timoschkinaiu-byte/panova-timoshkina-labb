@@ -1,9 +1,13 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import AuthPage from './components/Auth/AuthPage';
+import Dashboard from './components/Dashboard/Dashboard';
+import PrivateRoute from './components/Routing/PrivateRoute';
+import authService from './services/auth';
 import './App.css';
 
-// Компонент для переключения темы
+
+// временно
 const ThemeToggle = ({ isDarkMode, toggleTheme }) => {
   return (
     <button
@@ -16,10 +20,9 @@ const ThemeToggle = ({ isDarkMode, toggleTheme }) => {
   );
 };
 
-function App() {
+const App = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
 
-  // Загружаем тему из localStorage при загрузке
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'light') {
@@ -28,7 +31,6 @@ function App() {
     }
   }, []);
 
-  // Переключение темы
   const toggleTheme = () => {
     const newTheme = !isDarkMode;
     setIsDarkMode(newTheme);
@@ -45,24 +47,29 @@ function App() {
   return (
     <Router>
       <div className="app">
-        {/* Переключатель темы */}
-        <ThemeToggle isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
+          <ThemeToggle isDarkMode={isDarkMode} toggleTheme={toggleTheme} />  {/* кнопка смены темы */}
 
         <Routes>
-          {/* Главная страница - авторизация */}
-          <Route path="/" element={<AuthPage />} />
+          {/* Публичные маршруты */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<AuthPage />} />
 
-          {/* Заглушки для будущих страниц */}
-          <Route path="/dashboard" element={<div>Главная страница (будет позже)</div>} />
-          <Route path="/functions" element={<div>Мои функции (будет позже)</div>} />
+          {/* Защищённые маршруты */}
+          <Route
+            path="/dashboard/*"
+            element={
+              <PrivateRoute>
+                <Dashboard />
+              </PrivateRoute>
+            }
+          />
 
-          {/* Редирект на авторизацию для неизвестных путей */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* Редирект для неизвестных путей */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </div>
     </Router>
   );
-}
+};
 
 export default App;
