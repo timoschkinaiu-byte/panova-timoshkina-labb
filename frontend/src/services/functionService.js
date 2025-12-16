@@ -98,18 +98,8 @@ const functionService = {
         type: 'BASIC',
         requiresParams: false,
         requiresValue: false
-      },
-      {
-        key: 'BSPLINE',
-        name: 'B-сплайн функция',
-        type: 'BASIC',
-        requiresParams: true, // Требует параметры
-        params: [
-          { name: 'nodePoints', label: 'Точки узлов (через запятую)', type: 'text' },
-          { name: 'splineOrder', label: 'Порядок сплайна', type: 'number', min: 1 },
-          { name: 'weights', label: 'Весовые коэффициенты (через запятую)', type: 'text' }
-        ]
       }
+
     ];
   },
 
