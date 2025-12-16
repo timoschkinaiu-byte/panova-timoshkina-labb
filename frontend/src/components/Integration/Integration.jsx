@@ -350,7 +350,7 @@ const Integration = () => {
                             value={threadsCount}
                             onChange={(e) => setThreadsCount(parseInt(e.target.value))}
                             disabled={isComputing || !sourceFunction}
-                            className="slider"
+                            className= "range-slider"
                           />
                         </div>
                       </div>

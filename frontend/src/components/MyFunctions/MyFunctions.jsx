@@ -138,8 +138,7 @@ const MyFunctions = () => {
 
   // Удалить функцию
   const handleDeleteFunction = async (functionId, functionName) => {
-    const confirmed = window.confirm(`Вы уверены, что хотите удалить функцию "${functionName}"?`);
-    if (!confirmed) return;
+
 
     try {
       await functionService.deleteFunction(functionId);
