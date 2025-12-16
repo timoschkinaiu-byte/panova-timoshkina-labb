@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import FunctionParamsModal from '../../Common/FunctionParamsModal';
 import GraphModal from '../../Common/GraphModal';
 import functionService from '../../../services/functionService';
-import "../../../App.css";
+import authService from '../../../services/auth';
+import '../../../App.css';
 
 const FromFunctionTab = ({
   functionName,
@@ -13,7 +14,7 @@ const FromFunctionTab = ({
   onSuccess,
   onError
 }) => {
-  const [selectedFunction, setSelectedFunction] = useState('');
+  const [selectedFunctionKey, setSelectedFunctionKey] = useState('');
   const [leftX, setLeftX] = useState('');
   const [rightX, setRightX] = useState('');
   const [pointsCount, setPointsCount] = useState('');
@@ -25,13 +26,35 @@ const FromFunctionTab = ({
   const [graphData, setGraphData] = useState([]);
   const [isGeneratingGraph, setIsGeneratingGraph] = useState(false);
 
-  const availableFunctions = functionService.getAvailableMathFunctions();
+  // Состояния для доступных функций
+  const [availableFunctions, setAvailableFunctions] = useState([]);
+  const [isLoadingFunctions, setIsLoadingFunctions] = useState(false);
 
-  const handleFunctionSelect = (funcName) => {
-    setSelectedFunction(funcName);
+  // Загрузка доступных функций
+  useEffect(() => {
+    loadAvailableFunctions();
+  }, []);
 
-    // Проверяем, нужны ли параметры
-    const func = availableFunctions.find(f => f.name === funcName);
+  const loadAvailableFunctions = async () => {
+    setIsLoadingFunctions(true);
+    try {
+      // Получаем все доступные функции
+      const allFunctions = await functionService.getAvailableFunctions();
+      setAvailableFunctions(allFunctions);
+    } catch (error) {
+      console.error('Error loading available functions:', error);
+      // Используем только базовые функции в случае ошибки
+      setAvailableFunctions(functionService.getAvailableMathFunctions());
+    } finally {
+      setIsLoadingFunctions(false);
+    }
+  };
+
+  const handleFunctionSelect = (functionKey) => {
+    setSelectedFunctionKey(functionKey);
+
+    // Проверяем, нужны ли параметры для этой функции
+    const func = availableFunctions.find(f => f.key === functionKey);
     if (func?.requiresParams || func?.requiresValue) {
       setIsParamsModalOpen(true);
     }
@@ -44,8 +67,7 @@ const FromFunctionTab = ({
 
   // Функция для предварительного просмотра графика
   const generatePreviewGraph = async () => {
-    // Валидация
-    if (!selectedFunction) {
+    if (!selectedFunctionKey) {
       onError('Выберите математическую функцию');
       return;
     }
@@ -73,8 +95,8 @@ const FromFunctionTab = ({
       return;
     }
 
-    // Для функций с параметрами проверяем, что параметры введены
-    const func = availableFunctions.find(f => f.name === selectedFunction);
+    // Проверка параметров
+    const func = availableFunctions.find(f => f.key === selectedFunctionKey);
     if ((func?.requiresParams || func?.requiresValue) && !functionParams) {
       onError('Заполните параметры функции');
       return;
@@ -83,23 +105,28 @@ const FromFunctionTab = ({
     setIsGeneratingGraph(true);
 
     try {
-      // Создаем временную функцию для просмотра
-      const tempName = `Предварительный просмотр: ${selectedFunction}`;
-      let sourceFunctionName = selectedFunction;
+      // Подготавливаем данные для временной функции
+      const requestData = {
+        name: `Preview: ${selectedFunctionKey}`,
+        sourceFunctionKey: functionParams?.functionKey || selectedFunctionKey,
+        leftX: left,
+        rightX: right,
+        pointsCount: count,
+        isPublic: false
+      };
 
-      const response = await functionService.createFromMathFunction(
-        tempName,
-        sourceFunctionName,
-        left,
-        right,
-        count,
-        false // Не публичная, временная
-      );
+      // Добавляем параметры если есть
+      if (functionParams?.params) {
+        Object.assign(requestData, functionParams.params);
+      }
+
+      // Создаем временную функцию
+      const response = await functionService.createFromMathFunction(requestData);
 
       if (response.status === 201 && response.data?.functionId) {
         const functionId = response.data.functionId;
 
-        // Получаем данные графика
+        // Получаем график
         const graphResponse = await functionService.getGraphData(
           functionId,
           count,
@@ -107,14 +134,14 @@ const FromFunctionTab = ({
           right
         );
 
-        if (graphResponse.data && graphResponse.data.points) {
+        if (graphResponse.data?.points) {
           setGraphData(graphResponse.data.points);
           setIsGraphModalOpen(true);
 
-          // Удаляем временную функцию
+          // Удаляем временную функцию через 5 секунд
           setTimeout(() => {
             functionService.deleteFunction(functionId).catch(console.error);
-          }, 1000);
+          }, 5000);
         } else {
           onError('Не удалось получить данные графика');
         }
@@ -123,14 +150,10 @@ const FromFunctionTab = ({
       console.error('Error generating preview graph:', error);
 
       let errorMessage = 'Ошибка при построении графика';
-      if (error.response?.status === 401) {
-        errorMessage = 'Недостаточно прав для создания функции';
-      } else if (error.response?.status === 400) {
-        errorMessage = 'Некорректные данные для создания функции';
+      if (error.response?.status === 400) {
+        errorMessage = 'Некорректные параметры функции';
       } else if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
-      } else if (!error.response) {
-        errorMessage = 'Сервер не отвечает. Проверьте подключение к API';
       }
 
       onError(errorMessage);
@@ -140,13 +163,13 @@ const FromFunctionTab = ({
   };
 
   const handleCreate = async () => {
-    // Валидация
+    // Базовая валидация
     if (!functionName.trim()) {
       onError('Введите название функции');
       return;
     }
 
-    if (!selectedFunction) {
+    if (!selectedFunctionKey) {
       onError('Выберите математическую функцию');
       return;
     }
@@ -168,114 +191,46 @@ const FromFunctionTab = ({
       return;
     }
 
-    if (!pointsCount || parseInt(pointsCount) < 2) {
+    const count = parseInt(pointsCount);
+    if (!pointsCount || count < 2) {
       onError('Количество точек должно быть не менее 2');
       return;
     }
 
-    // Для функций с параметрами проверяем, что параметры введены
-    const func = availableFunctions.find(f => f.name === selectedFunction);
+    // Проверка параметров
+    const func = availableFunctions.find(f => f.key === selectedFunctionKey);
     if ((func?.requiresParams || func?.requiresValue) && !functionParams) {
       onError('Заполните параметры функции');
       return;
     }
 
-    let validatedParams = null;
-
-    if (selectedFunction === 'Постоянная функция') {
-      if (!functionParams?.constantValue) {
-        onError('Введите значение константы');
-        return;
-      }
-
-      const constant = parseFloat(functionParams.constantValue);
-      if (isNaN(constant)) {
-        onError('Значение константы должно быть числом');
-        return;
-      }
-
-      validatedParams = { constantValue: constant };
-    }
-
-    if (selectedFunction === 'B-сплайн функция') {
-      if (!functionParams?.nodePoints || !functionParams?.splineOrder || !functionParams?.weights) {
-        onError('Заполните все параметры B-сплайна');
-        return;
-      }
-
-      // Преобразуем и валидируем узловые точки
-      const nodePointsArray = functionParams.nodePoints
-        .split(',')
-        .map(p => p.trim())
-        .filter(p => p !== '')
-        .map(p => parseFloat(p));
-
-      if (nodePointsArray.some(p => isNaN(p))) {
-        onError('Узловые точки должны быть числами');
-        return;
-      }
-
-      if (nodePointsArray.length < 2) {
-        onError('Нужно минимум 2 узловые точки');
-        return;
-      }
-
-      // Проверяем порядок сплайна
-      const splineOrder = parseInt(functionParams.splineOrder);
-      if (isNaN(splineOrder) || splineOrder < 1) {
-        onError('Порядок сплайна должен быть целым числом > 0');
-        return;
-      }
-
-      if (splineOrder >= nodePointsArray.length) {
-        onError('Порядок сплайна должен быть меньше количества узловых точек');
-        return;
-      }
-
-      // Преобразуем и валидируем веса
-      const weightsArray = functionParams.weights
-        .split(',')
-        .map(w => w.trim())
-        .filter(w => w !== '')
-        .map(w => parseFloat(w));
-
-      if (weightsArray.some(w => isNaN(w))) {
-        onError('Весовые коэффициенты должны быть числами');
-        return;
-      }
-
-      if (weightsArray.length !== nodePointsArray.length) {
-        onError('Количество весов должно совпадать с количеством узловых точек');
-        return;
-      }
-
-      validatedParams = {
-        nodePoints: nodePointsArray,
-        splineOrder: splineOrder,
-        weights: weightsArray
-      };
-    }
-
     setIsCreating(true);
 
     try {
-      // Формируем название функции с параметрами если нужно
-
+      // Подготавливаем данные
       const requestData = {
         name: functionName,
-        sourceFunctionName: selectedFunction,
+        sourceFunctionKey: functionParams?.functionKey || selectedFunctionKey,
         leftX: left,
         rightX: right,
         pointsCount: count,
         isPublic: isPublic,
-        ...validatedParams // Добавляем специфичные параметры
+        factoryType: 'ARRAY'
       };
 
+      // Добавляем параметры если есть
+      if (functionParams?.params) {
+        Object.assign(requestData, functionParams.params);
+      }
+
+      console.log('Отправляемые данные:', requestData);
+
+      const response = await functionService.createFromMathFunction(requestData);
 
       if (response.status === 201) {
         onSuccess();
         // Сбрасываем форму
-        setSelectedFunction('');
+        setSelectedFunctionKey('');
         setLeftX('');
         setRightX('');
         setPointsCount('');
@@ -283,44 +238,88 @@ const FromFunctionTab = ({
       }
     } catch (error) {
       console.error('Error creating function:', error);
-      const message = error.response?.data?.message || 'Ошибка создания функции';
-      onError(message);
+
+      let errorMessage = 'Ошибка создания функции';
+      if (error.response?.status === 400) {
+        errorMessage = 'Некорректные параметры функции';
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+
+      onError(errorMessage);
     } finally {
       setIsCreating(false);
     }
   };
 
   const handleCancel = () => {
-    setSelectedFunction('');
+    setSelectedFunctionKey('');
     setLeftX('');
     setRightX('');
     setPointsCount('');
     setFunctionParams(null);
-
   };
 
   // Проверка, можно ли построить график
-  const canShowGraph = selectedFunction && leftX && rightX && pointsCount;
+  const canShowGraph = selectedFunctionKey && leftX && rightX && pointsCount;
 
   return (
     <div className="tab-content">
       <div className="form-section">
         <div className="form-row" style={{ display: 'flex', gap: '15px', marginBottom: '20px', flexWrap: 'wrap' }}>
           <div className="form-group" style={{ flex: '0 0 300px' }}>
-            <label className="form-label">Математическая функция</label>
+            <label className="form-label">
+              Математическая функция
+              {isLoadingFunctions && <span style={{ color: 'var(--text-secondary)', marginLeft: '10px' }}>
+                (загрузка...)
+              </span>}
+            </label>
             <select
               className="form-input"
-              value={selectedFunction}
+              value={selectedFunctionKey}
               onChange={(e) => handleFunctionSelect(e.target.value)}
-              disabled={isCreating}
+              disabled={isCreating || isLoadingFunctions}
             >
               <option value="">Выберите функцию...</option>
-              {availableFunctions.map(func => (
-                <option key={func.name} value={func.name}>
-                  {func.name}
-                </option>
-              ))}
+
+              {/* Базовые функции */}
+              <optgroup label="Базовые функции">
+                {availableFunctions
+                  .filter(f => f.type === 'BASIC')
+                  .map(func => (
+                    <option key={func.key} value={func.key}>
+                      {func.name}
+                      {func.requiresParams && ' ⚙️'}
+                      {func.requiresValue && ' 🔢'}
+                    </option>
+                  ))}
+              </optgroup>
+
+              {/* Мои простые функции */}
+              <optgroup label="Мои функции">
+                {availableFunctions
+                  .filter(f => f.type === 'USER' && !f.isComposite)
+                  .map(func => (
+                    <option key={func.key} value={func.key}>
+                      {func.name} (ID: {func.functionId})
+                    </option>
+                  ))}
+              </optgroup>
+
+              {/* Сложные функции */}
+              <optgroup label="Сложные функции">
+                {availableFunctions
+                  .filter(f => f.isComposite)
+                  .map(func => (
+                    <option key={func.key} value={func.key}>
+                      {func.name} (Composite)
+                    </option>
+                  ))}
+              </optgroup>
             </select>
+            <small style={{ color: 'var(--text-secondary)', display: 'block', marginTop: '5px' }}>
+              ⚙️ - требует параметры, 🔢 - требует значение
+            </small>
           </div>
         </div>
 
@@ -338,7 +337,7 @@ const FromFunctionTab = ({
             />
           </div>
 
-          <div className="form-group" >
+          <div className="form-group">
             <label className="form-label">Конец интервала</label>
             <input
               type="number"
@@ -413,7 +412,7 @@ const FromFunctionTab = ({
         <button
           className="btn-primary"
           onClick={handleCreate}
-          disabled={isCreating || !selectedFunction}
+          disabled={isCreating || !selectedFunctionKey}
         >
           {isCreating ? 'Создание...' : 'Создать функцию'}
         </button>
@@ -421,7 +420,8 @@ const FromFunctionTab = ({
 
       <FunctionParamsModal
         isOpen={isParamsModalOpen}
-        functionName={selectedFunction}
+        functionName={availableFunctions.find(f => f.key === selectedFunctionKey)?.name || ''}
+        functionKey={selectedFunctionKey}
         onClose={() => setIsParamsModalOpen(false)}
         onConfirm={handleParamsConfirm}
         isLoading={isCreating}
@@ -435,7 +435,7 @@ const FromFunctionTab = ({
           setGraphData([]);
         }}
         points={graphData}
-        title={`${selectedFunction} в интервале [${leftX}, ${rightX}]`}
+        title={`${selectedFunctionKey} в интервале [${leftX}, ${rightX}]`}
       />
     </div>
   );

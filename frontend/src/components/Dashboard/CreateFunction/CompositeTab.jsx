@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import FunctionParamsModal from '../../Common/FunctionParamsModal';
 import GraphModal from '../../Common/GraphModal';
 import functionService from '../../../services/functionService';
-import "../../../App.css";
+import authService from '../../../services/auth';
+import '../../../App.css';
 
 const CompositeTab = ({
   functionName,
@@ -13,49 +14,57 @@ const CompositeTab = ({
   onSuccess,
   onError
 }) => {
-  const [outerFunction, setOuterFunction] = useState('');
-  const [innerFunction, setInnerFunction] = useState('');
+  const [outerFunctionKey, setOuterFunctionKey] = useState('');
+  const [innerFunctionKey, setInnerFunctionKey] = useState('');
   const [availableFunctions, setAvailableFunctions] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [isParamsModalOpen, setIsParamsModalOpen] = useState(false);
   const [currentFunctionType, setCurrentFunctionType] = useState(null); // 'outer' или 'inner'
   const [outerFunctionParams, setOuterFunctionParams] = useState(null);
   const [innerFunctionParams, setInnerFunctionParams] = useState(null);
 
-  // Состояния для окна графика
+  // Состояния для графика
   const [isGraphModalOpen, setIsGraphModalOpen] = useState(false);
   const [graphData, setGraphData] = useState([]);
-  const [graphTitle, setGraphTitle] = useState('');
   const [isGeneratingGraph, setIsGeneratingGraph] = useState(false);
+  const [leftX, setLeftX] = useState('-10');
+  const [rightX, setRightX] = useState('10');
+  const [pointsCount, setPointsCount] = useState('100');
 
+  // Загрузка доступных функций
   useEffect(() => {
     loadAvailableFunctions();
   }, []);
 
   const loadAvailableFunctions = async () => {
+    setIsLoading(true);
     try {
-      const response = await functionService.getAvailableMathFunctions();
-      setAvailableFunctions(response);
+      const allFunctions = await functionService.getAvailableFunctions();
+      setAvailableFunctions(allFunctions);
     } catch (error) {
       console.error('Error loading functions:', error);
+      onError('Ошибка загрузки функций');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   // Проверяем, требуется ли функции параметры
-  const needsParams = (functionName) => {
-    const func = availableFunctions.find(f => f.name === functionName);
+  const needsParams = (functionKey) => {
+    const func = availableFunctions.find(f => f.key === functionKey);
     return func?.requiresParams || func?.requiresValue;
   };
 
-  const handleFunctionSelect = (funcType, funcName) => {
+  const handleFunctionSelect = (funcType, functionKey) => {
     if (funcType === 'outer') {
-      setOuterFunction(funcName);
-      if (needsParams(funcName)) {
+      setOuterFunctionKey(functionKey);
+      if (needsParams(functionKey)) {
         setCurrentFunctionType('outer');
         setIsParamsModalOpen(true);
       }
     } else {
-      setInnerFunction(funcName);
-      if (needsParams(funcName)) {
+      setInnerFunctionKey(functionKey);
+      if (needsParams(functionKey)) {
         setCurrentFunctionType('inner');
         setIsParamsModalOpen(true);
       }
@@ -71,68 +80,127 @@ const CompositeTab = ({
     setIsParamsModalOpen(false);
   };
 
-  const getFunctionWithParams = (funcName) => {
-    // Здесь должна быть логика формирования имени функции с параметрами
-    // Пока возвращаем просто имя
-    return funcName;
+  // Получаем полный ключ функции с параметрами
+  const getFullFunctionKey = (functionKey, params) => {
+    if (!functionKey) return '';
+
+    // Для CONSTANT функции
+    if (functionKey === 'CONSTANT' && params?.params?.constantValue) {
+      return `CONSTANT_${parseFloat(params.params.constantValue)}`;
+    }
+
+    // Для BSPLINE - ключ остается 'BSPLINE', но бэкенд должен принимать параметры
+    if (functionKey === 'BSPLINE') {
+      return 'BSPLINE';
+    }
+
+    // Для других функций - просто ключ
+    return functionKey;
   };
 
-  // Функция для предварительного просмотра композиции
+  // Функция для построения графика composite функции
   const generatePreviewGraph = async () => {
-    if (!outerFunction || !innerFunction) {
-      onError('Выберите обе функции для предварительного просмотра');
+    if (!outerFunctionKey || !innerFunctionKey) {
+      onError('Выберите обе функции для построения графика');
+      return;
+    }
+
+    if (!leftX || !rightX) {
+      onError('Введите интервал');
+      return;
+    }
+
+    const left = parseFloat(leftX);
+    const right = parseFloat(rightX);
+    if (isNaN(left) || isNaN(right)) {
+      onError('Интервал должен содержать числа');
+      return;
+    }
+
+    if (left >= right) {
+      onError('Левый край должен быть меньше правого');
+      return;
+    }
+
+    const count = pointsCount ? parseInt(pointsCount) : 100;
+    if (count < 2) {
+      onError('Количество точек должно быть не менее 2');
+      return;
+    }
+
+    // Проверяем параметры
+    const outerFunc = availableFunctions.find(f => f.key === outerFunctionKey);
+    const innerFunc = availableFunctions.find(f => f.key === innerFunctionKey);
+
+    if (outerFunc?.requiresParams && !outerFunctionParams) {
+      onError('Заполните параметры внешней функции');
+      return;
+    }
+
+    if (innerFunc?.requiresParams && !innerFunctionParams) {
+      onError('Заполните параметры внутренней функции');
       return;
     }
 
     setIsGeneratingGraph(true);
 
     try {
-      // Сначала создаем временную сложную функцию для просмотра
-      const tempResponse = await functionService.createComposite(
-        `Предварительный просмотр: ${outerFunction}∘${innerFunction}`,
-        outerFunction,
-        innerFunction,
-        false // Не публичная, временная
+      // Формируем ключи функций с параметрами
+      const outerKeyWithParams = getFullFunctionKey(outerFunctionKey, outerFunctionParams);
+      const innerKeyWithParams = getFullFunctionKey(innerFunctionKey, innerFunctionParams);
+
+      console.log('Построение графика composite функции:', {
+        outer: outerKeyWithParams,
+        inner: innerKeyWithParams,
+        leftX: left,
+        rightX: right,
+        pointsCount: count
+      });
+
+      // 1. Сначала создаем временную composite функцию
+      const tempName = `Preview Composite: ${outerKeyWithParams}∘${innerKeyWithParams}`;
+      const createResponse = await functionService.createComposite(
+        tempName,
+        outerKeyWithParams,
+        innerKeyWithParams,
+        false
       );
 
-      if (tempResponse.status === 201 && tempResponse.data?.functionId) {
-        const functionId = tempResponse.data.functionId;
+      if (createResponse.status === 201 && createResponse.data?.functionId) {
+        const functionId = createResponse.data.functionId;
 
-        // Получаем данные графика для этой функции
+        // 2. Получаем данные графика
         const graphResponse = await functionService.getGraphData(
           functionId,
-          200,
-          -10,
-          10
+          count,
+          left,
+          right
         );
 
-        if (graphResponse.data && graphResponse.data.points) {
+        if (graphResponse.data?.points) {
           setGraphData(graphResponse.data.points);
-          setGraphTitle(`${outerFunction}(${innerFunction}(x))`);
           setIsGraphModalOpen(true);
 
-          // Удаляем временную функцию после успешного получения данных
+          // 3. Удаляем временную функцию через 5 секунд
           setTimeout(() => {
             functionService.deleteFunction(functionId).catch(console.error);
-          }, 1000);
+          }, 5000);
         } else {
-          onError('Не удалось получить данные графика от сервера');
+          onError('Не удалось получить данные графика');
+          // Удаляем временную функцию
+          functionService.deleteFunction(functionId).catch(console.error);
         }
-      } else {
-        onError('Не удалось создать временную функцию для просмотра');
       }
     } catch (error) {
-      console.error('Error generating preview graph:', error);
+      console.error('Error generating composite graph:', error);
 
       let errorMessage = 'Ошибка при построении графика';
-      if (error.response?.status === 401) {
-        errorMessage = 'Недостаточно прав для создания функции';
-      } else if (error.response?.status === 400) {
-        errorMessage = 'Некорректные данные для создания функции';
+      if (error.response?.status === 400) {
+        errorMessage = 'Некорректные параметры функций';
+      } else if (error.response?.status === 404) {
+        errorMessage = 'Функции не найдены';
       } else if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
-      } else if (!error.response) {
-        errorMessage = 'Сервер не отвечает. Проверьте подключение к API';
       }
 
       onError(errorMessage);
@@ -141,24 +209,29 @@ const CompositeTab = ({
     }
   };
 
+  // Создание composite функции
   const handleCreate = async () => {
+    // Валидация
     if (!functionName.trim()) {
-      onError('Введите название функции');
+      onError('Введите название сложной функции');
       return;
     }
 
-    if (!outerFunction || !innerFunction) {
+    if (!outerFunctionKey || !innerFunctionKey) {
       onError('Выберите обе функции');
       return;
     }
 
-    // Проверяем, что для функций с параметрами параметры введены
-    if (needsParams(outerFunction) && !outerFunctionParams) {
+    // Проверяем параметры
+    const outerFunc = availableFunctions.find(f => f.key === outerFunctionKey);
+    const innerFunc = availableFunctions.find(f => f.key === innerFunctionKey);
+
+    if (outerFunc?.requiresParams && !outerFunctionParams) {
       onError('Заполните параметры внешней функции');
       return;
     }
 
-    if (needsParams(innerFunction) && !innerFunctionParams) {
+    if (innerFunc?.requiresParams && !innerFunctionParams) {
       onError('Заполните параметры внутренней функции');
       return;
     }
@@ -166,39 +239,54 @@ const CompositeTab = ({
     setIsCreating(true);
 
     try {
-      // Формируем названия функций с параметрами
-      const outerFuncWithParams = getFunctionWithParams(outerFunction, outerFunctionParams);
-      const innerFuncWithParams = getFunctionWithParams(innerFunction, innerFunctionParams);
+      // Формируем ключи функций с параметрами
+      const outerKeyWithParams = getFullFunctionKey(outerFunctionKey, outerFunctionParams);
+      const innerKeyWithParams = getFullFunctionKey(innerFunctionKey, innerFunctionParams);
 
+      console.log('Создание сложной функции:', {
+        name: functionName,
+        outer: outerKeyWithParams,
+        inner: innerKeyWithParams,
+        isPublic
+      });
+
+      // Создаем сложную функцию
       const response = await functionService.createComposite(
-        functionName,
-        outerFuncWithParams,
-        innerFuncWithParams,
+        functionName + ' (composite)',
+        outerKeyWithParams,
+        innerKeyWithParams,
         isPublic
       );
 
-      if (response.status === 201 && response.data?.functionId) {
+      if (response.status === 201) {
+        // Обновляем список доступных функций
+        await loadAvailableFunctions();
+
         onSuccess();
+
         // Сбрасываем форму
-        setOuterFunction('');
-        setInnerFunction('');
+        setOuterFunctionKey('');
+        setInnerFunctionKey('');
         setOuterFunctionParams(null);
         setInnerFunctionParams(null);
-      } else {
-        onError('Неизвестная ошибка при создании функции');
+        setFunctionName('');
       }
     } catch (error) {
       console.error('Error creating composite function:', error);
 
       let message = 'Ошибка создания сложной функции';
-      if (error.response?.status === 401) {
-        message = 'Недостаточно прав для создания функции';
-      } else if (error.response?.status === 400) {
-        message = error.response.data?.message || 'Некорректные данные для создания функции';
+      if (error.response?.status === 400) {
+        message = 'Некорректные параметры функций. Проверьте: ';
+
+        if (error.response.data?.message) {
+          message += error.response.data.message;
+        } else if (outerFunctionKey === 'BSPLINE' || innerFunctionKey === 'BSPLINE') {
+          message += 'Для B-сплайна нужно передать: nodePoints, splineOrder, weights';
+        }
+      } else if (error.response?.status === 404) {
+        message = 'Одна из функций не найдена';
       } else if (error.response?.data?.message) {
         message = error.response.data.message;
-      } else if (!error.response) {
-        message = 'Сервер не отвечает. Проверьте подключение к API';
       }
 
       onError(message);
@@ -208,15 +296,28 @@ const CompositeTab = ({
   };
 
   const handleCancel = () => {
-    setOuterFunction('');
-    setInnerFunction('');
+    setOuterFunctionKey('');
+    setInnerFunctionKey('');
     setOuterFunctionParams(null);
     setInnerFunctionParams(null);
   };
 
-  // Получаем текущее название функции для модального окна
-  const getCurrentFunctionName = () => {
-    return currentFunctionType === 'outer' ? outerFunction : innerFunction;
+  // Получаем отображаемое имя функции
+  const getFunctionDisplayName = (functionKey) => {
+    const func = availableFunctions.find(f => f.key === functionKey);
+    if (!func) return functionKey;
+
+    return func.name;
+  };
+
+  // Проверка, можно ли построить график
+  const canShowGraph = outerFunctionKey && innerFunctionKey && leftX && rightX && pointsCount;
+
+  // Получаем текущую выбранную функцию для модалки параметров
+  const getCurrentFunctionForParams = () => {
+    const functionKey = currentFunctionType === 'outer' ? outerFunctionKey : innerFunctionKey;
+    const func = availableFunctions.find(f => f.key === functionKey);
+    return func || null;
   };
 
   return (
@@ -224,98 +325,197 @@ const CompositeTab = ({
       <div className="form-section">
         <div className="form-row" style={{ display: 'flex', gap: '15px', marginBottom: '20px' }}>
           <div className="form-group" style={{ flex: 1 }}>
-            <label className="form-label">Внешняя функция (f)</label>
+            <label className="form-label">
+              Внешняя функция (f)
+              {outerFunctionParams && (
+                <span style={{ marginLeft: '10px', color: 'var(--accent-color)' }}>
+                  ⚙️
+                </span>
+              )}
+            </label>
             <select
               className="form-input"
-              value={outerFunction}
+              value={outerFunctionKey}
               onChange={(e) => handleFunctionSelect('outer', e.target.value)}
-              disabled={isCreating}
+              disabled={isCreating || isLoading}
             >
               <option value="">Выберите внешнюю функцию...</option>
-              {availableFunctions.map(func => (
-                <option key={func.name} value={func.name}>
-                  {func.name}
-                </option>
-              ))}
+
+              <optgroup label="Базовые функции">
+                {availableFunctions
+                  .filter(f => f.type === 'BASIC')
+                  .map(func => (
+                    <option key={func.key} value={func.key}>
+                      {func.name} {func.requiresParams && '⚙️'} {func.requiresValue && '🔢'}
+                    </option>
+                  ))}
+              </optgroup>
+
+              <optgroup label="Мои функции">
+                {availableFunctions
+                  .filter(f => f.type === 'USER' && !f.isComposite)
+                  .map(func => (
+                    <option key={func.key} value={func.key}>
+                      {func.name} (ID: {func.functionId})
+                    </option>
+                  ))}
+              </optgroup>
+
+              <optgroup label="Сложные функции">
+                {availableFunctions
+                  .filter(f => f.isComposite)
+                  .map(func => (
+                    <option key={func.key} value={func.key}>
+                      {func.name} (Composite)
+                    </option>
+                  ))}
+              </optgroup>
             </select>
-            {outerFunctionParams && (
-              <div style={{ marginTop: '5px', fontSize: '12px', color: 'var(--text-secondary)' }}>
-                Параметры: {JSON.stringify(outerFunctionParams)}
-              </div>
-            )}
           </div>
 
           <div className="form-group" style={{ flex: 1 }}>
-            <label className="form-label">Внутренняя функция (g)</label>
+            <label className="form-label">
+              Внутренняя функция (g)
+              {innerFunctionParams && (
+                <span style={{ marginLeft: '10px', color: 'var(--accent-color)' }}>
+                  ⚙️
+                </span>
+              )}
+            </label>
             <select
               className="form-input"
-              value={innerFunction}
+              value={innerFunctionKey}
               onChange={(e) => handleFunctionSelect('inner', e.target.value)}
-              disabled={isCreating}
+              disabled={isCreating || isLoading}
             >
               <option value="">Выберите внутреннюю функцию...</option>
-              {availableFunctions.map(func => (
-                <option key={func.name} value={func.name}>
-                  {func.name}
-                </option>
-              ))}
+
+              <optgroup label="Базовые функции">
+                {availableFunctions
+                  .filter(f => f.type === 'BASIC')
+                  .map(func => (
+                    <option key={func.key} value={func.key}>
+                      {func.name} {func.requiresParams && '⚙️'} {func.requiresValue && '🔢'}
+                    </option>
+                  ))}
+              </optgroup>
+
+              <optgroup label="Мои функции">
+                {availableFunctions
+                  .filter(f => f.type === 'USER' && !f.isComposite)
+                  .map(func => (
+                    <option key={func.key} value={func.key}>
+                      {func.name} (ID: {func.functionId})
+                    </option>
+                  ))}
+              </optgroup>
+
+              <optgroup label="Сложные функции">
+                {availableFunctions
+                  .filter(f => f.isComposite)
+                  .map(func => (
+                    <option key={func.key} value={func.key}>
+                      {func.name} (Composite)
+                    </option>
+                  ))}
+              </optgroup>
             </select>
-            {innerFunctionParams && (
-              <div style={{ marginTop: '5px', fontSize: '12px', color: 'var(--text-secondary)' }}>
-                Параметры: {JSON.stringify(innerFunctionParams)}
-              </div>
-            )}
+          </div>
+        </div>
+
+        {/* Поля для графика */}
+        <div className="form-row" style={{ display: 'flex', gap: '15px', marginBottom: '20px', alignItems: 'center' }}>
+          <div className="form-group" style={{ flex: 1 }}>
+            <label className="form-label">Интервал для графика</label>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <input
+                type="number"
+                className="form-input"
+                value={leftX}
+                onChange={(e) => setLeftX(e.target.value)}
+                placeholder="От"
+                disabled={isCreating || isLoading}
+                step="any"
+                style={{ width: '100px' }}
+              />
+              <span>до</span>
+              <input
+                type="number"
+                className="form-input"
+                value={rightX}
+                onChange={(e) => setRightX(e.target.value)}
+                placeholder="До"
+                disabled={isCreating || isLoading}
+                step="any"
+                style={{ width: '100px' }}
+              />
+            </div>
+          </div>
+
+          <div className="form-group" style={{ flex: 1 }}>
+            <label className="form-label">Точек на графике</label>
+            <input
+              type="number"
+              className="form-input"
+              value={pointsCount}
+              onChange={(e) => setPointsCount(e.target.value)}
+              placeholder="100"
+              disabled={isCreating || isLoading}
+              min="2"
+              max="1000"
+              style={{ width: '120px' }}
+            />
+          </div>
+
+          <div className="form-group" style={{ marginTop: '24px' }}>
+            <button
+              className="btn-secondary"
+              onClick={generatePreviewGraph}
+              disabled={isGeneratingGraph || !canShowGraph || isCreating || isLoading}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 20px'
+              }}
+            >
+              {isGeneratingGraph ? (
+                <>
+                  <div className="loading-spinner" style={{ width: '16px', height: '16px' }}></div>
+                  Построение графика...
+                </>
+              ) : (
+                <>
+                  📊 Предварительный просмотр графика
+                </>
+              )}
+            </button>
           </div>
         </div>
 
         {/* Показываем выбранную композицию */}
-        {outerFunction && innerFunction && (
+        {outerFunctionKey && innerFunctionKey && (
           <div className="form-group">
             <div className="server-message" style={{
               background: 'rgba(128, 0, 0, 0.1)',
               border: '1px solid rgba(128, 0, 0, 0.3)',
-              color: 'var(--text-primary)'
+              color: 'var(--text-primary)',
+              padding: '15px',
+              borderRadius: '8px',
+              marginTop: '10px'
             }}>
-              <strong>Будет создана сложная функция:</strong><br />
-              f(g(x)) = {outerFunction}({innerFunction}(x))
-            </div>
-
-            {/* Кнопка построения графика */}
-            <div style={{ marginTop: '15px', textAlign: 'center' }}>
-              <button
-                className="btn-secondary"
-                onClick={generatePreviewGraph}
-                disabled={isGeneratingGraph || isCreating}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  margin: '0 auto',
-                  padding: '10px 20px'
-                }}
-              >
-                {isGeneratingGraph ? (
-                  <>
-                    <div className="loading-spinner" style={{ width: '16px', height: '16px' }}></div>
-                    Построение графика...
-                  </>
-                ) : (
-                  <>
-                    📊 Предварительный просмотр графика
-                  </>
-                )}
-              </button>
-              <p style={{
-                fontSize: '12px',
-                color: 'var(--text-secondary)',
-                marginTop: '5px'
-              }}>
-                Создаст временную функцию и покажет её график
-              </p>
+              <strong>Создается сложная функция:</strong><br />
+              <code style={{ fontSize: '16px', display: 'block', marginTop: '10px' }}>
+                h(x) = f(g(x))<br />
+                где f(x) = {getFunctionDisplayName(outerFunctionKey)}<br />
+                где g(x) = {getFunctionDisplayName(innerFunctionKey)}
+              </code>
+              <small style={{ display: 'block', marginTop: '10px', color: 'var(--text-secondary)' }}>
+                После создания эта функция будет доступна для создания табулированных функций
+              </small>
             </div>
           </div>
         )}
-
       </div>
 
       <div className="action-buttons">
@@ -329,7 +529,7 @@ const CompositeTab = ({
         <button
           className="btn-primary"
           onClick={handleCreate}
-          disabled={isCreating || !outerFunction || !innerFunction}
+          disabled={isCreating || !outerFunctionKey || !innerFunctionKey}
         >
           {isCreating ? 'Создание...' : 'Создать сложную функцию'}
         </button>
@@ -338,22 +538,22 @@ const CompositeTab = ({
       {/* Модальное окно для параметров функций */}
       <FunctionParamsModal
         isOpen={isParamsModalOpen}
-        functionName={getCurrentFunctionName()}
+        functionName={getCurrentFunctionForParams()?.name || ''}
+        functionKey={currentFunctionType === 'outer' ? outerFunctionKey : innerFunctionKey}
         onClose={() => setIsParamsModalOpen(false)}
         onConfirm={handleParamsConfirm}
         isLoading={isCreating}
       />
 
-      {/* Модальное окно для графика */}
+      {/* Модальное окно графика */}
       <GraphModal
         isOpen={isGraphModalOpen}
         onClose={() => {
           setIsGraphModalOpen(false);
           setGraphData([]);
-          setGraphTitle('');
         }}
         points={graphData}
-        title={graphTitle}
+        title={`Composite: ${getFunctionDisplayName(outerFunctionKey)}∘${getFunctionDisplayName(innerFunctionKey)} в [${leftX}, ${rightX}]`}
       />
     </div>
   );

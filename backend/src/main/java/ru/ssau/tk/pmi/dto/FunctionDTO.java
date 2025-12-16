@@ -9,6 +9,20 @@ import java.util.List;
 
 public class FunctionDTO {
 
+    // DTO для функций в composite
+    public static class AvailableForCompositeDTO {
+        private String key;      // "SQR", "USER_123" - то, что отправляется в createComposite
+        private String name;     // Отображаемое имя
+        private String type;     // "BASIC", "USER", "PUBLIC"
+
+        // конструкторы, геттеры, сеттеры
+        public AvailableForCompositeDTO(String key, String name, String type) {
+            this.key = key;
+            this.name = name;
+            this.type = type;
+        }
+    }
+
 
     public static class CreateFromArraysRequest {
         public CreateFromArraysRequest() {}

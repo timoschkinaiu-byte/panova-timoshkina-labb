@@ -46,11 +46,61 @@ public class FunctionController {
     }
 
 
+    @GetMapping("/available-for-composite")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<List<FunctionDTO.AvailableForCompositeDTO>> getFunctionsForComposite() {
+        logger.info("Получение функций доступных для создания composite");
+
+        try {
+            User currentUser = securityService.getCurrentUser();
+            List<FunctionDTO.AvailableForCompositeDTO> result = new ArrayList<>();
+
+            // 1. Базовые функции (SQR, IDENTITY, etc.)
+            result.add(new FunctionDTO.AvailableForCompositeDTO("SQR", "Квадратичная функция", "BASIC"));
+            result.add(new FunctionDTO.AvailableForCompositeDTO("IDENTITY", "Тождественная функция", "BASIC"));
+            result.add(new FunctionDTO.AvailableForCompositeDTO("CONSTANT_1.0", "Постоянная функция (1.0)", "BASIC"));
+            result.add(new FunctionDTO.AvailableForCompositeDTO("UNIT", "Единичная функция", "BASIC"));
+            result.add(new FunctionDTO.AvailableForCompositeDTO("ZERO", "Нулевая функция", "BASIC"));
+
+            // 2. Пользовательские функции текущего пользователя
+            List<MathFunction> userFunctions = functionRepository.findByOwner(currentUser);
+            for (MathFunction func : userFunctions) {
+                result.add(new FunctionDTO.AvailableForCompositeDTO(
+                        "USER_" + func.getFunctionId(),
+                        func.getFunctionName() + " (ID: " + func.getFunctionId() + ")",
+                        "USER"
+                ));
+            }
+
+            // 3. Публичные функции других пользователей
+            List<MathFunction> publicFunctions = functionRepository.findByIsPublicTrue();
+            for (MathFunction func : publicFunctions) {
+                if (!func.getOwner().getUserId().equals(currentUser.getUserId())) {
+                    result.add(new FunctionDTO.AvailableForCompositeDTO(
+                            "USER_" + func.getFunctionId(),
+                            func.getFunctionName() + " (публичная, ID: " + func.getFunctionId() + ")",
+                            "PUBLIC"
+                    ));
+                }
+            }
+
+            logger.info("Возвращено {} функций для composite", result.size());
+            return ResponseEntity.ok(result);
+
+        } catch (Exception e) {
+            logger.error("Ошибка получения функций для composite: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
+
     @PostMapping("/from-math-function")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<FunctionDTO.Response> createFromMathFunction(
             @RequestParam(defaultValue = "ARRAY") String factoryType,
             @RequestBody FunctionDTO.CreateFromMathFunctionRequest request) {
+
         logger.info("Создание функции из MathFunction: {}, интервал [{}, {}], точек: {}",
                 request.getSourceFunctionName(), request.getLeftX(), request.getRightX(), request.getPointsCount());
 
@@ -58,9 +108,15 @@ public class FunctionController {
             validateCreateFromMathFunctionRequest(request);
             setFactoryByType(factoryType);
 
-            ru.ssau.tk.pmi.functions.MathFunction sourceFunction = mathFunctionsMap.get(request.getSourceFunctionName());
-            if (sourceFunction == null) {
-                throw new InvalidFunctionException("Функция не найдена: " + request.getSourceFunctionName());
+            ru.ssau.tk.pmi.functions.MathFunction sourceFunction;
+
+            try {
+                // Пробуем получить функцию через resolveMathFunction
+                sourceFunction = resolveMathFunction(request.getSourceFunctionName());
+            } catch (InvalidFunctionException e) {
+                // Если не нашли, логируем и возвращаем ошибку
+                logger.warn("Функция не найдена в resolveMathFunction: {}", request.getSourceFunctionName());
+                throw e; // Пробрасываем дальше
             }
 
             TabulatedFunction tabulatedFunction = createFromMathFunction(sourceFunction, request);
@@ -81,7 +137,6 @@ public class FunctionController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
 
 
     @PostMapping("/from-arrays")
@@ -144,22 +199,31 @@ public class FunctionController {
     public ResponseEntity<FunctionDTO.Response> createComposite(
             @RequestParam(defaultValue = "ARRAY") String factoryType,
             @RequestBody FunctionDTO.CreateCompositeRequest request) {
-        logger.info("Создание сложной функции: {} ∘ {}", request.getOuterFunctionName(), request.getInnerFunctionName());
+
+
+        logger.info("Создание сложной функции: {} ∘ {}",
+                request.getOuterFunctionName(), request.getInnerFunctionName());
+
+
 
         try {
+
             validateCreateCompositeRequest(request);
+            logger.info("2");
             setFactoryByType(factoryType);
+            logger.info("3");
 
-            ru.ssau.tk.pmi.functions.MathFunction outerFunction = mathFunctionsMap.get(request.getOuterFunctionName());
-            ru.ssau.tk.pmi.functions.MathFunction innerFunction = mathFunctionsMap.get(request.getInnerFunctionName());
+            // 1. Получаем или загружаем функции
+            ru.ssau.tk.pmi.functions.MathFunction outerFunction =
+                    resolveMathFunction(request.getOuterFunctionName());
+            ru.ssau.tk.pmi.functions.MathFunction innerFunction =
+                    resolveMathFunction(request.getInnerFunctionName());
+            logger.info("4");
 
-            if (outerFunction == null || innerFunction == null) {
-                throw new InvalidFunctionException("Функции не найдены");
-            }
-
+            // 2. Создаем composite
             CompositeFunction compositeFunction = new CompositeFunction(outerFunction, innerFunction);
 
-            // Табулируем сложную функцию
+            // 3. Табулируем сложную функцию
             TabulatedFunction tabulatedFunction = createFromMathFunction(compositeFunction,
                     new FunctionDTO.CreateFromMathFunctionRequest() {{
                         setName(request.getName());
@@ -168,19 +232,159 @@ public class FunctionController {
                         setPointsCount(100);
                     }});
 
+            // 4. Сохраняем как обычную функцию
             MathFunction savedFunction = saveTabulatedFunction(tabulatedFunction, request.getName());
+
+            // 5. Добавляем созданную composite функцию в мапу для будущего использования
+            addFunctionToMathMap(savedFunction);
 
             FunctionDTO.Response response = convertToResponse(savedFunction);
             logger.info("Сложная функция создана. ID: {}", savedFunction.getFunctionId());
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
 
         } catch (InvalidFunctionException e) {
-            logger.warn("Функции не найдены для создания сложной функции");
+            logger.warn("Функции не найдены для создания сложной функции: {}", e.getMessage());
             return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             logger.error("Ошибка создания сложной функции: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    private ru.ssau.tk.pmi.functions.MathFunction resolveMathFunction(String functionKey) {
+        logger.info("Поиск функции по ключу: {}", functionKey);
+
+        // 1. Проверяем базовые функции
+        switch (functionKey) {
+            case "SQR":
+                logger.info("Найдена базовая функция: SQR");
+                return new SqrFunction();
+            case "IDENTITY":
+                logger.info("Найдена базовая функция: IDENTITY");
+                return new IdentityFunction();
+            case "CONSTANT_1.0":
+                logger.info("Найдена базовая функция: CONSTANT_1.0");
+                return new ConstantFunction(1.0);
+            case "UNIT":
+                logger.info("Найдена базовая функция: UNIT");
+                return new UnitFunction();
+            case "ZERO":
+                logger.info("Найдена базовая функция: ZERO");
+                return new ZeroFunction();
+        }
+
+        // 2. Проверяем, начинается ли с "USER_" (пользовательская функция)
+        if (functionKey.startsWith("USER_")) {
+            logger.info("Обработка пользовательской функции: {}", functionKey);
+            try {
+                Long functionId = Long.parseLong(functionKey.substring(5));
+                logger.info("Ищем функцию в БД по ID: {}", functionId);
+
+                MathFunction userFunc = functionRepository.findById(functionId)
+                        .orElseThrow(() -> {
+                            logger.error("Функция не найдена в БД по ID: {}", functionId);
+                            return new InvalidFunctionException("Функция не найдена: " + functionKey);
+                        });
+
+                logger.info("Функция найдена в БД: ID={}, имя={}",
+                        userFunc.getFunctionId(), userFunc.getFunctionName());
+
+                // Проверяем доступ
+                User currentUser = securityService.getCurrentUser();
+                boolean canView = securityService.canViewFunction(functionId);
+
+                if (!canView) {
+                    logger.warn("Нет доступа к функции ID: {}", functionId);
+                    throw new AccessDeniedException("Нет доступа к функции: " + functionKey);
+                }
+
+                // Создаем TabulatedFunction из точек БД
+                logger.info("Конвертация функции ID {} в MathFunction", functionId);
+                ru.ssau.tk.pmi.functions.MathFunction result = convertToMathFunction(userFunc);
+                logger.info("Конвертация успешна для функции ID: {}", functionId);
+
+                return result;
+
+            } catch (NumberFormatException e) {
+                logger.error("Некорректный ID функции: {}", functionKey);
+                throw new InvalidFunctionException("Некорректный ID функции: " + functionKey);
+            } catch (AccessDeniedException e) {
+                logger.warn("Доступ запрещен к функции: {}", functionKey);
+                throw e;
+            } catch (Exception e) {
+                logger.error("Ошибка при загрузке функции {}: {}", functionKey, e.getMessage(), e);
+                throw new InvalidFunctionException("Ошибка загрузки функции: " + functionKey);
+            }
+        }
+
+        // 3. Проверяем другие форматы
+        if (functionKey.startsWith("CONSTANT_")) {
+            try {
+                double value = Double.parseDouble(functionKey.substring(9));
+                logger.info("Создание ConstantFunction со значением: {}", value);
+                return new ConstantFunction(value);
+            } catch (NumberFormatException e) {
+                throw new InvalidFunctionException("Некорректное значение константы: " + functionKey);
+            }
+        }
+
+        logger.error("Функция не найдена ни в одном из форматов: {}", functionKey);
+        throw new InvalidFunctionException("Функция не найдена: " + functionKey);
+    }
+
+
+
+    private ru.ssau.tk.pmi.functions.MathFunction convertToMathFunction(MathFunction entity) {
+        logger.info("Начало конвертации функции ID {} в MathFunction", entity.getFunctionId());
+
+        try {
+            // Получаем точки функции
+            List<ComputedPoint> points = entity.getComputedPoints();
+
+            if (points == null) {
+                logger.error("points == null для функции ID {}", entity.getFunctionId());
+                throw new InvalidFunctionException("Функция не содержит точек (points is null)");
+            }
+
+            logger.info("У функции ID {} найдено {} точек", entity.getFunctionId(), points.size());
+
+            if (points.isEmpty()) {
+                logger.error("Функция ID {} не имеет точек (empty)", entity.getFunctionId());
+                throw new InvalidFunctionException("Функция не содержит точек");
+            }
+
+            // Сортируем точки по X
+            points.sort(Comparator.comparing(ComputedPoint::getXValue));
+
+            // Создаем массивы
+            double[] xValues = new double[points.size()];
+            double[] yValues = new double[points.size()];
+
+            for (int i = 0; i < points.size(); i++) {
+                ComputedPoint point = points.get(i);
+                xValues[i] = point.getXValue();
+                yValues[i] = point.getYValue();
+                logger.debug("Точка {}: x={}, y={}", i, xValues[i], yValues[i]);
+            }
+
+            logger.info("Создана TabulatedFunction из {} точек для функции ID {}",
+                    points.size(), entity.getFunctionId());
+
+            // Создаем TabulatedFunction
+            return new ArrayTabulatedFunction(xValues, yValues);
+
+        } catch (Exception e) {
+            logger.error("Ошибка конвертации функции ID {}: {}",
+                    entity.getFunctionId(), e.getMessage(), e);
+            throw new InvalidFunctionException("Не удалось преобразовать функцию: " + e.getMessage());
+        }
+    }
+
+    private void addFunctionToMathMap(MathFunction function) {
+        // Добавляем пользовательскую функцию в мапу для будущего использования
+        String key = "USER_" + function.getFunctionId();
+        TabulatedFunction tabulatedFunction = getTabulatedFunctionFromEntity(function);
+        mathFunctionsMap.put(key, tabulatedFunction);
     }
 
 
@@ -571,12 +775,44 @@ public class FunctionController {
         map.put("Постоянная функция", new ConstantFunction(1.0));
         map.put("Единичная функция", new UnitFunction());
         map.put("Нулевая функция", new ZeroFunction());
+
+        // 2. Загружаем пользовательские функции при старте
+        loadUserFunctionsIntoMap(map);
         return map;
+    }
+
+
+    private void loadUserFunctionsIntoMap(Map<String, ru.ssau.tk.pmi.functions.MathFunction> map) {
+        try {
+            List<MathFunction> userFunctions = functionRepository.findAll();
+
+            for (MathFunction userFunc : userFunctions) {
+                // Создаем ключ для пользовательской функции
+                String key = "USER_" + userFunc.getFunctionId();
+
+                // Создаем TabulatedFunction из точек БД
+                TabulatedFunction tabulatedFunction = getTabulatedFunctionFromEntity(userFunc);
+
+                // Добавляем в мапу как MathFunction
+                map.put(key, tabulatedFunction);
+
+                // Также добавляем по имени (если уникально)
+                String nameKey = "UFUNC_" + userFunc.getFunctionName().replaceAll("\\s+", "_");
+                if (!map.containsKey(nameKey)) {
+                    map.put(nameKey, tabulatedFunction);
+                }
+            }
+
+            logger.info("Загружено {} пользовательских функций в mathFunctionsMap", userFunctions.size());
+        } catch (Exception e) {
+            logger.error("Ошибка загрузки пользовательских функций в мапу: {}", e.getMessage());
+        }
     }
 
 
     // Валидация
     private void validateCreateFromArraysRequest(FunctionDTO.CreateFromArraysRequest request) {
+
         if (request.getName() == null || request.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Имя функции не может быть пустым");
         }
@@ -592,6 +828,8 @@ public class FunctionController {
     }
 
     private void validateCreateFromMathFunctionRequest(FunctionDTO.CreateFromMathFunctionRequest request) {
+        logger.info("запущена валидация");
+
         if (request.getName() == null || request.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Имя функции не может быть пустым");
         }
@@ -607,6 +845,7 @@ public class FunctionController {
     }
 
     private void validateCreateCompositeRequest(FunctionDTO.CreateCompositeRequest request) {
+        System.out.println("DEBUG: validateCreateCompositeRequest вызван");
         if (request.getName() == null || request.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Имя функции не может быть пустым");
         }
@@ -664,6 +903,80 @@ public class FunctionController {
         response.setYRange(yRange);
 
         return response;
+    }
+
+    private ru.ssau.tk.pmi.functions.MathFunction loadUserFunction(String functionIdentifier) {
+        // Пользовательские функции могут передаваться в формате:
+        // 1. "USER_123" - по ID
+        // 2. "123" - просто ID
+        // 3. "МояФункция" - по имени (если уникально)
+
+        try {
+            // Вариант 1: "USER_123"
+            if (functionIdentifier.startsWith("USER_")) {
+                String idStr = functionIdentifier.substring(5);
+                Long functionId = Long.parseLong(idStr);
+                return getUserFunctionById(functionId);
+            }
+
+            // Вариант 2: Просто число "123"
+            try {
+                Long functionId = Long.parseLong(functionIdentifier);
+                return getUserFunctionById(functionId);
+            } catch (NumberFormatException e) {
+                // Не число, пробуем по имени
+            }
+
+            // Вариант 3: По имени функции
+            return getUserFunctionByName(functionIdentifier);
+
+        } catch (Exception e) {
+            logger.warn("Не удалось загрузить пользовательскую функцию: {}", functionIdentifier);
+            return null;
+        }
+    }
+
+    private ru.ssau.tk.pmi.functions.MathFunction getUserFunctionById(Long functionId) {
+        MathFunction userFunc = functionRepository.findById(functionId)
+                .orElseThrow(() -> new InvalidFunctionException("Функция не найдена по ID: " + functionId));
+
+        // Проверяем доступ
+        if (!securityService.canViewFunction(functionId)) {
+            throw new AccessDeniedException("Нет доступа к функции: " + functionId);
+        }
+
+        return convertUserFunctionToMathFunction(userFunc);
+    }
+
+    private ru.ssau.tk.pmi.functions.MathFunction getUserFunctionByName(String functionName) {
+        // Ищем функцию по имени среди доступных пользователю
+        User currentUser = securityService.getCurrentUser();
+        List<MathFunction> functions = functionRepository.findAccessibleFunctions(currentUser.getUserId());
+
+        return functions.stream()
+                .filter(f -> f.getFunctionName().equalsIgnoreCase(functionName))
+                .findFirst()
+                .map(this::convertUserFunctionToMathFunction)
+                .orElseThrow(() -> new InvalidFunctionException("Функция не найдена по имени: " + functionName));
+    }
+
+    private ru.ssau.tk.pmi.functions.MathFunction convertUserFunctionToMathFunction(MathFunction entity) {
+        // Конвертируем сохраненную функцию в TabulatedFunction
+        List<ComputedPoint> points = entity.getComputedPoints();
+
+        // Сортируем по X
+        points.sort(Comparator.comparing(ComputedPoint::getXValue));
+
+        double[] xValues = new double[points.size()];
+        double[] yValues = new double[points.size()];
+
+        for (int i = 0; i < points.size(); i++) {
+            xValues[i] = points.get(i).getXValue();
+            yValues[i] = points.get(i).getYValue();
+        }
+
+        // Создаем TabulatedFunction
+        return new ArrayTabulatedFunction(xValues, yValues);
     }
 
     private FunctionDTO.Response convertToResponse(MathFunction function) {

@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { validateFunctionParams } from '../../utils/validation';
-import "../../App.css";
+import '../../App.css';
 
 const FunctionParamsModal = ({
   isOpen,
   functionName,
+  functionKey,
   onClose,
   onConfirm,
   isLoading
@@ -19,27 +20,29 @@ const FunctionParamsModal = ({
 
   if (!isOpen) return null;
 
-  const getTitle = () => {
-    switch (functionName) {
-      case 'Постоянная функция':
-        return 'Параметр постоянной функции';
-      case 'B-сплайн функция':
-        return 'Параметры B-сплайн функции';
-      default:
-        return 'Параметры функции';
-    }
+  // Получаем информацию о функции
+  const getFunctionInfo = () => {
+    // Базовые функции с параметрами
+    const functionMap = {
+      'Постоянная функция': {
+        title: 'Параметр постоянной функции',
+        description: 'Введите значение константы',
+        requiresValue: true
+      },
+      'B-сплайн функция': {
+        title: 'Параметры B-сплайн функции',
+        description: 'Введите точки узлов, порядок сплайна и весовые коэффициенты',
+        requiresParams: true
+      }
+    };
+
+    return functionMap[functionName] || {
+      title: 'Параметры функции',
+      description: 'Заполните необходимые параметры'
+    };
   };
 
-  const getDescription = () => {
-    switch (functionName) {
-      case 'Постоянная функция':
-        return 'Введите значение константы (например, 5.0)';
-      case 'B-сплайн функция':
-        return 'Введите точки узлов (через запятую), порядок сплайна и весовые коэффициенты';
-      default:
-        return 'Заполните необходимые параметры';
-    }
-  };
+  const functionInfo = getFunctionInfo();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -50,7 +53,20 @@ const FunctionParamsModal = ({
       return;
     }
 
-    onConfirm(params);
+    // Формируем ключ функции с параметрами
+    let functionKeyWithParams = functionKey;
+
+    if (functionName === 'Постоянная функция' && params.constantValue) {
+      functionKeyWithParams = `CONSTANT_${params.constantValue}`;
+    } else if (functionName === 'B-сплайн функция' && params.nodePoints && params.splineOrder && params.weights) {
+      functionKeyWithParams = 'BSPLINE';
+    }
+
+    onConfirm({
+      functionKey: functionKeyWithParams,
+      params: params
+    });
+
     setParams({ constantValue: '', nodePoints: '', splineOrder: '', weights: '' });
     setErrors({});
   };
@@ -140,7 +156,11 @@ const FunctionParamsModal = ({
         );
 
       default:
-        return null;
+        return (
+          <div className="form-group">
+            <p className="info-message">Эта функция не требует дополнительных параметров</p>
+          </div>
+        );
     }
   };
 
@@ -148,8 +168,8 @@ const FunctionParamsModal = ({
     <div className="modal-overlay">
       <div className="modal-content">
         <div className="modal-header">
-          <h3 className="modal-title">{getTitle()}</h3>
-          <p className="modal-description">{getDescription()}</p>
+          <h3 className="modal-title">{functionInfo.title}</h3>
+          <p className="modal-description">{functionInfo.description}</p>
         </div>
 
         <form onSubmit={handleSubmit}>

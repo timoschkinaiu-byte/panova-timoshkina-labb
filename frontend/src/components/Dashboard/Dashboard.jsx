@@ -40,24 +40,38 @@ const Dashboard = () => {
     notificationService.removeNotification(id);
   };
 
+
+
+  // В Dashboard.jsx, в renderContent:
   const renderContent = () => {
-    switch (activeSection) {
-      case 'create':
-        return <CreateFunction />;
-      case 'my-functions':
-        return <MyFunctions />;
-      case 'operations':
-        return <Operations />;
-      case 'differentiation':
-        return <Differentiation />;
-      case 'integration':
-        return <Integration />;
-      case 'public-functions':
-        return <PublicFunctions />;
-      case 'settings':
-        return <Settings />;
-      default:
-        return <CreateFunction />;
+    try {
+      switch (activeSection) {
+        case 'create':
+          return <CreateFunction />;
+        case 'my-functions':
+          return <MyFunctions />;
+        case 'operations':
+          return <Operations />;
+        case 'differentiation':
+          console.log('Rendering Differentiation component');
+          return <Differentiation />; // ← здесь падает
+        case 'integration':
+          return <Integration />;
+        case 'public-functions':
+          return <PublicFunctions />;
+        case 'settings':
+          return <Settings />;
+        default:
+          return <CreateFunction />;
+      }
+    } catch (error) {
+      console.error('Error rendering section:', activeSection, error);
+      return (
+        <div className="error-section">
+          <h3>Ошибка загрузки раздела</h3>
+          <p>{error.message}</p>
+        </div>
+      );
     }
   };
 

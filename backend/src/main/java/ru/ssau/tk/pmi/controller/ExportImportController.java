@@ -1,5 +1,9 @@
 package ru.ssau.tk.pmi.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -40,11 +44,16 @@ public class ExportImportController {
     private final MathFunctionRepository functionRepository;
     private final UserRepository userRepository;
     private final SecurityService securityService;
+    private final ObjectMapper objectMapper;
 
-    public ExportImportController(MathFunctionRepository functionRepository, UserRepository userRepository, SecurityService securityService) {
+    public ExportImportController(MathFunctionRepository functionRepository,
+                                  UserRepository userRepository,
+                                  SecurityService securityService) {
         this.functionRepository = functionRepository;
         this.userRepository = userRepository;
         this.securityService = securityService;
+        this.objectMapper = new ObjectMapper();
+        this.objectMapper.enable(SerializationFeature.INDENT_OUTPUT); // Красивый вывод JSON
     }
 
     @PostMapping("/functions/{id}/export")
@@ -86,6 +95,9 @@ public class ExportImportController {
                     case "binary":
                         FunctionsIO.writeTabulatedFunction(outputStream, tabulatedFunction);
                         break;
+                    case "json":
+                        exportToJson(function, tabulatedFunction, outputStream);
+                        break;
                     default:
                         throw new IllegalArgumentException("Неподдерживаемый формат: " + format);
                 }
@@ -119,6 +131,14 @@ public class ExportImportController {
         }
     }
 
+    @GetMapping("/functions/{id}/export") // Добавляем GET метод для фронтенда
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<Resource> exportFunctionGet(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "json") String format) {
+        return exportFunction(id, format);
+    }
+
     @PostMapping(value = "/functions/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<ExportImportDTO.ImportResponse> importFunction(
@@ -149,6 +169,9 @@ public class ExportImportController {
                         break;
                     case "binary":
                         tabulatedFunction = FunctionsIO.readTabulatedFunction(inputStream, factory);
+                        break;
+                    case "json":
+                        tabulatedFunction = importFromJson(inputStream);
                         break;
                     default:
                         throw new InvalidFileFormatException("Неподдерживаемый формат: " + detectedFormat);
@@ -189,8 +212,9 @@ public class ExportImportController {
         }
         if (format == null || (!"text".equalsIgnoreCase(format) &&
                 !"binary".equalsIgnoreCase(format) &&
-                !"serialized".equalsIgnoreCase(format))) {
-            throw new IllegalArgumentException("Формат должен быть: text, binary или serialized");
+                !"serialized".equalsIgnoreCase(format) &&
+                !"json".equalsIgnoreCase(format))) {
+            throw new IllegalArgumentException("Формат должен быть: text, binary, serialized или json");
         }
     }
 
@@ -201,8 +225,9 @@ public class ExportImportController {
         if (format != null && (!"text".equalsIgnoreCase(format) &&
                 !"binary".equalsIgnoreCase(format) &&
                 !"serialized".equalsIgnoreCase(format) &&
+                !"json".equalsIgnoreCase(format) &&
                 !"auto".equalsIgnoreCase(format))) {
-            throw new IllegalArgumentException("Формат должен быть: text, binary, serialized или auto");
+            throw new IllegalArgumentException("Формат должен быть: text, binary, serialized, json или auto");
         }
     }
 
@@ -221,6 +246,8 @@ public class ExportImportController {
                 return ".bin";
             case "serialized":
                 return ".ser";
+            case "json":
+                return ".json";
             default:
                 return ".dat";
         }
@@ -229,7 +256,9 @@ public class ExportImportController {
     private String getContentType(String format) {
         switch (format.toLowerCase()) {
             case "text":
-                return "text/plain";
+                return "text/plain; charset=UTF-8";
+            case "json":
+                return "application/json; charset=UTF-8";
             case "binary":
             case "serialized":
             default:
@@ -244,6 +273,7 @@ public class ExportImportController {
         if (lowerName.endsWith(".txt")) return "text";
         if (lowerName.endsWith(".bin")) return "binary";
         if (lowerName.endsWith(".ser")) return "serialized";
+        if (lowerName.endsWith(".json")) return "json";
 
         return "text"; // по умолчанию текстовый
     }
@@ -255,6 +285,82 @@ public class ExportImportController {
         return name.isEmpty() ? "Импортированная_функция" : name;
     }
 
+    // Экспорт в JSON формат
+    private void exportToJson(MathFunction functionEntity,
+                              TabulatedFunction tabulatedFunction,
+                              OutputStream outputStream) throws IOException {
+
+        // Создаем структуру JSON
+        ObjectNode rootNode = objectMapper.createObjectNode();
+
+        // Метаданные функции
+        rootNode.put("functionId", functionEntity.getFunctionId());
+        rootNode.put("functionName", functionEntity.getFunctionName());
+        rootNode.put("functionType", functionEntity.getFunctionType());
+        rootNode.put("ownerId", functionEntity.getOwner().getUserId());
+        rootNode.put("isPublic", functionEntity.getIsPublic());
+        rootNode.put("createdAt", functionEntity.getCreatedAt().toString());
+        rootNode.put("pointsCount", tabulatedFunction.getCount());
+
+        // Информация о точках
+        ArrayNode pointsArray = rootNode.putArray("points");
+        for (int i = 0; i < tabulatedFunction.getCount(); i++) {
+            ObjectNode pointNode = pointsArray.addObject();
+            pointNode.put("x", tabulatedFunction.getX(i));
+            pointNode.put("y", tabulatedFunction.getY(i));
+        }
+
+        // Дополнительная информация о диапазоне
+        ObjectNode rangeNode = rootNode.putObject("range");
+        rangeNode.put("xMin", tabulatedFunction.leftBound());
+        rangeNode.put("xMax", tabulatedFunction.rightBound());
+
+        // Ищем min/max Y
+        double yMin = Double.MAX_VALUE;
+        double yMax = Double.MIN_VALUE;
+        for (int i = 0; i < tabulatedFunction.getCount(); i++) {
+            double y = tabulatedFunction.getY(i);
+            if (y < yMin) yMin = y;
+            if (y > yMax) yMax = y;
+        }
+        rangeNode.put("yMin", yMin);
+        rangeNode.put("yMax", yMax);
+
+        // Записываем JSON
+        objectMapper.writeValue(outputStream, rootNode);
+    }
+
+    // Импорт из JSON формата
+    private TabulatedFunction importFromJson(InputStream inputStream) throws IOException {
+        // Читаем JSON
+        ObjectNode rootNode = objectMapper.readValue(inputStream, ObjectNode.class);
+
+        // Проверяем наличие массива точек
+        if (!rootNode.has("points") || !rootNode.get("points").isArray()) {
+            throw new InvalidFileFormatException("JSON файл должен содержать массив 'points'");
+        }
+
+        ArrayNode pointsArray = (ArrayNode) rootNode.get("points");
+        int pointCount = pointsArray.size();
+
+        if (pointCount < 2) {
+            throw new InvalidFileFormatException("Функция должна содержать минимум 2 точки");
+        }
+
+        // Извлекаем точки
+        double[] xValues = new double[pointCount];
+        double[] yValues = new double[pointCount];
+
+        for (int i = 0; i < pointCount; i++) {
+            ObjectNode pointNode = (ObjectNode) pointsArray.get(i);
+            xValues[i] = pointNode.get("x").asDouble();
+            yValues[i] = pointNode.get("y").asDouble();
+        }
+
+        // Создаем TabulatedFunction
+        return new ArrayTabulatedFunction(xValues, yValues);
+    }
+
     private TabulatedFunction getTabulatedFunctionFromEntity(MathFunction function) {
         List<Double> xValues = new ArrayList<>();
         List<Double> yValues = new ArrayList<>();
@@ -264,8 +370,18 @@ public class ExportImportController {
             yValues.add(point.getYValue());
         });
 
-        double[] xArray = xValues.stream().mapToDouble(Double::doubleValue).toArray();
-        double[] yArray = yValues.stream().mapToDouble(Double::doubleValue).toArray();
+        // Сортируем точки по X (важно для корректной работы)
+        List<ComputedPoint> sortedPoints = function.getComputedPoints().stream()
+                .sorted((p1, p2) -> Double.compare(p1.getXValue(), p2.getXValue()))
+                .toList();
+
+        double[] xArray = new double[sortedPoints.size()];
+        double[] yArray = new double[sortedPoints.size()];
+
+        for (int i = 0; i < sortedPoints.size(); i++) {
+            xArray[i] = sortedPoints.get(i).getXValue();
+            yArray[i] = sortedPoints.get(i).getYValue();
+        }
 
         return new ArrayTabulatedFunction(xArray, yArray);
     }
@@ -282,7 +398,7 @@ public class ExportImportController {
         mathFunction.setCreatedAt(LocalDateTime.now());
         mathFunction.setUpdatedAt(LocalDateTime.now());
 
-        // СОХРАНЯЕМ ТОЧКИ
+        // СОХРАНЯЕМ ТОЧКИ (с сортировкой)
         List<ComputedPoint> points = new ArrayList<>();
         for (int i = 0; i < tabulatedFunction.getCount(); i++) {
             ComputedPoint point = new ComputedPoint();

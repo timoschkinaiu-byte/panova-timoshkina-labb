@@ -4,6 +4,38 @@ import functionService from '../../services/functionService';
 import notificationService from '../../services/notificationService';
 import "../../App.css";
 
+// Добавляем компонент модального окна подтверждения
+const ConfirmDeleteModal = ({ isOpen, message, onConfirm, onCancel }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="modal-overlay confirm-modal-overlay">
+      <div className="modal-content confirm-modal-content">
+        <div className="modal-header">
+          <h3 className="modal-title">Подтверждение удаления</h3>
+        </div>
+        <div className="modal-body">
+          <p>{message}</p>
+        </div>
+        <div className="modal-buttons">
+          <button
+            className="btn-secondary"
+            onClick={onCancel}
+          >
+            Отмена
+          </button>
+          <button
+            className="btn-danger"
+            onClick={onConfirm}
+          >
+            Удалить
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 const FunctionModal = ({ isOpen, onClose, function: func, onDelete, onUpdate }) => {
   const [activeTab, setActiveTab] = useState('graph');
@@ -28,6 +60,14 @@ const FunctionModal = ({ isOpen, onClose, function: func, onDelete, onUpdate }) 
   const [addPointModalOpen, setAddPointModalOpen] = useState(false);
   const [newPoint, setNewPoint] = useState({ x: '', y: '' });
   const [isAddingPoint, setIsAddingPoint] = useState(false);
+
+  const [deleteConfirmModal, setDeleteConfirmModal] = useState({
+    isOpen: false,
+    pointId: null,
+    pointInfo: null
+  });
+
+  const [isExporting, setIsExporting] = useState(false); // Добавлено для кнопки экспорта
 
   // Реф для автофокуса
   const nameInputRef = useRef(null);
@@ -221,117 +261,115 @@ const FunctionModal = ({ isOpen, onClose, function: func, onDelete, onUpdate }) 
   };
 
   // Добавление точки
-  // FunctionModal.jsx - найти функцию handleAddPointSubmit и исправить:
-
   const handleAddPointSubmit = async () => {
-    if (!newPoint.x || !newPoint.y) {
-      notificationService.error('Заполните оба значения');
-      return;
-    }
-
-    const x = parseFloat(newPoint.x);
-    const y = parseFloat(newPoint.y);
-
-    if (isNaN(x) || isNaN(y)) {
-      notificationService.error('Введите числовые значения');
-      return;
-    }
-
-    setIsAddingPoint(true);
-    try {
-      // Отправляем данные с правильными названиями полей
-      await functionService.addPoint(func.functionId, x, y);
-      notificationService.success('Точка успешно добавлена');
-      setAddPointModalOpen(false);
-      setNewPoint({ x: '', y: '' });
-      loadPoints(); // Обновляем список точек
-    } catch (error) {
-      console.error('Error adding point:', error);
-
-      // Более информативное сообщение об ошибке
-      let errorMessage = 'Ошибка при добавлении точки';
-      if (error.response?.data?.message) {
-        errorMessage += `: ${error.response.data.message}`;
-      } else if (error.message) {
-        errorMessage += `: ${error.message}`;
+      if (!newPoint.x || !newPoint.y) {
+        notificationService.error('Заполните оба значения');
+        return;
       }
 
-      notificationService.error(errorMessage);
-    } finally {
-      setIsAddingPoint(false);
-    }
-  };
+      const x = parseFloat(newPoint.x);
+      const y = parseFloat(newPoint.y);
 
-
-  // Удаление точки
-  const handleDeletePoint = async (pointId) => {
-    const confirmed = window.confirm('Удалить эту точку?');
-    if (!confirmed) return;
-
-    try {
-      await functionService.deletePoint(pointId);
-      notificationService.success('Точка удалена');
-      loadPoints(); // Обновляем список точек
-    } catch (error) {
-      console.error('Error deleting point:', error);
-      notificationService.error('Ошибка при удалении точки');
-    }
-  };
-
-  // Экспорт функции
-  const handleExportFunction = async () => {
-    try {
-      // Формируем имя файла
-      const safeName = func.functionName
-        .replace(/[^a-zA-Z0-9а-яА-ЯёЁ\s\-_]/g, '') // Убираем спецсимволы
-        .replace(/\s+/g, '_') // Пробелы в подчеркивания
-        .trim();
-
-      const filename = `${safeName || 'function'}.bin`;
-
-      console.log('Экспорт функции в .bin:', func.functionId);
-
-      // Запрашиваем файл
-      const response = await functionService.exportFunction(func.functionId, 'binary');
-
-      // Проверяем что получили данные
-      if (!response.data || response.data.size === 0) {
-        throw new Error('Получен пустой файл');
+      if (isNaN(x) || isNaN(y)) {
+        notificationService.error('Введите числовые значения');
+        return;
       }
 
-      console.log('Размер файла:', response.data.size, 'байт');
+      setIsAddingPoint(true);
+      try {
+        // Используем правильный метод
+        await functionService.addPoint(func.functionId, x, y);
+        notificationService.success('Точка успешно добавлена');
+        setAddPointModalOpen(false);
+        setNewPoint({ x: '', y: '' });
+        loadPoints(); // Обновляем список точек
+      } catch (error) {
+        console.error('Error adding point:', error);
 
-      // Создаем ссылку для скачивания
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', filename);
-      document.body.appendChild(link);
-      link.click();
+        let errorMessage = 'Ошибка при добавлении точки';
+        if (error.response?.data?.message) {
+          errorMessage += `: ${error.response.data.message}`;
+        } else if (error.message) {
+          errorMessage += `: ${error.message}`;
+        }
 
-      // Очистка
-      setTimeout(() => {
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-      }, 100);
-
-      notificationService.success(`Функция сохранена как ${filename}`);
-
-    } catch (error) {
-      console.error('Ошибка при сохранении файла:', error);
-
-      let message = 'Ошибка при сохранении файла';
-      if (error.response?.status === 404) {
-        message = 'Функция не найдена';
-      } else if (error.response?.status === 500) {
-        message = 'Ошибка сервера при создании файла';
-      } else if (error.message) {
-        message = error.message;
+        notificationService.error(errorMessage);
+      } finally {
+        setIsAddingPoint(false);
       }
+    };
 
-      notificationService.error(message);
-    }
-  };
+    // Удаление точки с подтверждением
+    const handleDeletePointClick = (pointId, pointInfo) => {
+      setDeleteConfirmModal({
+        isOpen: true,
+        pointId,
+        pointInfo: pointInfo || `точку с ID ${pointId}`
+      });
+    };
+
+    const handleDeletePointConfirm = async () => {
+      const { pointId, pointInfo } = deleteConfirmModal;
+
+      try {
+        // Используем правильный метод
+        await functionService.deletePoint(pointId);
+        notificationService.success(`Точка ${pointInfo} удалена`);
+        loadPoints(); // Обновляем список точек
+      } catch (error) {
+        console.error('Error deleting point:', error);
+        notificationService.error('Ошибка при удалении точки');
+      } finally {
+        setDeleteConfirmModal({ isOpen: false, pointId: null, pointInfo: null });
+      }
+    };
+
+    const handleDeletePointCancel = () => {
+      setDeleteConfirmModal({ isOpen: false, pointId: null, pointInfo: null });
+    };
+
+    // Экспорт функции в файл
+    const handleExportFunction = async () => {
+      setIsExporting(true);
+      try {
+        const { functionData, blob, fileName } = await functionService.getExportData(func.functionId);
+
+        // Создаем ссылку для скачивания
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+
+        // Очистка
+        setTimeout(() => {
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+        }, 100);
+
+        notificationService.success(`Функция "${functionData.functionName}" сохранена как ${fileName}`);
+
+      } catch (error) {
+        console.error('Ошибка при сохранении файла:', error);
+
+        let message = 'Ошибка при сохранении файла';
+        if (error.response?.status === 404) {
+          message = 'Функция не найдена';
+        } else if (error.response?.status === 500) {
+          message = 'Ошибка сервера при создании файла';
+        } else if (error.message) {
+          message = error.message;
+        }
+
+        notificationService.error(message);
+      } finally {
+        setIsExporting(false);
+      }
+    };
+
+
+
 
 
   // Форматирование даты и времени
@@ -359,296 +397,302 @@ const FunctionModal = ({ isOpen, onClose, function: func, onDelete, onUpdate }) 
     : { min: -10, max: 10 };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content function-modal">
-        {/* Заголовок */}
-        <div className="function-header">
-          <div className="function-title-section">
-            {isEditingName ? (
-              <div className="name-editor">
-                <input
-                  ref={nameInputRef}
-                  type="text"
-                  className="name-input"
-                  value={functionName}
-                  onChange={(e) => setFunctionName(e.target.value)}
-                  disabled={isSaving}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleSaveChanges();
-                    if (e.key === 'Escape') {
+    <>
+      {/* Модальное окно подтверждения удаления */}
+      <ConfirmDeleteModal
+        isOpen={deleteConfirmModal.isOpen}
+        message={`Вы уверены, что хотите удалить ${deleteConfirmModal.pointInfo}?`}
+        onConfirm={handleDeletePointConfirm}
+        onCancel={handleDeletePointCancel}
+      />
+
+      <div className="modal-overlay">
+        <div className="modal-content function-modal">
+          {/* Заголовок */}
+          <div className="function-header">
+            <div className="function-title-section">
+              {isEditingName ? (
+                <div className="name-editor">
+                  <input
+                    ref={nameInputRef}
+                    type="text"
+                    className="name-input"
+                    value={functionName}
+                    onChange={(e) => setFunctionName(e.target.value)}
+                    disabled={isSaving}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSaveChanges();
+                      if (e.key === 'Escape') {
+                        setIsEditingName(false);
+                        setFunctionName(func.functionName);
+                      }
+                    }}
+                  />
+                  <button
+                    className="btn-save-name"
+                    onClick={handleSaveChanges}
+                    disabled={isSaving || !functionName.trim()}
+                  >
+                    Сохранить
+                  </button>
+                  <button
+                    className="btn-cancel-name"
+                    onClick={() => {
                       setIsEditingName(false);
                       setFunctionName(func.functionName);
-                    }
-                  }}
-                />
-                <button
-                  className="btn-save-name"
-                  onClick={handleSaveChanges}
-                  disabled={isSaving || !functionName.trim()}
-                >
-                  Сохранить
-                </button>
-                <button
-                  className="btn-cancel-name"
-                  onClick={() => {
-                    setIsEditingName(false);
-                    setFunctionName(func.functionName);
-                  }}
-                  disabled={isSaving}
-                >
-                  Отмена
-                </button>
-              </div>
-            ) : (
-              <h3
-                className="function-title"
-                onClick={() => setIsEditingName(true)}
-                title="Нажмите для редактирования"
-              >
-                {func.functionName}
-              </h3>
-            )}
-
-            <div className="function-info-line">
-              <span className="function-info-item">
-                <strong>ID:</strong> #{func.functionId}
-              </span>
-              <span className="function-info-item">
-                <strong>Владелец:</strong> Вы
-              </span>
-              <span className="function-info-item">
-                <strong>Создано:</strong> {formatDateTime(func.createdAt)}
-              </span>
-            </div>
-          </div>
-
-          <div className="function-header-right">
-            <div className="public-toggle-container">
-              <span className="public-label">Публичная:</span>
-              <label className="switch">
-                <input
-                  type="checkbox"
-                  checked={isPublic}
-                  onChange={(e) => {
-                    setIsPublic(e.target.checked);
-                    onUpdate({ isPublic: e.target.checked });
-                  }}
-                />
-                <span className="slider"></span>
-              </label>
-            </div>
-
-            <div className="function-header-actions">
-              <button
-                className="btn-action delete-function"
-                onClick={() => onDelete(func.functionId, func.functionName)}
-                title="Удалить функцию"
-              >
-                Удалить функцию
-              </button>
-            </div>
-
-            <button className="modal-close" onClick={onClose} title="Закрыть">
-              ×
-            </button>
-          </div>
-        </div>
-
-        {/* Вкладки */}
-        <div className="function-tabs">
-          <button
-            className={`tab ${activeTab === 'graph' ? 'active' : ''}`}
-            onClick={() => setActiveTab('graph')}
-          >
-            График
-          </button>
-          <button
-            className={`tab ${activeTab === 'points' ? 'active' : ''}`}
-            onClick={() => {
-              setActiveTab('points');
-              if (points.length === 0) loadPoints();
-            }}
-          >
-            Точки функции
-          </button>
-        </div>
-
-        {/* Контент вкладок */}
-        <div className="function-content">
-          {activeTab === 'graph' ? (
-            <div className="graph-tab">
-              {graphError ? (
-                <div className="graph-error">
-                  <p>{graphError}</p>
+                    }}
+                    disabled={isSaving}
+                  >
+                    Отмена
+                  </button>
                 </div>
               ) : (
-                <GraphPreview
-                  points={graphData}
-                  title=""
-                  xRange={xRange}
-                  yRange={yRange}
-                  isLoading={isLoadingGraph}
-                  showTitle={false}
-                  compact={true}
-                />
+                <h3
+                  className="function-title"
+                  onClick={() => setIsEditingName(true)}
+                  title="Нажмите для редактирования"
+                >
+                  {func.functionName}
+                </h3>
               )}
+
+              <div className="function-info-line">
+                <span className="function-info-item">
+                  <strong>ID:</strong> #{func.functionId}
+                </span>
+                <span className="function-info-item">
+                  <strong>Владелец:</strong> Вы
+                </span>
+                <span className="function-info-item">
+                  <strong>Создано:</strong> {formatDateTime(func.createdAt)}
+                </span>
+              </div>
             </div>
-          ) : (
-            <div className="points-tab">
-              {/* Выбор вида отображения точек */}
-              <div className="points-view-selector">
-                <div className="radio-group horizontal">
-                  <label className="radio-label">
-                    <input
-                      type="radio"
-                      name="pointsView"
-                      value="all"
-                      checked={pointsView === 'all'}
-                      onChange={(e) => {
-                        setPointsView(e.target.value);
-                        if (e.target.value === 'all') loadPoints();
-                      }}
-                    />
-                    <span className="radio-text">Все точки</span>
-                  </label>
-                  <label className="radio-label">
-                    <input
-                      type="radio"
-                      name="pointsView"
-                      value="range"
-                      checked={pointsView === 'range'}
-                      onChange={(e) => setPointsView(e.target.value)}
-                    />
-                    <span className="radio-text">В диапазоне X</span>
-                  </label>
-                </div>
+
+            <div className="function-header-right">
+              <div className="public-toggle-container">
+                <span className="public-label">Публичная:</span>
+                <label className="switch">
+                  <input
+                    type="checkbox"
+                    checked={isPublic}
+                    onChange={(e) => {
+                      setIsPublic(e.target.checked);
+                      onUpdate({ isPublic: e.target.checked });
+                    }}
+                  />
+                  <span className="slider"></span>
+                </label>
               </div>
 
-              {/* Поля для диапазона */}
-              {pointsView === 'range' && (
-                <div className="range-inputs">
-                  <div className="form-group">
-                    <input
-                      type="number"
-                      className="form-input"
-                      value={xFrom}
-                      onChange={(e) => setXFrom(e.target.value)}
-                      step="any"
-                      placeholder="Начало диапазона X"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <input
-                      type="number"
-                      className="form-input"
-                      value={xTo}
-                      onChange={(e) => setXTo(e.target.value)}
-                      step="any"
-                      placeholder="Конец диапазона X"
-                    />
-                  </div>
-                  <button
-                    className="btn-primary"
-                    onClick={handleGetPointsByRange}
-                    disabled={isLoadingPoints}
-                  >
-                    Получить точки
-                  </button>
-                </div>
-              )}
+              <div className="function-header-actions">
+                <button
+                  className="btn-action delete-function"
+                  onClick={() => onDelete(func.functionId, func.functionName)}
+                  title="Удалить функцию"
+                >
+                  Удалить функцию
+                </button>
+              </div>
 
-              {/* Таблица точек */}
-              <div className="points-table-container">
-                <div className="points-table-header">
-                  <button
-                    className="btn-primary"
-                    onClick={() => setAddPointModalOpen(true)}
-                  >
-                    Добавить точку
-                  </button>
-                </div>
+              <button className="modal-close" onClick={onClose} title="Закрыть">
+                ×
+              </button>
+            </div>
+          </div>
 
-                {isLoadingPoints ? (
-                  <div className="loading-points">
-                    <div className="loading-spinner"></div>
-                    <p>Загрузка точек...</p>
-                  </div>
-                ) : points.length === 0 ? (
-                  <div className="empty-points">
-                    <p>Точки не найдены</p>
-                    <button
-                      className="btn-primary"
-                      onClick={() => loadPoints()}
-                      style={{ marginTop: '10px' }}
-                    >
-                      Попробовать снова
-                    </button>
+          {/* Вкладки */}
+          <div className="function-tabs">
+            <button
+              className={`tab ${activeTab === 'graph' ? 'active' : ''}`}
+              onClick={() => setActiveTab('graph')}
+            >
+              График
+            </button>
+            <button
+              className={`tab ${activeTab === 'points' ? 'active' : ''}`}
+              onClick={() => {
+                setActiveTab('points');
+                if (points.length === 0) loadPoints();
+              }}
+            >
+              Точки функции
+            </button>
+          </div>
+
+          {/* Контент вкладок */}
+          <div className="function-content">
+            {activeTab === 'graph' ? (
+              <div className="graph-tab">
+                {graphError ? (
+                  <div className="graph-error">
+                    <p>{graphError}</p>
                   </div>
                 ) : (
-                  <div className="points-table-wrapper">
-                    <div className="points-count-info">
-                      Найдено точек: {points.length}
+                  <GraphPreview
+                    points={graphData}
+                    title=""
+                    xRange={xRange}
+                    yRange={yRange}
+                    isLoading={isLoadingGraph}
+                    showTitle={false}
+                    compact={true}
+                  />
+                )}
+              </div>
+            ) : (
+              <div className="points-tab">
+                {/* Выбор вида отображения точек */}
+                <div className="points-view-selector">
+                  <div className="radio-group horizontal">
+                    <label className="radio-label">
+                      <input
+                        type="radio"
+                        name="pointsView"
+                        value="all"
+                        checked={pointsView === 'all'}
+                        onChange={(e) => {
+                          setPointsView(e.target.value);
+                          if (e.target.value === 'all') loadPoints();
+                        }}
+                      />
+                      <span className="radio-text">Все точки</span>
+                    </label>
+                    <label className="radio-label">
+                      <input
+                        type="radio"
+                        name="pointsView"
+                        value="range"
+                        checked={pointsView === 'range'}
+                        onChange={(e) => setPointsView(e.target.value)}
+                      />
+                      <span className="radio-text">В диапазоне X</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Поля для диапазона */}
+                {pointsView === 'range' && (
+                  <div className="range-inputs">
+                    <div className="form-group">
+                      <input
+                        type="number"
+                        className="form-input"
+                        value={xFrom}
+                        onChange={(e) => setXFrom(e.target.value)}
+                        step="any"
+                        placeholder="Начало диапазона X"
+                      />
                     </div>
-                    <table className="points-table">
-                      <thead>
-                        <tr>
-                          <th>ID точки</th>
-                          <th>X</th>
-                          <th>Y</th>
-                          <th className="actions-column">Действия</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {points.map(point => {
-                          // используем правильные названия полей из API
-                          const pointId = point.pointId || point.id || 'N/A';
-                          // Пробуем разные варианты названий полей
-                          const xValue = point.xvalue !== undefined ? point.xvalue :
-                                        point.xValue !== undefined ? point.xValue :
-                                        point.x !== undefined ? point.x : 'N/A';
-
-                          const yValue = point.yvalue !== undefined ? point.yvalue :
-                                        point.yValue !== undefined ? point.yValue :
-                                        point.y !== undefined ? point.y : 'N/A';
-
-                          return (
-                            <tr key={pointId}>
-                              <td>#{pointId}</td>
-                              <td>{typeof xValue === 'number' ? xValue.toFixed(4) : xValue}</td>
-                              <td>{typeof yValue === 'number' ? yValue.toFixed(4) : yValue}</td>
-                              <td className="actions-column">
-                                <button
-                                  className="btn-action delete-point"
-                                  onClick={() => handleDeletePoint(pointId)}
-                                  title="Удалить точку"
-                                >
-                                  Удалить
-                                </button>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
+                    <div className="form-group">
+                      <input
+                        type="number"
+                        className="form-input"
+                        value={xTo}
+                        onChange={(e) => setXTo(e.target.value)}
+                        step="any"
+                        placeholder="Конец диапазона X"
+                      />
+                    </div>
+                    <button
+                      className="btn-primary"
+                      onClick={handleGetPointsByRange}
+                      disabled={isLoadingPoints}
+                    >
+                      Получить точки
+                    </button>
                   </div>
                 )}
 
+                {/* Таблица точек */}
+                <div className="points-table-container">
+                  <div className="points-table-header">
+                    <button
+                      className="btn-primary"
+                      onClick={() => setAddPointModalOpen(true)}
+                    >
+                      Добавить точку
+                    </button>
+                  </div>
+
+                  {isLoadingPoints ? (
+                    <div className="loading-points">
+                      <div className="loading-spinner"></div>
+                      <p>Загрузка точек...</p>
+                    </div>
+                  ) : points.length === 0 ? (
+                    <div className="empty-points">
+                      <p>Точки не найдены</p>
+                      <button
+                        className="btn-primary"
+                        onClick={() => loadPoints()}
+                        style={{ marginTop: '10px' }}
+                      >
+                        Попробовать снова
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="points-table-wrapper">
+                      <div className="points-count-info">
+                        Найдено точек: {points.length}
+                      </div>
+                      <table className="points-table">
+                        <thead>
+                          <tr>
+                            <th>ID точки</th>
+                            <th>X</th>
+                            <th>Y</th>
+                            <th className="actions-column">Действия</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {points.map(point => {
+                            const pointId = point.pointId || point.id || 'N/A';
+                            const xValue = point.xvalue !== undefined ? point.xvalue :
+                                          point.xValue !== undefined ? point.xValue :
+                                          point.x !== undefined ? point.x : 'N/A';
+                            const yValue = point.yvalue !== undefined ? point.yvalue :
+                                          point.yValue !== undefined ? point.yValue :
+                                          point.y !== undefined ? point.y : 'N/A';
+
+                            return (
+                              <tr key={pointId}>
+                                <td>#{pointId}</td>
+                                <td>{typeof xValue === 'number' ? xValue.toFixed(4) : xValue}</td>
+                                <td>{typeof yValue === 'number' ? yValue.toFixed(4) : yValue}</td>
+                                <td className="actions-column">
+                                  <button
+                                    className="btn-action delete-point"
+                                    onClick={() => handleDeletePointClick(pointId, `точку (X: ${xValue}, Y: ${yValue})`)}
+                                    title="Удалить точку"
+                                  >
+                                    Удалить
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
               </div>
+            )}
+          </div>
+
+          {/* Футер с кнопками экспорта */}
+          <div className="function-footer">
+            <div className="export-buttons">
+              <button
+                className="btn-primary"
+                onClick={handleExportFunction}
+                disabled={isExporting}
+                title="Сохранить функцию в формате JSON"
+              >
+                {isExporting ? 'Сохранение...' : 'Сохранить функцию как JSON'}
+              </button>
             </div>
-          )}
-        </div>
-
-        {/* Футер с кнопками экспорта */}
-        <div className="function-footer">
-          <div className="export-buttons">
-            <button
-              className="btn-primary"
-              onClick={handleExportFunction}
-              title="Сохранить функцию в файл .bin"
-            >
-              Сохранить как .bin
-            </button>
-
           </div>
         </div>
       </div>
@@ -717,7 +761,7 @@ const FunctionModal = ({ isOpen, onClose, function: func, onDelete, onUpdate }) 
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 

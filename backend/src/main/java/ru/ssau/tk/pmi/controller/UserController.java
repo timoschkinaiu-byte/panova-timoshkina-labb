@@ -124,6 +124,7 @@ public class UserController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.username")
+
     public ResponseEntity<UserDTO.Response> updateUser(@PathVariable Long id, @RequestBody UserDTO.UpdateRequest request) {
         logger.info("Обновление пользователя с ID: {}", id);
 

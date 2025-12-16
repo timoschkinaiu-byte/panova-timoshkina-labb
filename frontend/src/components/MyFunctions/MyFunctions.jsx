@@ -176,21 +176,19 @@ const MyFunctions = () => {
     }
   };
 
-  // В FunctionModal.jsx в разделе handleExportFunction добавьте:
-  const handleExportFunction = async (format) => {
+  // Экспорт функции
+  const handleExportFunction = async (functionId, functionName) => {
     try {
-      let endpoint;
-      let filename = `${func.functionName}`;
+      // Формируем безопасное имя файла
+      const safeName = functionName
+        .replace(/[^a-zA-Z0-9а-яА-ЯёЁ\s\-_]/g, '')
+        .replace(/\s+/g, '_')
+        .trim();
 
-      if (format === 'bin') {
-        endpoint = `/functions/${func.functionId}/export?format=serialized`;
-        filename += '.bin';
-      } else {
-        endpoint = `/functions/${func.functionId}/export?format=${format}`;
-        filename += `.${format}`;
-      }
+      const filename = `${safeName || 'function'}.json`;
 
-      const response = await API.get(endpoint, { responseType: 'blob' });
+      // Получаем файл через functionService
+      const response = await functionService.exportFunction(functionId);
 
       // Создаем ссылку для скачивания
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -201,7 +199,8 @@ const MyFunctions = () => {
       link.click();
       link.remove();
 
-      notificationService.success(`Функция экспортирована в формате ${format.toUpperCase()}`);
+      notificationService.success(`Функция "${functionName}" сохранена как ${filename}`);
+
     } catch (error) {
       console.error('Error exporting function:', error);
       notificationService.error('Ошибка при экспорте функции');

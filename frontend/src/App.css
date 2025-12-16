@@ -1969,3 +1969,802 @@ input:checked + .slider:before {
   width: 100px;
   text-align: center;
 }
+
+
+/* Стили для модального окна подтверждения */
+.confirm-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.confirm-modal-content {
+  background: var(--background-color);
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 400px;
+  animation: slideIn 0.3s ease;
+}
+
+.confirm-modal-content .modal-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.confirm-modal-content .modal-title {
+  margin: 0;
+  font-size: 18px;
+  color: var(--text-primary);
+}
+
+.confirm-modal-content .modal-body {
+  padding: 20px;
+  color: var(--text-primary);
+}
+
+.confirm-modal-content .modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
+}
+
+.btn-danger:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Анимация */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* Стили для таблицы точек в модальном окне */
+.table-container {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  margin-top: 15px;
+}
+
+.points-table input:disabled {
+  background: var(--tab-bg);
+  color: var(--text-secondary);
+  cursor: not-allowed;
+}
+
+/* Стили для скроллбара таблицы */
+.table-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: var(--tab-bg);
+  border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: var(--accent-color);
+  border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-hover);
+}
+
+/* Стили для селекта с оптгруппами */
+optgroup {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+optgroup option {
+  font-weight: normal;
+  color: var(--text-primary);
+}
+
+/* Улучшенные стили для ошибок */
+.server-message.error {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Адаптивные стили для модальных окон */
+@media (max-width: 768px) {
+  .modal-content {
+    margin: 10px;
+    padding: 20px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 15px !important;
+  }
+
+  .modal-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .modal-buttons button {
+    width: 100%;
+  }
+}
+
+
+/* Стили для раздела дифференцирования */
+.differentiation-container {
+  padding: 20px;
+}
+
+.differentiation-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 30px;
+  margin-top: 30px;
+}
+
+@media (max-width: 1200px) {
+  .differentiation-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+/* Панель функции */
+.function-panel {
+  background: var(--card-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 12px;
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--input-border);
+}
+
+.panel-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.panel-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.function-info {
+  margin-bottom: 25px;
+}
+
+.function-details {
+  background: var(--accent-light);
+  border: 1px solid var(--accent-color);
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.function-details div {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.function-details div:last-child {
+  margin-bottom: 0;
+}
+
+.function-details strong {
+  color: var(--accent-color);
+  margin-right: 8px;
+}
+
+.function-empty {
+  text-align: center;
+  padding: 30px 20px;
+  color: var(--text-secondary);
+  background: var(--tab-bg);
+  border-radius: 8px;
+  border: 1px dashed var(--input-border);
+}
+
+.function-empty p {
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.function-empty small {
+  font-size: 12px;
+}
+
+/* Кнопки действий функции */
+.function-actions {
+  margin-bottom: 25px;
+}
+
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.action-buttons button {
+  width: 100%;
+  justify-content: center;
+}
+
+/* Панель операции */
+.operation-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.operation-center {
+  text-align: center;
+  padding: 20px;
+}
+
+.operation-button {
+  padding: 15px 30px;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  min-width: 250px;
+}
+
+.operation-info {
+  max-width: 300px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.operation-info p {
+  margin-bottom: 10px;
+}
+
+.operation-info small {
+  font-size: 12px;
+  color: var(--tab-inactive);
+}
+
+/* Таблицы точек */
+.points-table-container {
+  margin-top: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.points-table-container h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 15px 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--input-border);
+}
+
+.table-scroll {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 400px;
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+}
+
+.editable-table, .result-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card-bg);
+}
+
+.editable-table th, .result-table th {
+  background: var(--tab-bg);
+  color: var(--text-primary);
+  font-weight: 600;
+  padding: 12px 15px;
+  text-align: left;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 2px solid var(--accent-color);
+}
+
+.editable-table td, .result-table td {
+  padding: 10px 15px;
+  border-bottom: 1px solid var(--input-border);
+}
+
+.editable-table tr:last-child td,
+.result-table tr:last-child td {
+  border-bottom: none;
+}
+
+.editable-table tr:hover,
+.result-table tr:hover {
+  background: var(--accent-light);
+}
+
+.non-editable {
+  background: var(--tab-bg);
+  color: var(--text-primary);
+  font-family: monospace;
+  font-size: 13px;
+}
+
+.editable-input {
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-family: monospace;
+  font-size: 13px;
+  transition: border-color 0.3s ease;
+}
+
+.editable-input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px var(--accent-light);
+}
+
+.editable-input:disabled {
+  background: var(--tab-bg);
+  cursor: not-allowed;
+}
+
+.result-table td {
+  font-family: monospace;
+  font-size: 13px;
+}
+
+/* Стили для загрузки */
+.loading-spinner-small {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--accent-light);
+  border-top: 2px solid var(--accent-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Индикаторы состояния */
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 10px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-secondary);
+}
+
+.status-dot.ready {
+  background: var(--success-color);
+}
+
+.status-dot.empty {
+  background: var(--error-color);
+}
+
+.status-dot.computing {
+  background: var(--accent-color);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .function-panel {
+    padding: 15px;
+  }
+
+  .panel-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .panel-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .action-buttons {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .action-buttons button {
+    flex: 1;
+    min-width: 150px;
+  }
+
+  .operation-button {
+    min-width: 200px;
+    padding: 12px 20px;
+  }
+}
+
+
+/* Стили для страницы настроек */
+.settings-container {
+  padding: 20px;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-top: 30px;
+}
+
+@media (max-width: 1024px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.settings-card {
+  background: var(--card-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 12px;
+  padding: 25px;
+}
+
+.settings-card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 20px 0;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--input-border);
+}
+
+.settings-card-title.danger {
+  color: var(--error-color);
+  border-bottom-color: rgba(255, 42, 42, 0.3);
+}
+
+.danger-zone {
+  border-color: rgba(255, 42, 42, 0.3);
+  background: rgba(255, 42, 42, 0.05);
+  margin-top: 20px;
+}
+
+/* Информация о пользователе */
+.user-info {
+  margin-bottom: 25px;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--input-border);
+}
+
+.info-row:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.info-label {
+  flex: 0 0 150px;
+  font-weight: 500;
+  color: var(--text-primary);
+  opacity: 0.9;
+}
+
+.info-value {
+  flex: 1;
+  color: var(--text-primary);
+  font-family: monospace;
+}
+
+.info-value-with-action {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-edit {
+  background: none;
+  border: 1px solid var(--accent-color);
+  color: var(--accent-color);
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-edit:hover:not(:disabled) {
+  background: var(--accent-color);
+  color: white;
+}
+
+.btn-edit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.edit-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.edit-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-small {
+  padding: 6px 12px !important;
+  font-size: 13px !important;
+}
+
+/* Роль */
+.role-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.role-badge.user {
+  background: rgba(0, 123, 255, 0.1);
+  color: #007bff;
+  border: 1px solid rgba(0, 123, 255, 0.3);
+}
+
+.role-badge.admin {
+  background: rgba(255, 193, 7, 0.1);
+  color: #ffc107;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+/* Смена пароля */
+.password-section {
+  margin-top: 25px;
+  padding-top: 25px;
+  border-top: 1px solid var(--input-border);
+}
+
+.password-section h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 15px 0;
+}
+
+.password-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* Настройки приложения */
+.setting-item {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 25px;
+  padding-bottom: 25px;
+  border-bottom: 1px solid var(--input-border);
+}
+
+.setting-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.setting-info h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 5px 0;
+}
+
+.setting-info p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.setting-control {
+  margin-top: 15px;
+}
+
+/* Тема */
+.theme-toggle-large {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.theme-option {
+  font-size: 14px;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
+}
+
+.theme-option.active {
+  color: var(--accent-color);
+  font-weight: 600;
+}
+
+/* Фабрика */
+.factory-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+.factory-button {
+  flex: 1;
+  padding: 15px;
+  background: var(--tab-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.factory-button:hover:not(:disabled) {
+  background: var(--input-border);
+  color: var(--text-primary);
+}
+
+.factory-button.active {
+  background: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+}
+
+.factory-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.factory-button small {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+/* Опасные действия */
+.danger-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.danger-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background: rgba(255, 42, 42, 0.05);
+  border: 1px solid rgba(255, 42, 42, 0.1);
+  border-radius: 8px;
+}
+
+.danger-info h4 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--error-color);
+  margin: 0 0 5px 0;
+}
+
+.danger-info p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.btn-danger {
+  background: rgba(255, 42, 42, 0.1) !important;
+  border-color: rgba(255, 42, 42, 0.3) !important;
+  color: var(--error-color) !important;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: var(--error-color) !important;
+  color: white !important;
+}
+
+/* Загрузка */
+.settings-loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-secondary);
+}

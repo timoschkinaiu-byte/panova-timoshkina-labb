@@ -7,9 +7,9 @@ import authService from './services/auth';
 import './App.css';
 
 
-// временно
+
 const ThemeToggle = ({ isDarkMode, toggleTheme }) => {
-  return (
+  /*return (
     <button
       className="theme-toggle"
       onClick={toggleTheme}
@@ -17,7 +17,7 @@ const ThemeToggle = ({ isDarkMode, toggleTheme }) => {
     >
       {isDarkMode ? '☀️' : '🌙'}
     </button>
-  );
+  );*/
 };
 
 const App = () => {

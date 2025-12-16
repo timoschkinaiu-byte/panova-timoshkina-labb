@@ -64,6 +64,7 @@ const FromFileTab = ({
 
       if (fileName.endsWith('.txt')) format = 'text';
       else if (fileName.endsWith('.bin')) format = 'binary';
+      else if (fileName.endsWith('.json')) format = 'json';
       else if (fileName.endsWith('.ser')) format = 'serialized';
 
       // Импортируем временную функцию
@@ -131,9 +132,9 @@ const FromFileTab = ({
         format = 'text';
       } else if (fileName.endsWith('.bin') || fileName.endsWith('.ser')) {
         format = 'binary';
-      }
-
-
+      } else if (fileName.endsWith('.xml')) {
+        format = 'xml';
+      } else if (fileName.endsWith('.json')) {format = 'json';}
 
       console.log('Импортируем файл:', file.name, 'формат:', format);
 
@@ -195,7 +196,7 @@ const FromFileTab = ({
               id="file-upload"
               onChange={handleFileSelect}
               disabled={isCreating}
-              accept=".txt,.bin,.ser"
+              accept=".txt,.bin,.ser, .xml, .json"
               style={{ display: 'none' }}
             />
             <label
@@ -234,6 +235,8 @@ const FromFileTab = ({
             <strong>Поддерживаемые форматы:</strong>
             <br/>• Текстовый файл (.txt) - точки в формате "x y"
             <br/>• Бинарный файл (.bin) - двоичный формат
+            <br/>• XML файл (.xml)
+            <br/>• JSON файл (.json)
 
           </p>
 
