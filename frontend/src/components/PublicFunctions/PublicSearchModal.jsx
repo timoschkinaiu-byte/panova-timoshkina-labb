@@ -126,46 +126,6 @@ const SearchModal = ({ isOpen, onClose, onSearch, allUsers = [], currentUser = n
             />
           </div>
 
-          {/* Фильтр видимости */}
-          <div className="form-group">
-            <label className="form-label">Видимость</label>
-            <div className="radio-group">
-              <label className="radio-label">
-                <input
-                  type="radio"
-                  name="visibility"
-                  value="any"
-                  checked={visibility === 'any'}
-                  onChange={(e) => setVisibility(e.target.value)}
-                  disabled={isSubmitting}
-                />
-                <span className="radio-text">Любая</span>
-              </label>
-              <label className="radio-label">
-                <input
-                  type="radio"
-                  name="visibility"
-                  value="public"
-                  checked={visibility === 'public'}
-                  onChange={(e) => setVisibility(e.target.value)}
-                  disabled={isSubmitting}
-                />
-                <span className="radio-text">Публичные</span>
-              </label>
-              <label className="radio-label">
-                <input
-                  type="radio"
-                  name="visibility"
-                  value="private"
-                  checked={visibility === 'private'}
-                  onChange={(e) => setVisibility(e.target.value)}
-                  disabled={isSubmitting}
-                />
-                <span className="radio-text">Личные</span>
-              </label>
-            </div>
-          </div>
-
 
           {/* Кнопки */}
           <div className="modal-buttons">
