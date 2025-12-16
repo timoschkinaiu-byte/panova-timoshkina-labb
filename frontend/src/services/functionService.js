@@ -280,6 +280,13 @@ const functionService = {
       });
     },
 
+    async integrateFunction(functionId, threadsCount = 1) {
+      return API.post('/operations/integrate', {
+        functionId,
+        threadsCount: Math.min(threadsCount, 8)
+      });
+    },
+
     // Обновление точки через удаление и создание новой
     async updatePointByReplacement(functionId, xValue, newYValue) {
       try {

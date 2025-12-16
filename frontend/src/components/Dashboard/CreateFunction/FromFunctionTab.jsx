@@ -289,8 +289,7 @@ const FromFunctionTab = ({
                   .map(func => (
                     <option key={func.key} value={func.key}>
                       {func.name}
-                      {func.requiresParams && ' ⚙️'}
-                      {func.requiresValue && ' 🔢'}
+
                     </option>
                   ))}
               </optgroup>
@@ -317,9 +316,7 @@ const FromFunctionTab = ({
                   ))}
               </optgroup>
             </select>
-            <small style={{ color: 'var(--text-secondary)', display: 'block', marginTop: '5px' }}>
-              ⚙️ - требует параметры, 🔢 - требует значение
-            </small>
+
           </div>
         </div>
 

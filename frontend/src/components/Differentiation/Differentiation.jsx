@@ -80,25 +80,51 @@ const Differentiation = () => {
   const handleLoadFunction = async () => {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = '.txt,.bin,.xml,.ser,.json';
+    input.accept = '.txt,.bin,.json,.xml';
 
     input.onchange = async (e) => {
       const file = e.target.files[0];
       if (!file) return;
+
       setIsLoadingFunction(true);
+
       try {
-        const response = await functionService.importFunction(file, 'auto');
-        if (response.status === 201 && response.data) {
-          setSourceFunction({
-            functionId: response.data.functionId,
-            functionName: response.data.functionName,
-            points: response.data.points?.map(p => ({ x: p.xValue, y: p.yValue })) || []
-          });
-          notificationService.success(`Функция "${response.data.functionName}" загружена`);
+        const fileName = file.name.toLowerCase();
+        let format = 'auto';
+
+        if (fileName.endsWith('.txt')) format = 'text';
+        else if (fileName.endsWith('.bin')) format = 'binary';
+        else if (fileName.endsWith('.xml')) format = 'xml';
+        else if (fileName.endsWith('.json')) format = 'json';
+
+        const response = await functionService.importFunction(file, format);
+
+        if (!response?.data?.functionId) {
+          throw new Error('Функция не была создана на сервере');
         }
+
+        const functionId = response.data.functionId;
+
+        // 🔴 КЛЮЧЕВО — загружаем точки
+        const pointsResponse = await functionService.getFunctionPoints(functionId);
+        const points = (pointsResponse?.data || []).map(p => ({
+          x: p.xValue ?? p.xvalue ?? p.x,
+          y: p.yValue ?? p.yvalue ?? p.y
+        }));
+
+        setSourceFunction({
+          functionId,
+          functionName: response.data.functionName,
+          points,
+          isPublic: response.data.isPublic || false
+        });
+
+        notificationService.success(`Функция "${response.data.functionName}" загружена`);
       } catch (error) {
         console.error('Error loading function:', error);
-        notificationService.error('Ошибка загрузки функции из файла');
+        notificationService.error(
+          error.response?.data?.message || 'Ошибка загрузки из файла'
+        );
       } finally {
         setIsLoadingFunction(false);
       }
@@ -106,6 +132,8 @@ const Differentiation = () => {
 
     input.click();
   };
+
+
 
   // Сохранение функции
   const saveFunction = (fn, name) => {
@@ -145,11 +173,23 @@ const Differentiation = () => {
     try {
       const response = await functionService.differentiateFunction(sourceFunction.functionId);
       if (response.status === 200 && response.data) {
+
+
+        const resultFunctionId = response.data.functionId;
+
+        // 🔥 ВАЖНО: отдельно загружаем точки
+        const pointsResponse = await functionService.getFunctionPoints(resultFunctionId);
+        const points = (pointsResponse?.data || []).map(p => ({
+          x: p.xValue ?? p.xvalue ?? p.x,
+          y: p.yValue ?? p.yvalue ?? p.y
+        }));
+
         setResultFunction({
-          functionId: response.data.functionId,
+          functionId: resultFunctionId,
           functionName: `Производная: ${sourceFunction.functionName}`,
-          points: response.data.points?.map(p => ({ x: p.xValue, y: p.yValue })) || []
+          points
         });
+
         notificationService.success('Дифференцирование выполнено успешно');
       } else {
         notificationService.error('Ошибка при вычислении производной');
@@ -248,6 +288,11 @@ const Differentiation = () => {
             <button className="btn-secondary" onClick={handleLoadFunction}>
               {isLoadingFunction ? 'Загрузка...' : 'Загрузить из файла'}
             </button>
+
+            <small style={{ color: 'var(--text-secondary)', marginTop: '4px', display: 'block' }}>
+              Поддерживаемые форматы: .txt, .bin, .json, .xml
+            </small>
+
             <button className="btn-secondary" onClick={handleSaveSource} disabled={!sourceFunction}>
               {isSaving ? 'Сохранение...' : 'Сохранить'}
             </button>

@@ -329,7 +329,7 @@ const CompositeTab = ({
               Внешняя функция (f)
               {outerFunctionParams && (
                 <span style={{ marginLeft: '10px', color: 'var(--accent-color)' }}>
-                  ⚙️
+
                 </span>
               )}
             </label>
@@ -346,7 +346,7 @@ const CompositeTab = ({
                   .filter(f => f.type === 'BASIC')
                   .map(func => (
                     <option key={func.key} value={func.key}>
-                      {func.name} {func.requiresParams && '⚙️'} {func.requiresValue && '🔢'}
+                      {func.name}
                     </option>
                   ))}
               </optgroup>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import PublicFunctionsList from './PublicFunctionsList';
 import PublicSearchModal from './PublicSearchModal';
-import PublicFunctionModal from './PublicFunctionModal'; // ← ДОБАВЬТЕ
+import PublicFunctionModal from './PublicFunctionModal';
 import functionService from '../../services/functionService';
 import notificationService from '../../services/notificationService';
 import '../../App.css';
