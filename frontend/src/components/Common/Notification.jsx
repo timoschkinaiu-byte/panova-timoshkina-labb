@@ -10,7 +10,7 @@ const Notification = ({ type, message, onClose }) => {
       setTimeout(() => {
         if (onClose) onClose();
       }, 300);
-    }, 5000);
+    }, 3000);
 
     return () => clearTimeout(timer);
   }, [onClose]);

@@ -3,9 +3,6 @@ import Chart from 'chart.js/auto';
 import ZoomPlugin from 'chartjs-plugin-zoom';
 import '../../App.css';
 
-
-
-
 Chart.register(ZoomPlugin);
 
 const GraphPreview = ({ points, title, xRange, yRange, isLoading, showTitle = false, compact = false }) => {
@@ -38,6 +35,23 @@ const GraphPreview = ({ points, title, xRange, yRange, isLoading, showTitle = fa
     const gridColor = isDarkTheme ? 'rgba(128, 0, 0, 0.2)' : 'rgba(255, 151, 187, 0.2)';
     const pointColor = isDarkTheme ? '#FF4444' : '#FF97BB'; // Яркий красный / Розовый
     const backgroundColor = isDarkTheme ? 'rgba(128, 0, 0, 0.05)' : 'rgba(255, 151, 187, 0.05)';
+
+    // Автоматически определяем диапазоны с учетом константных функций
+    const xValues = points.map(p => p.x);
+    const yValues = points.map(p => p.y);
+
+    let adjustedYMin = yRange.min;
+    let adjustedYMax = yRange.max;
+
+    // Если все Y одинаковы (константная функция), расширяем диапазон для видимости
+    const isConstantFunction = Math.abs(Math.max(...yValues) - Math.min(...yValues)) < 1e-10;
+    if (isConstantFunction && points.length > 0) {
+      const constantValue = points[0].y;
+      // Добавляем небольшой отступ вокруг константного значения
+      const padding = Math.max(Math.abs(constantValue) * 0.1, 0.1);
+      adjustedYMin = constantValue - padding;
+      adjustedYMax = constantValue + padding;
+    }
 
     // Подготовка данных с обработчиком клика
     const data = {
@@ -96,7 +110,9 @@ const GraphPreview = ({ points, title, xRange, yRange, isLoading, showTitle = fa
               onZoom: ({ chart }) => {
                 const scaleX = chart.scales.x.max - chart.scales.x.min;
                 const scaleY = chart.scales.y.max - chart.scales.y.min;
-                setZoomLevel(Math.max(scaleX / (xRange.max - xRange.min), scaleY / (yRange.max - yRange.min)));
+                const originalRangeX = xRange.max - xRange.min;
+                const originalRangeY = adjustedYMax - adjustedYMin;
+                setZoomLevel(Math.max(scaleX / originalRangeX, scaleY / originalRangeY));
               }
             }
           }
@@ -148,8 +164,8 @@ const GraphPreview = ({ points, title, xRange, yRange, isLoading, showTitle = fa
                 size: 10
               }
             },
-            min: yRange.min,
-            max: yRange.max,
+            min: adjustedYMin,
+            max: adjustedYMax,
             border: {
               color: isDarkTheme ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.2)'
             }
